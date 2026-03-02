@@ -39,11 +39,15 @@
         
         .flex-row { display: flex; align-items: center; gap: 5px; }
         .flex-between { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .checkbox-wrapper { display: flex; align-items: center; width: 110px; justify-content: flex-start; }
+        .checkbox-wrapper { display: flex; align-items: center; justify-content: flex-start; }
         .w-sm { width: 80px !important; flex: none; }
         .w-md { width: 120px !important; flex: none; }
+        
         input[type="checkbox"] { transform: scale(1.4); margin: 0 6px 0 0; cursor: pointer; accent-color: #3498db; }
+        input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #3498db; }
+        .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
+        /* 直列式簡潔詞庫面板 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
         .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center;}
         .phrase-list { padding: 10px; max-height: 250px; overflow-y: auto; display: block; background: #fafafa;} 
@@ -69,10 +73,8 @@
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
-            
             <button class="btn-export" onclick="generatePDF('report')" id="btn-pdf-report" style="background: #27ae60;">產出 檢查報告</button>
             <button class="btn-export" onclick="generatePDF('detail')" id="btn-pdf-detail" style="background: #2980b9;">產出 明細表(18A)</button>
-            
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
     </div>
@@ -101,8 +103,7 @@
                 </td>
                 <td rowspan="2" style="font-size: 18px; font-weight: bold; background: white; color: black; vertical-align: middle;">
                     <div class="flex-row" style="justify-content: center; gap: 15px;">
-                        <select id="equip_category" class="header-input" style="width: 180px;" onchange="updatePaperNumber()">
-                            <option value="鍋爐">鍋爐</option>
+                        <select id="equip_category" class="header-input" style="width: 180px;">
                             <option value="第一種壓力容器" selected>第一種壓力容器</option>
                             <option value="高壓氣體特定設備">高壓氣體特定設備</option>
                             <option value="高壓氣體容器">高壓氣體容器</option>
@@ -114,10 +115,6 @@
                             <option value="重新">重新</option>
                             <option value="既有">既有</option>
                         </select>
-                    </div>
-                    <div style="font-size: 11px; color: #7f8c8d; font-weight: normal; margin-top: 8px;">
-                        ( 報告範本: <span id="paper_number_display" style="color: #e74c3c; font-weight: bold;">P3-62-13A</span> )
-                        &nbsp;|&nbsp; 預覽標題: <span id="title_preview" style="color: #3498db; font-weight: bold;">第一種壓力容器竣工檢查結果報告表</span>
                     </div>
                     <input type="hidden" id="paper_number" value="P3-62-13A">
                 </td>
@@ -411,10 +408,10 @@
                                 <table class="nested-table">
                                     <colgroup>
                                         <col style="width: 6%;">  
+                                        <col style="width: 20%;"> 
+                                        <col style="width: 20%;"> 
+                                        <col style="width: 20%;"> 
                                         <col style="width: 18%;"> 
-                                        <col style="width: 20%;"> 
-                                        <col style="width: 20%;"> 
-                                        <col style="width: 20%;"> 
                                         <col style="width: 8%;">  
                                         <col style="width: 8%;">  
                                     </colgroup>
@@ -429,19 +426,24 @@
                                         <td colspan="2" rowspan="2" style="vertical-align: middle;">
                                             <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;" maxlength="7" placeholder="例: 1120501">
                                         </td>
+                                        
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>安裝位置</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_install">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_install" id="chk_install_good" onchange="document.getElementById('chk_install').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_install" id="chk_install_none" onchange="document.getElementById('chk_install').value='-'">無</label>
+                                                    <input type="hidden" id="chk_install" value="">
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>液面測定裝置</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_lvl_dev">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_lvl_dev" id="chk_lvl_dev_good" onchange="document.getElementById('chk_lvl_dev').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_lvl_dev" id="chk_lvl_dev_none" onchange="document.getElementById('chk_lvl_dev').value='-'">無</label>
+                                                    <input type="hidden" id="chk_lvl_dev" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -458,16 +460,20 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>基礎</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_found">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_found" id="chk_found_good" onchange="document.getElementById('chk_found').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_found" id="chk_found_none" onchange="document.getElementById('chk_found').value='-'">無</label>
+                                                    <input type="hidden" id="chk_found" value="">
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>自動控制裝置</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_auto">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_auto" id="chk_auto_good" onchange="document.getElementById('chk_auto').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_auto" id="chk_auto_none" onchange="document.getElementById('chk_auto').value='-'">無</label>
+                                                    <input type="hidden" id="chk_auto" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -488,16 +494,20 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>裝設方法</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_method">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_method" id="chk_method_good" onchange="document.getElementById('chk_method').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_method" id="chk_method_none" onchange="document.getElementById('chk_method').value='-'">無</label>
+                                                    <input type="hidden" id="chk_method" value="">
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>溫度測定裝置</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_temp">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_temp" id="chk_temp_good" onchange="document.getElementById('chk_temp').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_temp" id="chk_temp_none" onchange="document.getElementById('chk_temp').value='-'">無</label>
+                                                    <input type="hidden" id="chk_temp" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -511,16 +521,20 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>操作者選任</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_op_select">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_op_select" id="chk_op_select_good" onchange="document.getElementById('chk_op_select').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_op_select" id="chk_op_select_none" onchange="document.getElementById('chk_op_select').value='-'">無</label>
+                                                    <input type="hidden" id="chk_op_select" value="">
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>安全閥</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_sv">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_sv" id="chk_sv_good" onchange="document.getElementById('chk_sv').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_sv" id="chk_sv_none" onchange="document.getElementById('chk_sv').value='-'">無</label>
+                                                    <input type="hidden" id="chk_sv" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -534,8 +548,10 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>操作者資格</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_qual">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_qual" id="chk_qual_good" onchange="document.getElementById('chk_qual').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_qual" id="chk_qual_none" onchange="document.getElementById('chk_qual').value='-'">無</label>
+                                                    <input type="hidden" id="chk_qual" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -547,8 +563,10 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>減壓閥</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_reduce">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_reduce" id="chk_reduce_good" onchange="document.getElementById('chk_reduce').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_reduce" id="chk_reduce_none" onchange="document.getElementById('chk_reduce').value='-'">無</label>
+                                                    <input type="hidden" id="chk_reduce" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -559,8 +577,10 @@
                                         <td class="text-left">
                                             <div class="flex-between">
                                                 <span>壓力錶</span>
-                                                <div class="checkbox-wrapper">
-                                                    <input type="checkbox" id="chk_pg">
+                                                <div class="checkbox-wrapper" style="gap: 10px;">
+                                                    <label class="radio-label"><input type="radio" name="grp_pg" id="chk_pg_good" onchange="document.getElementById('chk_pg').value='良'">良</label>
+                                                    <label class="radio-label"><input type="radio" name="grp_pg" id="chk_pg_none" onchange="document.getElementById('chk_pg').value='-'">無</label>
+                                                    <input type="hidden" id="chk_pg" value="">
                                                 </div>
                                             </div>
                                         </td>
@@ -593,30 +613,23 @@
             initPhraseLibrary(); 
         });
 
-        // 💡 單純跳轉回首頁
         function backToMenu() { 
             window.location.href = 'index.html';
         }
 
         function updatePaperNumber() {
             const inspType = document.getElementById('insp_type').value;
-            const equipCategory = document.getElementById('equip_category').value;
             const paperNum = (inspType === '既有') ? 'P3-62-14A' : 'P3-62-13A';
             document.getElementById('paper_number').value = paperNum;
-            document.getElementById('paper_number_display').innerText = paperNum;
             
             // 動態切換合格證/證明
             document.getElementById('cert_label_display').innerHTML = (inspType === '既有') ? '合格<br>證明' : '合格<br>證';
-
-            const previewTitle = (inspType === '既有') 
-                ? `${inspType}${equipCategory}檢查結果報告表`
-                : `${equipCategory}${inspType}檢查結果報告表`;
-            document.getElementById('title_preview').innerText = previewTitle;
         }
 
+        // 💡 加入抓取隱藏 input 的機制
         function collectFormData() {
             let data = {};
-            const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select');
+            const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
             inputs.forEach(el => {
                 if (!el.id) return;
                 if (el.type === 'checkbox') data[el.id] = el.checked;
@@ -635,6 +648,22 @@
                 }
             }
             updatePaperNumber();
+            updateRadiosFromHidden(); // 讀檔後同步更新單選鈕畫面
+        }
+
+        // 💡 讀檔時，根據隱藏 input 的值點亮對應的單選鈕
+        function updateRadiosFromHidden() {
+            const ids = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const val = el.value;
+                    const goodRadio = document.getElementById(id + '_good');
+                    const noneRadio = document.getElementById(id + '_none');
+                    if (goodRadio) goodRadio.checked = (val === '良');
+                    if (noneRadio) noneRadio.checked = (val === '-');
+                }
+            });
         }
 
         function doSaveLocal() {
@@ -676,7 +705,7 @@
         }
 
         // ==========================================
-        // 💡 詞庫系統
+        // 詞庫系統
         // ==========================================
         let myPhrases = [];
         let activeInput = null;
@@ -752,7 +781,7 @@
         }
 
         // ==========================================
-        // 💡 PDF 產出邏輯 (雙模式：report 報告 / detail 18A明細表)
+        // GitHub 專屬 PDF 產出邏輯
         // ==========================================
         async function generatePDF(docType) {
             let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
@@ -787,7 +816,7 @@
                 btn.innerText = '寫入資料中...';
 
                 // ==========================================
-                // 💡 [修正] 18A明細表專用：動態圓戳章與座標調整
+                // 18A明細表專用：動態圓戳章
                 // ==========================================
                 if (docType === 'detail') {
                     const assocName = document.getElementById('assoc_name').value;
@@ -814,10 +843,9 @@
                                 const targetWidth = 140; 
                                 const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
 
-                                // ⚠️ 座標大幅修正：y調小(往下)、x微調往左
                                 firstPage.drawImage(stampImage, {
-                                    x: 401,  // 左右座標 (原本 435 太右邊，往左退)
-                                    y: 625,  // 上下座標 (原本 705 太高，往下調低)
+                                    x: 401,  
+                                    y: 625,  
                                     width: targetWidth,
                                     height: targetHeight
                                 });
@@ -828,14 +856,14 @@
                     }
                 }
                 
-                // ====== 一般欄位寫入 ======
+                // 💡 加入抓取 hidden 的邏輯，才能將"良"或"-"寫入 PDF
                 const skipIds = [
                     'press_shell', 'press_tube', 'temp_shell', 'temp_tube', 'vol_shell', 'vol_tube', 'toxic_shell', 'toxic_tube', 
                     'equip_category', 'insp_type', 
-                    'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date'
+                    'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'paper_number'
                 ];
                 
-                const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select');
+                const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 
                 inputs.forEach(el => {
                     if (!el.id || skipIds.includes(el.id)) return;
@@ -879,7 +907,6 @@
                     }
                 } catch(e) {}
 
-                // 強制將設備種類(equip_category) 寫入 detail_title 欄位供 18A 使用
                 const customMerges = [
                     { pdfField: 'press_shell_press_tube', val: `胴側: ${getVal('press_shell')}   管側: ${getVal('press_tube')}` },
                     { pdfField: 'temp_shell_temp_tube', val: `胴側: ${getVal('temp_shell')}   管側: ${getVal('temp_tube')}` },
