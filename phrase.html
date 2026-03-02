@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本機詞庫維護</title>
+    <style>
+        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; }
+        .header { background: #9b59b6; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 18px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; color: white; }
+        .btn-back { background: #34495e; } .btn-back:hover { background: #2c3e50; }
+        .btn-add { background: #27ae60; } .btn-add:hover { background: #2ecc71; }
+        .btn-del { background: #e74c3c; padding: 5px 10px; font-size: 12px;} .btn-del:hover { background: #c0392b; }
+        
+        .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;}
+        .card h3 { margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; color: #2c3e50; }
+        
+        .phrase-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; max-height: 400px; overflow-y: auto; }
+        .phrase-item { display: flex; justify-content: space-between; align-items: center; background: #fdf2e9; padding: 10px 15px; border-radius: 4px; border: 1px solid #fad7a1; color: #d35400; font-weight: bold; }
+        .add-group { display: flex; gap: 10px; }
+        .add-group input { flex: 1; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; }
+        
+        .io-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-export { background: #2980b9; flex:1;} .btn-export:hover { background: #2471a3; }
+        .btn-import { background: #f39c12; flex:1;} .btn-import:hover { background: #e67e22; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>本機詞庫維護</h1>
+        <button class="btn btn-back" onclick="window.location.href='index.html'">回主選單</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3>目前瀏覽器記憶詞彙</h3>
+            <div class="phrase-list" id="myPhraseList"></div>
+            <div class="add-group">
+                <input type="text" id="newPhrase" placeholder="手動輸入新詞彙...">
+                <button class="btn btn-add" onclick="addPhrase()">新增</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💾 檔案匯出與匯入 (供備份或共用)</h3>
+            <p style="font-size:13px; color:#7f8c8d;">您可以將目前的詞庫下載成檔案保存，或載入別人提供的詞庫檔進行合併。</p>
+            <div class="io-group">
+                <button class="btn btn-export" onclick="exportPhrases()">匯出詞庫至電腦</button>
+                <button class="btn btn-import" onclick="document.getElementById('importFile').click()">從電腦匯入詞庫</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importPhrases(event)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let myPhrases = [];
+
+        window.onload = function() {
+            myPhrases = JSON.parse(localStorage.getItem('myPhrases') || '[]');
+            renderList();
+        };
+
+        function renderList() {
+            const box = document.getElementById('myPhraseList');
+            box.innerHTML = '';
+            if (myPhrases.length === 0) {
+                box.innerHTML = '<div style="text-align:center; color:#7f8c8d;">目前尚無詞彙。</div>';
+                return;
+            }
+            myPhrases.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = 'phrase-item';
+                div.innerHTML = `<span>${p}</span> <button class="btn btn-del" onclick="delPhrase(${index})">刪除</button>`;
+                box.appendChild(div);
+            });
+            localStorage.setItem('myPhrases', JSON.stringify(myPhrases));
+        }
+
+        function addPhrase() {
+            const input = document.getElementById('newPhrase');
+            const val = input.value.trim();
+            if (!val) return;
+            if (myPhrases.includes(val)) { alert('該詞彙已存在！'); return; }
+            myPhrases.push(val);
+            input.value = '';
+            renderList();
+        }
+
+        function delPhrase(idx) {
+            if (confirm(`確定要刪除「${myPhrases[idx]}」嗎？`)) {
+                myPhrases.splice(idx, 1);
+                renderList();
+            }
+        }
+
+        function exportPhrases() {
+            const dataStr = JSON.stringify(myPhrases);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "個人詞庫備份_" + new Date().toISOString().slice(0,10) + ".json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importPhrases(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const newItems = JSON.parse(e.target.result);
+                    let added = 0;
+                    newItems.forEach(item => {
+                        if (!myPhrases.includes(item)) { myPhrases.push(item); added++; }
+                    });
+                    renderList();
+                    alert(`成功匯入並合併 ${added} 筆新詞彙！`);
+                } catch(err) { alert('檔案格式不符！'); }
+            };
+            reader.readAsText(file);
+            event.target.value = ""; 
+        }
+    </script>
+</body>
+</html>

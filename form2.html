@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鍋爐明細表 - 填寫系統</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+
+    <style>
+        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; font-size: 13px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 80px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; background: #c0392b; color: white; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .toolbar h1 { margin: 0; font-size: 18px; line-height: 1.2;}
+        .btn-export { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .btn-export:hover { background: #2ecc71; }
+        .btn-tool { color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .btn-tool:hover { filter: brightness(1.1); }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background-color: #fff; }
+        th, td { border: 1px solid #bdc3c7; padding: 6px; text-align: center; vertical-align: middle; }
+        th { background-color: #7f8c8d; font-weight: bold; color: white; }
+        .section-header { background-color: #2c3e50 !important; color: white !important; font-size: 14px; letter-spacing: 2px; padding: 8px !important; }
+        .nested-table { width: 100%; height: 100%; border-collapse: collapse; margin: 0; }
+        .nested-table td, .nested-table th { border: 1px solid #dcdde1; padding: 6px; }
+        .nested-table tr:first-child td { border-top: none; }
+        .nested-table tr:last-child td { border-bottom: none; }
+        .nested-table td:first-child { border-left: none; }
+        .nested-table td:last-child { border-right: none; }
+        
+        input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
+        input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #e74c3c; background-color: #fdf2e9; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); }
+        input::placeholder, textarea::placeholder { color: #95a5a6; font-size: 11px; font-weight: bold;}
+        .input-left { text-align: left !important; }
+        .text-left { text-align: left !important; padding-left: 10px !important;}
+        textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
+        textarea:focus { overflow-y: auto; }
+        
+        .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #718093 !important; background: transparent !important; color: #2c3e50 !important; }
+        select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
+        select.header-input:hover { background: #fdf2e9 !important; border-bottom-color: #e74c3c !important; }
+
+        .flex-row { display: flex; align-items: center; gap: 5px; }
+        .w-xs { width: 50px !important; flex: none; }
+        .w-sm { width: 80px !important; flex: none; }
+        .w-md { width: 120px !important; flex: none; }
+        
+        .bg-skip { background-color: #eaeced; pointer-events: none; } 
+        .row-divider { border-bottom: 2px solid #34495e !important; } 
+        .header-gray { background: #f5f6fa; font-weight: bold; color: #2c3e50; }
+
+        /* 智慧詞庫浮動面板 */
+        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
+        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center;}
+        .phrase-list { padding: 10px; max-height: 250px; overflow-y: auto; display: block; background: #fafafa;} 
+        .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; user-select: none; box-sizing: border-box; transition: 0.1s;}
+        .phrase-chip:hover { background: #e8f4f8; border-color: #3498db; color: #2980b9;}
+        .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
+        .phrase-chip.del-mode:hover { background: #e74c3c; color: white; border-color: #c0392b;}
+        .phrase-actions { padding: 10px; border-top: 1px solid #ecf0f1; display: flex; gap: 8px; background: white; border-radius: 0 0 8px 8px;}
+        .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
+        .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div>
+            <h1>鍋爐明細表/檢查結果報告表填寫系統</h1>
+            <div style="font-size:11px; color:#fdf2e9; margin-top:4px;">
+                目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span>
+                <input type="hidden" id="paper_number" value="P3-62-17A">
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
+            <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
+            <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
+            <button class="btn-export" onclick="generatePDF()" id="btn-pdf">產出 PDF 檔</button>
+            <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div style="text-align: center; margin-bottom: 15px;">
+            <select id="assoc_name" class="header-input" style="width: 380px;">
+                <option value="中華鍋爐協會">中華鍋爐協會</option>
+                <option value="社團法人中華產業機械設備協會" selected>社團法人中華產業機械設備協會</option>
+                <option value="中華民國工業安全衛生協會">中華民國工業安全衛生協會</option>
+            </select>
+        </div>
+
+        <table style="border-bottom: 2px solid #34495e;">
+            <colgroup>
+                <col style="width: 12%;">
+                <col style="width: 38%;">
+                <col style="width: 12%;">
+                <col style="width: 38%;">
+            </colgroup>
+            <tr>
+                <td rowspan="2" class="header-gray">合 格 證</td>
+                <td class="text-left">
+                    <div class="flex-row">第 <input type="text" id="cert_no" class="w-sm"> 號</div>
+                </td>
+                <td class="header-gray">設備編號</td>
+                <td><input type="text" id="equip_no"></td>
+            </tr>
+            <tr>
+                <td class="text-left">
+                    <div class="flex-row">民國 <input type="text" id="cert_ymd" class="w-md" maxlength="7" placeholder="例: 1120501"> 發給</div>
+                </td>
+                <td class="header-gray">業 別</td>
+                <td><input type="text" id="industry_type"></td>
+            </tr>
+            <tr>
+                <td class="header-gray">事業單位名稱</td>
+                <td class="text-left"><input type="text" id="comp_name" class="input-left"></td>
+                <td class="header-gray">負 責 人</td>
+                <td class="text-left"><input type="text" id="comp_owner" class="input-left"></td>
+            </tr>
+            <tr>
+                <td class="header-gray">事業單位地址</td>
+                <td class="text-left"><input type="text" id="comp_addr" class="input-left"></td>
+                <td class="header-gray">電 話</td>
+                <td class="text-left"><input type="text" id="comp_tel" class="input-left"></td>
+            </tr>
+        </table>
+
+        <table>
+            <colgroup><col style="width: 15%;"><col style="width: 35%;"><col style="width: 15%;"><col style="width: 35%;"></colgroup>
+            <tr><th colspan="4" class="section-header">鍋爐基本規格</th></tr>
+            <tr>
+                <td>型 式</td><td class="text-left"><input type="text" id="b_type" class="input-left"></td>
+                <td>構造號碼</td><td class="text-left"><input type="text" id="b_const_no" class="input-left"></td>
+            </tr>
+            <tr>
+                <td>最高使用壓力</td>
+                <td class="text-left"><div class="flex-row">胴側: <input type="text" id="b_press_shell" class="w-xs input-left"> 管側: <input type="text" id="b_press_tube" class="w-xs input-left"> kgf/cm²</div></td>
+                <td>最大蒸發量</td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="b_evap" class="w-sm input-left"> kg/hr</div></td>
+            </tr>
+            <tr>
+                <td>傳熱面積</td>
+                <td class="text-left"><div class="flex-row">胴側: <input type="text" id="b_heat_area_shell" class="w-xs input-left"> 管側: <input type="text" id="b_heat_area_tube" class="w-xs input-left"> m²</div></td>
+                <td>火床面積</td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="b_grate_area" class="w-sm input-left"> m²</div></td>
+            </tr>
+            <tr>
+                <td>燃燒室體積</td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="b_comb_vol" class="w-sm input-left"> m³</div></td>
+                <td>檢查日期</td>
+                <td class="text-left"><input type="text" id="b_insp_date2" class="w-md input-left" maxlength="7" placeholder="例:1120501"></td>
+            </tr>
+        </table>
+
+        <table>
+            <colgroup>
+                <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> 
+                <col style="width: 14%;"> <col style="width: 8%;">  <col style="width: 8%;">  
+                <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> 
+            </colgroup>
+            <tr><th colspan="10" class="section-header">構 造 明 細</th></tr>
+            
+            <tr>
+                <td rowspan="2" class="header-gray">項目</td>
+                <td rowspan="2" class="header-gray">種類</td>
+                <td rowspan="2" class="header-gray">形狀</td>
+                <td rowspan="2" class="header-gray">材料</td>
+                <td rowspan="2" class="header-gray">最大/最小內徑或<br>曲緣半徑 (mm)</td>
+                <td rowspan="2" class="header-gray">長度<br>(mm)</td>
+                <td rowspan="2" class="header-gray">板厚<br>(mm)</td>
+                <td colspan="3" class="header-gray">補強材</td>
+            </tr>
+            <tr class="row-divider">
+                <td class="header-gray" style="border-top:1px solid #dcdde1;">種類</td>
+                <td class="header-gray" style="border-top:1px solid #dcdde1;">材料</td>
+                <td class="header-gray" style="border-top:1px solid #dcdde1;">厚或徑(mm)</td>
+            </tr>
+
+            <tr>
+                <td rowspan="2" style="font-weight:bold; color:#2c3e50;">管板(水管)</td>
+                <td><textarea id="b_wt_type" rows="1"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_wt_mat" rows="1"></textarea></td>
+                <td><textarea id="b_wt_rad" rows="1" placeholder="最大內徑"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_wt_t" rows="1"></textarea></td>
+                <td class="bg-skip" colspan="3"></td> 
+            </tr>
+            <tr class="row-divider">
+                <td><textarea id="b_wt_type2" rows="1"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_wt_mat2" rows="1"></textarea></td>
+                <td><textarea id="b_wt_rad2" rows="1" placeholder="最大內徑"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_wt_t2" rows="1"></textarea></td>
+                <td class="bg-skip" colspan="3"></td> 
+            </tr>
+
+            <tr>
+                <td rowspan="2" style="font-weight:bold; color:#2c3e50;">胴體</td>
+                <td><textarea id="b_shell_type" rows="1"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_shell_mat" rows="1"></textarea></td>
+                <td><textarea id="b_shell_rad" rows="1" placeholder="最大內徑"></textarea></td>
+                <td><textarea id="b_shell_len" rows="1"></textarea></td>
+                <td><textarea id="b_shell_t" rows="1"></textarea></td>
+                <td class="bg-skip" colspan="3"></td> 
+            </tr>
+            <tr class="row-divider">
+                <td><textarea id="b_shell_type2" rows="1"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_shell_mat2" rows="1"></textarea></td>
+                <td><textarea id="b_shell_rad2" rows="1" placeholder="最大內徑"></textarea></td>
+                <td><textarea id="b_shell_len2" rows="1"></textarea></td>
+                <td><textarea id="b_shell_t2" rows="1"></textarea></td>
+                <td class="bg-skip" colspan="3"></td> 
+            </tr>
+
+            <tr>
+                <td rowspan="2" style="font-weight:bold; color:#2c3e50;">端板或管板<br>(煙管)</td>
+                <td><textarea id="b_plate1_type" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_shape" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_mat" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_rad" rows="1" placeholder="曲緣內半徑"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_plate1_t" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_rtype" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_rmat" rows="1"></textarea></td>
+                <td><textarea id="b_plate1_rsize" rows="1"></textarea></td>
+            </tr>
+            <tr class="row-divider">
+                <td><textarea id="b_plate2_type" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_shape" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_mat" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_rad" rows="1" placeholder="曲緣內半徑"></textarea></td>
+                <td class="bg-skip"></td> 
+                <td><textarea id="b_plate2_t" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_rtype" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_rmat" rows="1"></textarea></td>
+                <td><textarea id="b_plate2_rsize" rows="1"></textarea></td>
+            </tr>
+
+            <tr>
+                <td rowspan="2" style="font-weight:bold; color:#2c3e50;">爐筒或火室</td>
+                <td rowspan="2"><textarea id="b_furn_type" style="height:50px;"></textarea></td>
+                <td class="bg-skip" rowspan="2"></td> 
+                <td rowspan="2"><textarea id="b_furn_mat" style="height:50px;"></textarea></td>
+                <td><textarea id="b_furn_max_id" rows="1" placeholder="最大內徑"></textarea></td>
+                <td class="bg-skip" rowspan="2"></td> 
+                <td rowspan="2"><textarea id="b_furn_t" style="height:50px;"></textarea></td>
+                <td class="bg-skip" colspan="3" rowspan="2"></td> 
+            </tr>
+            <tr class="row-divider">
+                <td><textarea id="b_furn_min_id" rows="1" placeholder="最小內徑"></textarea></td>
+            </tr>
+
+            <tr>
+                <td rowspan="2" style="font-weight:bold; color:#2c3e50;">汽室</td>
+                <td class="bg-skip" rowspan="2"></td> 
+                <td rowspan="2"><textarea id="b_dome_shape" style="height:50px;" placeholder="冠板形狀"></textarea></td>
+                <td rowspan="2"><textarea id="b_dome_mat" style="height:50px;"></textarea></td>
+                <td><textarea id="b_dome_max_id" rows="1" placeholder="最大內徑"></textarea></td>
+                <td class="bg-skip" rowspan="2"></td> 
+                <td><textarea id="b_dome_t" rows="1" placeholder="板厚"></textarea></td>
+                <td class="bg-skip" colspan="3" rowspan="2"></td> 
+            </tr>
+            <tr class="row-divider">
+                <td><textarea id="b_dome_rad" rows="1" placeholder="曲緣內半徑"></textarea></td>
+                <td><textarea id="b_dome_ct" rows="1" placeholder="冠板厚度"></textarea></td>
+            </tr>
+        </table>
+
+        <table style="margin-bottom: 10px;">
+            <colgroup>
+                <col style="width: 14%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 8%;">
+                <col style="width: 12%;"><col style="width: 10%;"><col style="width: 8%;">
+                <col style="width: 10%;"><col style="width: 10%;"><col style="width: 8%;">
+            </colgroup>
+            
+            <tr>
+                <td class="header-gray">胴體縱接頭<br>種類及其效率</td>
+                <td colspan="9" class="text-left"><textarea id="b_joint_type" class="input-left" style="height: 40px;"></textarea></td>
+            </tr>
+            
+            <tr>
+                <td rowspan="2" class="header-gray" style="letter-spacing:2px;">人孔、掃除孔<br>檢查孔</td>
+                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
+                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
+                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold; color:#2c3e50;">人孔</td><td><textarea id="h_man_sz" rows="1"></textarea></td><td><textarea id="h_man_qty" rows="1"></textarea></td>
+                <td style="font-weight:bold; color:#2c3e50;">掃除孔</td><td><textarea id="h_cln_sz" rows="1"></textarea></td><td><textarea id="h_cln_qty" rows="1"></textarea></td>
+                <td style="font-weight:bold; color:#2c3e50;">檢查孔</td><td><textarea id="h_chk_sz" rows="1"></textarea></td><td><textarea id="h_chk_qty" rows="1"></textarea></td>
+            </tr>
+        </table>
+
+        <table>
+            <colgroup>
+                <col style="width: 12%;"><col style="width: 8%;"><col style="width: 14%;">
+                <col style="width: 8%;"><col style="width: 14%;"><col style="width: 15%;">
+                <col style="width: 12%;"><col style="width: 10%;"><col style="width: 7%;">
+            </colgroup>
+            <tr><th colspan="9" class="section-header">管 路 與 配 件</th></tr>
+            <tr>
+                <td class="header-gray">水管或煙管</td>
+                <td class="header-gray">種類</td><td><textarea id="bt_tube_type" rows="1"></textarea></td>
+                <td class="header-gray">材料</td><td><textarea id="bt_tube_mat" rows="1"></textarea></td>
+                <td class="header-gray">外徑 (mm)</td><td><textarea id="bt_tube_dia" rows="1"></textarea></td>
+                <td class="header-gray">管厚 (mm)</td><td><textarea id="bt_tube_t" rows="1"></textarea></td>
+            </tr>
+            <tr>
+                <td class="header-gray">集管器</td>
+                <td class="header-gray">材料</td><td><textarea id="bt_hdr_mat" rows="1"></textarea></td>
+                <td class="header-gray">形狀</td><td><textarea id="bt_hdr_type" rows="1"></textarea></td>
+                <td class="header-gray">內徑或寬x高 (mm)</td><td><textarea id="bt_hdr_dia" rows="1"></textarea></td>
+                <td class="header-gray">孔側厚度 (mm)</td><td><textarea id="bt_hdr_t" rows="1"></textarea></td>
+            </tr>
+            <tr>
+                <td class="header-gray">過熱器</td>
+                <td class="header-gray">型式</td><td><textarea id="bt_sup_type" rows="1"></textarea></td>
+                <td class="header-gray">材料</td><td><textarea id="bt_sup_mat" rows="1"></textarea></td>
+                <td class="header-gray">過熱管外徑 (mm)</td><td><textarea id="bt_sup_dia" rows="1"></textarea></td>
+                <td class="header-gray">過熱管厚度 (mm)</td><td><textarea id="bt_sup_t" rows="1"></textarea></td>
+            </tr>
+            <tr>
+                <td class="header-gray">節煤器</td>
+                <td class="header-gray">型式</td><td><textarea id="bt_eco_type" rows="1"></textarea></td>
+                <td class="header-gray">材料</td><td><textarea id="bt_eco_mat" rows="1"></textarea></td>
+                <td class="header-gray">節煤器用管外徑 (mm)</td><td><textarea id="bt_eco_dia" rows="1"></textarea></td>
+                <td class="header-gray">節煤器管厚度 (mm)</td><td><textarea id="bt_eco_t" rows="1"></textarea></td>
+            </tr>
+        </table>
+
+        <table>
+            <colgroup>
+                <col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;">
+            </colgroup>
+            <tr><th colspan="5" class="section-header">安 全 裝 置 與 控 制</th></tr>
+            
+            <tr>
+                <td rowspan="2" class="header-gray">安全閥</td>
+                <td class="header-gray">種類</td>
+                <td class="header-gray">型式</td>
+                <td class="header-gray">閥徑 (mm)</td>
+                <td class="header-gray">數量</td>
+            </tr>
+            <tr>
+                <td><textarea id="sv1_type" rows="1"></textarea></td>
+                <td><textarea id="sv1_model" rows="1"></textarea></td>
+                <td><textarea id="sv1_size" rows="1"></textarea></td>
+                <td><textarea id="sv1_qty" rows="1"></textarea></td>
+            </tr>
+
+            <tr>
+                <td rowspan="2" class="header-gray">水位測定裝置</td>
+                <td colspan="2" class="header-gray">種類</td>
+                <td class="header-gray">數量</td>
+                <td class="header-gray">玻璃管內徑 (mm)</td>
+            </tr>
+            <tr>
+                <td colspan="2"><textarea id="b_water_lvl_type" rows="1"></textarea></td>
+                <td><textarea id="b_water_lvl_qty" rows="1"></textarea></td>
+                <td><textarea id="b_water_lvl_dia" rows="1"></textarea></td>
+            </tr>
+
+            <tr>
+                <td class="header-gray">有無自動控制裝置及其概要</td>
+                <td colspan="4" class="text-left"><textarea id="b_auto_ctrl" class="input-left" rows="1"></textarea></td>
+            </tr>
+
+            <tr>
+                <td class="header-gray">製造廠及年月</td>
+                <td colspan="2" class="text-left"><textarea id="b_mfg_info" class="input-left" rows="1"></textarea></td>
+                <td class="header-gray">施工負責人</td>
+                <td class="text-left"><textarea id="b_const_mgr" class="input-left" rows="1"></textarea></td>
+            </tr>
+            <tr>
+                <td class="header-gray">水壓試驗壓力</td>
+                <td colspan="2" class="text-left"><div class="flex-row"><input type="text" id="b_test_press" class="w-sm input-left"> kgf/cm²</div></td>
+                <td class="header-gray">檢驗地址</td>
+                <td class="text-left"><textarea id="b_insp_addr" class="input-left" rows="1"></textarea></td>
+            </tr>
+        </table>
+
+    </div> <div id="phrase-panel" class="phrase-panel">
+        <div class="phrase-header">
+            <span id="phrase-title">常用詞庫</span>
+            <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;">✖</button>
+        </div>
+        <div class="phrase-list" id="phrase-list"></div>
+        <div class="phrase-actions">
+            <button class="btn-p-add" onclick="addCurrentToPhrase()">+ 加入詞庫</button>
+            <button class="btn-p-del" id="toggle-del-btn" onclick="togglePhraseDelete()">🗑 刪除模式</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initPhraseLibrary(); 
+        });
+
+        // 💡 確保跳轉回 GitHub 對應的路徑
+        function backToMenu() { 
+            window.location.href = 'index.html';
+        }
+
+        function collectFormData() {
+            let data = {};
+            const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select');
+            inputs.forEach(el => {
+                if (!el.id) return;
+                if (el.type === 'checkbox') data[el.id] = el.checked;
+                else data[el.id] = el.value;
+            });
+            return JSON.stringify(data, null, 2);
+        }
+
+        function restoreFormData(jsonStr) {
+            let data = JSON.parse(jsonStr);
+            for (let id in data) {
+                let el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') el.checked = data[id];
+                    else el.value = data[id];
+                }
+            }
+        }
+
+        function doSaveLocal() {
+            let defaultName = document.getElementById('equip_no').value || "鍋爐未命名";
+            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_明細表");
+            if (!filename) return;
+
+            const dataStr = collectFormData();
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename + ".json";
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            document.getElementById('current-filename-display').innerText = filename;
+            document.getElementById('current-filename-display').style.color = "#27ae60";
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    restoreFormData(e.target.result);
+                    document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
+                    document.getElementById('current-filename-display').style.color = "#2980b9";
+                    alert("檔案「" + file.name + "」載入成功！");
+                } catch(err) {
+                    alert("檔案解析失敗或格式不正確！");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ""; 
+        }
+
+        // ==========================================
+        // 本機智慧詞庫系統
+        // ==========================================
+        let myPhrases = [];
+        let activeInput = null;
+        let isDelMode = false;
+
+        function initPhraseLibrary() {
+            myPhrases = JSON.parse(localStorage.getItem('myPhrases') || '[]');
+            renderPhrases();
+            
+            document.addEventListener('focusin', function(e) {
+                if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
+                    if(e.target.closest('#phrase-panel')) return; 
+                    activeInput = e.target;
+                    document.getElementById('phrase-panel').style.display = 'flex'; 
+                }
+            });
+        }
+
+        function renderPhrases() {
+            const list = document.getElementById('phrase-list');
+            list.innerHTML = '';
+            if (myPhrases.length === 0) {
+                list.innerHTML = '<span style="color:#7f8c8d;font-size:12px;">目前無詞彙，請在表格輸入文字後點擊下方新增。</span>';
+                return;
+            }
+            myPhrases.forEach((p, index) => {
+                let chip = document.createElement('div');
+                chip.className = 'phrase-chip' + (isDelMode ? ' del-mode' : '');
+                chip.innerText = p;
+                
+                chip.onmousedown = function(e) {
+                    e.preventDefault(); 
+                    if (isDelMode) {
+                        if(confirm('確定要從詞庫刪除: 「' + p + '」 嗎？')) {
+                            myPhrases.splice(index, 1);
+                            savePhrasesToLocal();
+                            renderPhrases();
+                        }
+                    } else {
+                        if (activeInput) {
+                            let currentVal = activeInput.value;
+                            activeInput.value = currentVal ? currentVal + " \n" + p : p;
+                        }
+                    }
+                };
+                list.appendChild(chip);
+            });
+        }
+
+        function togglePhraseDelete() {
+            isDelMode = !isDelMode;
+            const btn = document.getElementById('toggle-del-btn');
+            btn.innerText = isDelMode ? '🗑 點擊詞彙刪除' : '🗑 刪除模式';
+            btn.className = isDelMode ? 'btn-p-del active' : 'btn-p-del';
+            renderPhrases();
+        }
+
+        function addCurrentToPhrase() {
+            if (!activeInput || !activeInput.value.trim()) { alert('請先在左側目前的輸入格內，打上你要加入的文字！'); return; }
+            const newP = activeInput.value.trim();
+            if (myPhrases.includes(newP)) { alert('本機詞庫中已經有這個詞彙囉！'); return; }
+            myPhrases.push(newP);
+            savePhrasesToLocal();
+            renderPhrases();
+        }
+
+        function savePhrasesToLocal() {
+            localStorage.setItem('myPhrases', JSON.stringify(myPhrases));
+            document.getElementById('phrase-title').innerText = '已儲存！';
+            setTimeout(() => document.getElementById('phrase-title').innerText = '常用詞庫', 1500);
+        }
+
+        // ==========================================
+        // 💡 GitHub 專屬 PDF 產出邏輯 (純前端抓取)
+        // ==========================================
+        async function generatePDF() {
+            const btn = document.getElementById('btn-pdf');
+            btn.innerText = '讀取 PDF 範本中...';
+            btn.disabled = true;
+
+            try {
+                const paperNum = document.getElementById('paper_number').value;
+                
+                const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
+                if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
+                const pdfArrayBuffer = await pdfRes.arrayBuffer();
+
+                const { PDFDocument } = PDFLib;
+                const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
+                
+                btn.innerText = '載入字型中...';
+                pdfDoc.registerFontkit(fontkit);
+                const fontRes = await fetch(`./assets/tw-print-font.ttf`); 
+                if (!fontRes.ok) throw new Error("找不到字型檔案");
+                const fontArrayBuffer = await fontRes.arrayBuffer();
+                
+                const customFont = await pdfDoc.embedFont(fontArrayBuffer);
+                const form = pdfDoc.getForm();
+                
+                btn.innerText = '寫入資料中...';
+                
+                const skipIds = ['b_insp_date2', 'cert_ymd']; 
+                
+                const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"]');
+                inputs.forEach(el => {
+                    if (!el.id || skipIds.includes(el.id)) return;
+                    try {
+                        const field = form.getField(el.id);
+                        if (!field) return; 
+                        const textField = form.getTextField(el.id);
+                        if (el.value) textField.setText(el.value);
+                        if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
+                        if (el.id === 'b_joint_type') textField.setFontSize(10);
+                    } catch (error) {}
+                });
+
+                const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+
+                const customMerges = [
+                    { pdfField: 'b_press', val: `胴側: ${getVal('b_press_shell')}   管側: ${getVal('b_press_tube')}` },
+                    { pdfField: 'b_heat_area', val: `胴側: ${getVal('b_heat_area_shell')}   管側: ${getVal('b_heat_area_tube')}` }
+                ];
+                
+                customMerges.forEach(merge => {
+                    try {
+                        const field = form.getTextField(merge.pdfField);
+                        if (field && merge.val.replace(/胴側:|管側:|\s/g, '').length > 0) {
+                            field.setText(merge.val);
+                        }
+                    } catch(e) {}
+                });
+
+                const writeSplitDate = (val, yId, mId, dId) => {
+                    if (!val) return;
+                    if (val.length === 7 && dId) {
+                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
+                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
+                        try { form.getTextField(dId).setText(val.substring(5, 7)); } catch(e){}
+                    } else if (val.length === 5 && !dId) {
+                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
+                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
+                    }
+                };
+
+                writeSplitDate(getVal('b_insp_date2'), 'b_insp_y', 'b_insp_m', 'b_insp_d');
+                writeSplitDate(getVal('cert_ymd'), 'cert_y', 'cert_m', 'cert_d');
+
+                try { form.getTextField('paperNumber').setText(getVal('paper_number')); } catch(e){}
+
+                form.updateFieldAppearances(customFont);
+                form.flatten();
+
+                btn.innerText = '產生報告中...';
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+
+            } catch (err) {
+                alert('產出 PDF 發生錯誤：\n' + err.message);
+            } finally {
+                btn.innerText = '產出 PDF 檔';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
