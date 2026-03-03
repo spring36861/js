@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鍋爐明細表 - 填寫系統</title>
+    <title>鍋爐明細表/檢查結果報告表 - 填寫系統</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 
@@ -18,7 +18,7 @@
         .btn-tool:hover { filter: brightness(1.1); }
 
         table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background-color: #fff; }
-        th, td { border: 1px solid #bdc3c7; padding: 6px; text-align: center; vertical-align: middle; }
+        th, td { border: 1px solid #dcdde1; padding: 6px; text-align: center; vertical-align: middle; }
         th { background-color: #7f8c8d; font-weight: bold; color: white; }
         .section-header { background-color: #2c3e50 !important; color: white !important; font-size: 14px; letter-spacing: 2px; padding: 8px !important; }
         .nested-table { width: 100%; height: 100%; border-collapse: collapse; margin: 0; }
@@ -36,11 +36,13 @@
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
         textarea:focus { overflow-y: auto; }
         
-        .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #718093 !important; background: transparent !important; color: #2c3e50 !important; }
+        .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #718093 !important; background: transparent !important; color: #fdf2e9 !important; }
         select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
-        select.header-input:hover { background: #fdf2e9 !important; border-bottom-color: #e74c3c !important; }
+        select.header-input:hover { background: #e74c3c !important; }
 
         .flex-row { display: flex; align-items: center; gap: 5px; }
+        .flex-between { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .checkbox-wrapper { display: flex; align-items: center; justify-content: flex-start; }
         .w-xs { width: 50px !important; flex: none; }
         .w-sm { width: 80px !important; flex: none; }
         .w-md { width: 120px !important; flex: none; }
@@ -48,6 +50,10 @@
         .bg-skip { background-color: #eaeced; pointer-events: none; } 
         .row-divider { border-bottom: 2px solid #34495e !important; } 
         .header-gray { background: #f5f6fa; font-weight: bold; color: #2c3e50; }
+
+        input[type="checkbox"] { transform: scale(1.4); margin: 0 6px 0 0; cursor: pointer; accent-color: #e74c3c; }
+        input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #e74c3c; }
+        .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
         /* 智慧詞庫浮動面板 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
@@ -66,29 +72,40 @@
 
     <div class="toolbar">
         <div>
-            <h1>鍋爐明細表/檢查結果報告表填寫系統</h1>
+            <h1>鍋爐 - 檢查結果報告表/明細表 填寫系統</h1>
             <div style="font-size:11px; color:#fdf2e9; margin-top:4px;">
                 目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span>
-                <input type="hidden" id="paper_number" value="P3-62-17A">
             </div>
         </div>
         <div style="display: flex; gap: 8px;">
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
-            <button class="btn-export" onclick="generatePDF()" id="btn-pdf">產出 PDF 檔</button>
+            
+            <button class="btn-export" onclick="generatePDF('report')" id="btn-pdf-report" style="background: #27ae60;">產出 報告表(11B)</button>
+            <button class="btn-export" onclick="generatePDF('detail')" id="btn-pdf-detail" style="background: #2980b9;">產出 明細表(17A)</button>
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
     </div>
 
     <div class="container">
         
-        <div style="text-align: center; margin-bottom: 15px;">
+        <div style="text-align: center; margin-bottom: 15px; background: #34495e; padding: 10px; border-radius: 6px;">
             <select id="assoc_name" class="header-input" style="width: 380px;">
                 <option value="中華鍋爐協會">中華鍋爐協會</option>
                 <option value="社團法人中華產業機械設備協會" selected>社團法人中華產業機械設備協會</option>
                 <option value="中華民國工業安全衛生協會">中華民國工業安全衛生協會</option>
             </select>
+            <br>
+            <select id="insp_type" class="header-input" style="width: 150px; margin-top: 5px;">
+                <option value="熔接">熔接</option>
+                <option value="構造">構造</option>
+                <option value="竣工" selected>竣工</option>
+                <option value="重新">重新</option>
+                <option value="既有">既有</option>
+            </select>
+            <input type="hidden" id="equip_category" value="鍋爐">
+            <input type="hidden" id="paper_number" value="P3-62-11B">
         </div>
 
         <table style="border-bottom: 2px solid #34495e;">
@@ -245,7 +262,7 @@
             <tr>
                 <td rowspan="2" style="font-weight:bold; color:#2c3e50;">爐筒或火室</td>
                 <td rowspan="2"><textarea id="b_furn_type" style="height:50px;"></textarea></td>
-                <td class="bg-skip" rowspan="2"></td> 
+                <td rowspan="2"><textarea id="b_furn_shape" style="height:50px;"></textarea></td> 
                 <td rowspan="2"><textarea id="b_furn_mat" style="height:50px;"></textarea></td>
                 <td><textarea id="b_furn_max_id" rows="1" placeholder="最大內徑"></textarea></td>
                 <td class="bg-skip" rowspan="2"></td> 
@@ -336,56 +353,285 @@
 
         <table>
             <colgroup>
-                <col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 25%;">
             </colgroup>
-            <tr><th colspan="5" class="section-header">安 全 裝 置 與 控 制</th></tr>
+            <tr><th colspan="7" class="section-header">安 全 裝 置 與 控 制</th></tr>
             
             <tr>
-                <td rowspan="2" class="header-gray">安全閥</td>
+                <td rowspan="3" class="header-gray">安全閥</td>
                 <td class="header-gray">種類</td>
                 <td class="header-gray">型式</td>
                 <td class="header-gray">閥徑 (mm)</td>
                 <td class="header-gray">數量</td>
+                <td rowspan="3" class="header-gray">自動控制概要</td>
+                <td rowspan="3"><input type="text" id="auto_ctrl" class="input-left"></td>
             </tr>
             <tr>
-                <td><textarea id="sv1_type" rows="1"></textarea></td>
-                <td><textarea id="sv1_model" rows="1"></textarea></td>
-                <td><textarea id="sv1_size" rows="1"></textarea></td>
-                <td><textarea id="sv1_qty" rows="1"></textarea></td>
+                <td><input type="text" id="sv1_type"></td>
+                <td><input type="text" id="sv1_model"></td>
+                <td><input type="text" id="sv1_size"></td>
+                <td><input type="text" id="sv1_qty"></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="sv2_type"></td>
+                <td><input type="text" id="sv2_model"></td>
+                <td><input type="text" id="sv2_size"></td>
+                <td><input type="text" id="sv2_qty"></td>
             </tr>
 
             <tr>
-                <td rowspan="2" class="header-gray">水位測定裝置</td>
+                <td rowspan="3" class="header-gray">水位測定裝置</td>
                 <td colspan="2" class="header-gray">種類</td>
                 <td class="header-gray">數量</td>
                 <td class="header-gray">玻璃管內徑 (mm)</td>
+                <td class="header-gray">製造商</td>
+                <td><input type="text" id="mfg_name" class="input-left"></td>
             </tr>
             <tr>
-                <td colspan="2"><textarea id="b_water_lvl_type" rows="1"></textarea></td>
-                <td><textarea id="b_water_lvl_qty" rows="1"></textarea></td>
-                <td><textarea id="b_water_lvl_dia" rows="1"></textarea></td>
+                <td colspan="2"><input type="text" id="lvl1_type"></td>
+                <td><input type="text" id="lvl1_qty"></td>
+                <td><input type="text" id="lvl1_dia"></td>
+                <td class="header-gray">製造年月</td>
+                <td><div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205"> 製造</div></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="text" id="lvl2_type"></td>
+                <td><input type="text" id="lvl2_qty"></td>
+                <td><input type="text" id="lvl2_dia"></td>
+                <td class="header-gray">施工負責人姓名</td>
+                <td><input type="text" id="const_mgr" class="input-left"></td>
             </tr>
 
             <tr>
-                <td class="header-gray">有無自動控制裝置及其概要</td>
-                <td colspan="4" class="text-left"><textarea id="b_auto_ctrl" class="input-left" rows="1"></textarea></td>
-            </tr>
-
-            <tr>
-                <td class="header-gray">製造廠及年月</td>
-                <td colspan="2" class="text-left"><textarea id="b_mfg_info" class="input-left" rows="1"></textarea></td>
-                <td class="header-gray">施工負責人</td>
-                <td class="text-left"><textarea id="b_const_mgr" class="input-left" rows="1"></textarea></td>
+                <td class="header-gray">給水裝置</td>
+                <td colspan="4"><input type="text" id="feed_water_dev" class="input-left"></td>
+                <td class="header-gray">燃料</td>
+                <td><input type="text" id="fuel_type" class="input-left" placeholder="油 / 煤炭 / 瓦斯 / 其他"></td>
             </tr>
             <tr>
-                <td class="header-gray">水壓試驗壓力</td>
-                <td colspan="2" class="text-left"><div class="flex-row"><input type="text" id="b_test_press" class="w-sm input-left"> kgf/cm²</div></td>
-                <td class="header-gray">檢驗地址</td>
-                <td class="text-left"><textarea id="b_insp_addr" class="input-left" rows="1"></textarea></td>
+                <td class="header-gray">給水預熱器</td>
+                <td colspan="4"><input type="text" id="feed_water_preheater" class="input-left"></td>
+                <td class="header-gray">燃燒裝置</td>
+                <td><input type="text" id="burner" class="input-left"></td>
+            </tr>
+            <tr>
+                <td class="header-gray">空氣預熱器</td>
+                <td colspan="4"><input type="text" id="air_preheater" class="input-left"></td>
+                <td rowspan="2" class="header-gray">摘要</td>
+                <td rowspan="2"><textarea id="summary" class="input-left" style="height: 100%; min-height: 50px;"></textarea></td>
+            </tr>
+            <tr>
+                <td class="header-gray">淨水裝置</td>
+                <td colspan="4"><input type="text" id="water_purifier" class="input-left"></td>
             </tr>
         </table>
 
-    </div> <div id="phrase-panel" class="phrase-panel">
+        <table>
+            <colgroup>
+                <col style="width: 4%;"> 
+                <col style="width: 96%;">
+            </colgroup>
+            <tr><th colspan="2" class="section-header">竣 工 檢 查</th></tr>
+            <tr>
+                <td class="vertical-text">竣<br>工<br><br>檢<br>查</td>
+                <td style="padding: 0; border: none;">
+                    <table class="nested-table">
+                        <colgroup>
+                            <col style="width: 6%;">  
+                            <col style="width: 20%;"> 
+                            <col style="width: 20%;"> 
+                            <col style="width: 20%;"> 
+                            <col style="width: 18%;"> 
+                            <col style="width: 8%;">  
+                            <col style="width: 8%;">  
+                        </colgroup>
+                        
+                        <tr>
+                            <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">檢 查 日 期</td>
+                            <td colspan="3" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">檢 查 結 果</td>
+                            <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">判 定</td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2" rowspan="2" style="vertical-align: middle;">
+                                <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;" maxlength="7" placeholder="例: 1120501">
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>安裝位置</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_install_pos" onchange="document.getElementById('chk_install_pos').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_install_pos" onchange="document.getElementById('chk_install_pos').value='-'">無</label>
+                                        <input type="hidden" id="chk_install_pos" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>安全閥</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_sv" onchange="document.getElementById('chk_sv').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_sv" onchange="document.getElementById('chk_sv').value='-'">無</label>
+                                        <input type="hidden" id="chk_sv" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left" style="vertical-align: middle;">
+                                <div class="flex-row" style="justify-content: center;">
+                                    安全閥調整壓力: <input type="text" id="sv_adj_press" class="w-xs"> kgf/cm²
+                                </div>
+                            </td>
+                            <td style="font-weight: bold;">合格</td>
+                            <td style="font-weight: bold;">不合格</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>基礎</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_found" onchange="document.getElementById('chk_install_found').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_found" onchange="document.getElementById('chk_install_found').value='-'">無</label>
+                                        <input type="hidden" id="chk_install_found" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>壓力表</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='-'">無</label>
+                                        <input type="hidden" id="chk_pg" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td rowspan="6" style="vertical-align: top; text-align: left;">
+                                <div style="margin-bottom: 5px; font-weight: bold;">備 &nbsp;&nbsp;&nbsp; 考</div>
+                                <textarea id="insp_notes" class="input-left" style="height: 140px; border: none;"></textarea>
+                            </td>
+                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;">
+                                <input type="checkbox" id="res_pass" style="transform: scale(2.0); margin-bottom: 15px;">
+                            </td>
+                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;">
+                                <input type="checkbox" id="res_fail" style="transform: scale(2.0); margin-bottom: 15px;">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">有 效 期 限</td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>裝設方法</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_method" onchange="document.getElementById('chk_install_method').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_method" onchange="document.getElementById('chk_install_method').value='-'">無</label>
+                                        <input type="hidden" id="chk_install_method" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>磚灶</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_brick" onchange="document.getElementById('chk_brick').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_brick" onchange="document.getElementById('chk_brick').value='-'">無</label>
+                                        <input type="hidden" id="chk_brick" value="">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>自</td>
+                            <td>
+                                <input type="text" id="valid_f_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501">
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>煙囪煙道</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_chimney" onchange="document.getElementById('chk_chimney').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_chimney" onchange="document.getElementById('chk_chimney').value='-'">無</label>
+                                        <input type="hidden" id="chk_chimney" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>水位測定裝置</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='-'">無</label>
+                                        <input type="hidden" id="chk_water_lvl_dev" value="">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>至</td>
+                            <td>
+                                <input type="text" id="valid_t_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501">
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>操作人員選任</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_op_sel" onchange="document.getElementById('chk_op_select').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_sel" onchange="document.getElementById('chk_op_select').value='-'">無</label>
+                                        <input type="hidden" id="chk_op_select" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>自動控制裝置</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='-'">無</label>
+                                        <input type="hidden" id="chk_auto_ctrl" value="">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2" rowspan="2"></td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>操作人員資格</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_op_qual" onchange="document.getElementById('chk_op_qual').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_qual" onchange="document.getElementById('chk_op_qual').value='-'">無</label>
+                                        <input type="hidden" id="chk_op_qual" value="">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="flex-between">
+                                    <span>附屬裝置</span>
+                                    <div class="checkbox-wrapper" style="gap: 10px;">
+                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='-'">無</label>
+                                        <input type="hidden" id="chk_attach_dev" value="">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="phrase-panel" class="phrase-panel">
         <div class="phrase-header">
             <span id="phrase-title">常用詞庫</span>
             <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;">✖</button>
@@ -399,17 +645,24 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
+            updatePaperNumber();
             initPhraseLibrary(); 
         });
 
-        // 💡 確保跳轉回 GitHub 對應的路徑
         function backToMenu() { 
             window.location.href = 'index.html';
         }
 
+        function updatePaperNumber() {
+            const inspType = document.getElementById('insp_type').value;
+            const paperNum = 'P3-62-11B';
+            document.getElementById('paper_number').value = paperNum;
+            document.getElementById('cert_label_display').innerHTML = (inspType === '既有') ? '合格<br>證明' : '合格<br>證';
+        }
+
         function collectFormData() {
             let data = {};
-            const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select');
+            const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
             inputs.forEach(el => {
                 if (!el.id) return;
                 if (el.type === 'checkbox') data[el.id] = el.checked;
@@ -427,11 +680,48 @@
                     else el.value = data[id];
                 }
             }
+            updatePaperNumber();
+            updateRadiosFromHidden(); 
+        }
+
+        function updateRadiosFromHidden() {
+            const ids = [
+                'chk_install_pos', 'chk_install_found', 'chk_install_method', 'chk_chimney', 
+                'chk_op_select', 'chk_op_qual', 'chk_sv', 'chk_pg', 'chk_brick', 
+                'chk_water_lvl_dev', 'chk_auto_ctrl', 'chk_attach_dev'
+            ];
+            
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const val = el.value;
+                    let radioGroupNames = {
+                        'chk_install_pos': 'grp_install_pos',
+                        'chk_install_found': 'grp_found',
+                        'chk_install_method': 'grp_method',
+                        'chk_chimney': 'grp_chimney',
+                        'chk_op_select': 'grp_op_sel',
+                        'chk_op_qual': 'grp_op_qual',
+                        'chk_sv': 'grp_sv',
+                        'chk_pg': 'grp_pg',
+                        'chk_brick': 'grp_brick',
+                        'chk_water_lvl_dev': 'grp_water_lvl',
+                        'chk_auto_ctrl': 'grp_auto',
+                        'chk_attach_dev': 'grp_attach'
+                    };
+                    
+                    let groupName = radioGroupNames[id];
+                    let radios = document.getElementsByName(groupName);
+                    
+                    if (val === '良' && radios.length >= 1) radios[0].checked = true;
+                    if (val === '-' && radios.length >= 2) radios[1].checked = true;
+                }
+            });
         }
 
         function doSaveLocal() {
             let defaultName = document.getElementById('equip_no').value || "鍋爐未命名";
-            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_明細表");
+            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_表單");
             if (!filename) return;
 
             const dataStr = collectFormData();
@@ -468,7 +758,7 @@
         }
 
         // ==========================================
-        // 本機智慧詞庫系統
+        // 詞庫系統
         // ==========================================
         let myPhrases = [];
         let activeInput = null;
@@ -542,15 +832,21 @@
         }
 
         // ==========================================
-        // 💡 GitHub 專屬 PDF 產出邏輯 (純前端抓取)
+        // 💡 GitHub 專屬 PDF 產出邏輯
         // ==========================================
-        async function generatePDF() {
-            const btn = document.getElementById('btn-pdf');
+        async function generatePDF(docType) {
+            let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
+            const btn = document.getElementById(btnId);
             btn.innerText = '讀取 PDF 範本中...';
             btn.disabled = true;
 
             try {
-                const paperNum = document.getElementById('paper_number').value;
+                let paperNum = '';
+                if (docType === 'report') {
+                    paperNum = 'P3-62-11B'; 
+                } else {
+                    paperNum = 'P3-62-17A'; 
+                }
                 
                 const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
                 if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
@@ -570,26 +866,85 @@
                 
                 btn.innerText = '寫入資料中...';
                 
-                const skipIds = ['b_insp_date2', 'cert_ymd']; 
+                // 明細表 (17A) 專用：動態圓戳章
+                if (docType === 'detail') {
+                    const assocName = document.getElementById('assoc_name').value;
+                    let stampFile = '';
+                    
+                    if (assocName === '中華鍋爐協會') stampFile = 'stamp_boiler.png';
+                    else if (assocName === '社團法人中華產業機械設備協會') stampFile = 'stamp_cmeea.png';
+                    else if (assocName === '中華民國工業安全衛生協會') stampFile = 'stamp_isha.png';
+
+                    if (stampFile) {
+                        try {
+                            const imgRes = await fetch(`./assets/${stampFile}`);
+                            if (imgRes.ok) {
+                                const imgBytes = await imgRes.arrayBuffer();
+                                const stampImage = await pdfDoc.embedPng(imgBytes);
+
+                                const pages = pdfDoc.getPages();
+                                const firstPage = pages[0];
+
+                                const targetWidth = 140; 
+                                const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
+
+                                firstPage.drawImage(stampImage, {
+                                    x: 395,  
+                                    y: 620,  
+                                    width: targetWidth,
+                                    height: targetHeight
+                                });
+                            }
+                        } catch (imgErr) { console.warn("無法載入戳章圖片", imgErr); }
+                    }
+                }
                 
-                const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"]');
+                const skipIds = [
+                    'b_press_shell', 'b_press_tube', 'b_heat_area_shell', 'b_heat_area_tube',
+                    'b_insp_date2', 'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'paper_number'
+                ]; 
+                
+                const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
                     if (!el.id || skipIds.includes(el.id)) return;
                     try {
                         const field = form.getField(el.id);
                         if (!field) return; 
-                        const textField = form.getTextField(el.id);
-                        if (el.value) textField.setText(el.value);
-                        if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
-                        if (el.id === 'b_joint_type') textField.setFontSize(10);
+                        
+                        if (el.type === 'checkbox') {
+                            try {
+                                const textField = form.getTextField(el.id);
+                                el.checked ? textField.setText('V') : textField.setText('');
+                            } catch (e) {
+                                try {
+                                    const checkBox = form.getCheckBox(el.id);
+                                    el.checked ? checkBox.check() : checkBox.uncheck();
+                                } catch(err) {}
+                            }
+                        } else {
+                            const textField = form.getTextField(el.id);
+                            if (el.value) textField.setText(el.value);
+                            if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
+                            if (el.id === 'b_joint_type' || el.id === 'summary') textField.setFontSize(10);
+                        }
                     } catch (error) {}
                 });
 
                 const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
 
+                const inspTypeVal = getVal('insp_type');
+                const equipCategoryVal = getVal('equip_category');
+
+                try {
+                    const certTitleField = form.getTextField('cert_title');
+                    if (certTitleField) {
+                        certTitleField.setText(inspTypeVal === '既有' ? '合格證明' : '合格證');
+                    }
+                } catch(e) {}
+
                 const customMerges = [
-                    { pdfField: 'b_press', val: `胴側: ${getVal('b_press_shell')}   管側: ${getVal('b_press_tube')}` },
-                    { pdfField: 'b_heat_area', val: `胴側: ${getVal('b_heat_area_shell')}   管側: ${getVal('b_heat_area_tube')}` }
+                    { pdfField: 'b_press_shell_b_press_tube', val: `胴側: ${getVal('b_press_shell')}   管側: ${getVal('b_press_tube')}` },
+                    { pdfField: 'b_heat_area_shell_b_heat_area_tube', val: `胴側: ${getVal('b_heat_area_shell')}   管側: ${getVal('b_heat_area_tube')}` }
                 ];
                 
                 customMerges.forEach(merge => {
@@ -601,6 +956,7 @@
                     } catch(e) {}
                 });
 
+                // 💡 日期拆分邏輯 (包含 mfg_ym 的修正)
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
@@ -613,10 +969,12 @@
                     }
                 };
 
-                writeSplitDate(getVal('b_insp_date2'), 'b_insp_y', 'b_insp_m', 'b_insp_d');
+                writeSplitDate(getVal('b_insp_date2'), 'b_insp_date2_y', 'b_insp_date2_m', 'b_insp_date2_d');
                 writeSplitDate(getVal('cert_ymd'), 'cert_y', 'cert_m', 'cert_d');
-
-                try { form.getTextField('paperNumber').setText(getVal('paper_number')); } catch(e){}
+                writeSplitDate(getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null); // 👈 這裡已修正為 mfg_ym_y 與 mfg_ym_m
+                writeSplitDate(getVal('valid_f_date'), 'valid_f_date_y', 'valid_f_date_m', 'valid_f_date_d');
+                writeSplitDate(getVal('valid_t_date'), 'valid_t_date_y', 'valid_t_date_m', 'valid_t_date_d');
+                writeSplitDate(getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d');
 
                 form.updateFieldAppearances(customFont);
                 form.flatten();
@@ -630,7 +988,8 @@
             } catch (err) {
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
-                btn.innerText = '產出 PDF 檔';
+                const isReport = docType === 'report';
+                btn.innerText = isReport ? '產出 報告表(11B)' : '產出 明細表(17A)';
                 btn.disabled = false;
             }
         }
