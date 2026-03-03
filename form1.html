@@ -364,6 +364,10 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td colspan="2">施工負責人姓名</td>
+                <td colspan="7"><input type="text" id="const_mgr" class="input-left"></td>
+            </tr>
         </table>
 
         <table>
@@ -626,7 +630,6 @@
             document.getElementById('cert_label_display').innerHTML = (inspType === '既有') ? '合格<br>證明' : '合格<br>證';
         }
 
-        // 💡 加入抓取隱藏 input 的機制
         function collectFormData() {
             let data = {};
             const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
@@ -648,10 +651,10 @@
                 }
             }
             updatePaperNumber();
-            updateRadiosFromHidden(); // 讀檔後同步更新單選鈕畫面
+            updateRadiosFromHidden(); 
         }
 
-        // 💡 讀檔時，根據隱藏 input 的值點亮對應的單選鈕
+        // 💡 讀檔後同步更新單選鈕畫面
         function updateRadiosFromHidden() {
             const ids = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
             ids.forEach(id => {
@@ -781,7 +784,7 @@
         }
 
         // ==========================================
-        // GitHub 專屬 PDF 產出邏輯
+        // 💡 GitHub 專屬 PDF 產出邏輯
         // ==========================================
         async function generatePDF(docType) {
             let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
@@ -856,10 +859,10 @@
                     }
                 }
                 
-                // 💡 加入抓取 hidden 的邏輯，才能將"良"或"-"寫入 PDF
+                // 💡 移除 insp_type 的排除，允許其自動寫入 PDF
                 const skipIds = [
                     'press_shell', 'press_tube', 'temp_shell', 'temp_tube', 'vol_shell', 'vol_tube', 'toxic_shell', 'toxic_tube', 
-                    'equip_category', 'insp_type', 
+                    'equip_category', 
                     'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'paper_number'
                 ];
                 
