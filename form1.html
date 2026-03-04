@@ -33,6 +33,9 @@
         .input-left { text-align: left !important; }
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
         textarea:focus { overflow-y: auto; }
+
+        /* 💡 日期錯誤提示樣式 */
+        .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
         
         .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #718093 !important; background: transparent !important; color: #2c3e50 !important; }
         select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
@@ -82,8 +85,9 @@
     <div class="container">
         <div style="text-align: center; margin-bottom: 10px;">
             <select id="assoc_name" class="header-input" style="width: 380px;">
+                <option value="" selected>-- 請選擇代檢機構 --</option>
                 <option value="中華鍋爐協會">中華鍋爐協會</option>
-                <option value="社團法人中華產業機械設備協會" selected>社團法人中華產業機械設備協會</option>
+                <option value="社團法人中華產業機械設備協會">社團法人中華產業機械設備協會</option>
                 <option value="中華民國工業安全衛生協會">中華民國工業安全衛生協會</option>
             </select>
         </div>
@@ -123,7 +127,7 @@
             </tr>
             <tr>
                 <td class="text-left">
-                    <div class="flex-row">民國 <input type="text" id="cert_ymd" class="w-md" maxlength="7" placeholder="例: 1120501"> 發給</div>
+                    <div class="flex-row">民國 <input type="text" id="cert_ymd" class="w-md" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)"> 發給</div>
                 </td>
                 <td style="background: white; color: black;"><b>業 別</b></td>
                 <td><input type="text" id="industry_type"></td>
@@ -360,7 +364,7 @@
                 <td colspan="3"><input type="text" id="mfg_name" class="input-left"></td>
                 <td colspan="4" class="text-left">
                     <div class="flex-row" style="justify-content: flex-end; padding-right: 15px;">
-                        民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205"> 製造
+                        民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205" oninput="validateDate(this, 5)"> 製造
                     </div>
                 </td>
             </tr>
@@ -428,7 +432,7 @@
                                     
                                     <tr>
                                         <td colspan="2" rowspan="2" style="vertical-align: middle;">
-                                            <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;" maxlength="7" placeholder="例: 1120501">
+                                            <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)">
                                         </td>
                                         
                                         <td class="text-left">
@@ -520,7 +524,7 @@
                                     <tr>
                                         <td>自</td>
                                         <td>
-                                            <input type="text" id="valid_f_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501">
+                                            <input type="text" id="valid_f_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)">
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
@@ -547,7 +551,7 @@
                                     <tr>
                                         <td>至</td>
                                         <td>
-                                            <input type="text" id="valid_t_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501">
+                                            <input type="text" id="valid_t_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)">
                                         </td>
                                         <td class="text-left">
                                             <div class="flex-between">
@@ -617,16 +621,28 @@
             initPhraseLibrary(); 
         });
 
-        function backToMenu() { 
-            window.location.href = 'index.html';
+        // 💡 驗證日期的功能 (不阻擋，僅提示)
+        function validateDate(inputElement, requiredLength) {
+            const val = inputElement.value.trim();
+            if (val === '') {
+                inputElement.classList.remove('input-error');
+                return;
+            }
+            // 必須全為數字且長度吻合
+            const regex = new RegExp(`^\\d{${requiredLength}}$`);
+            if (!regex.test(val)) {
+                inputElement.classList.add('input-error');
+                inputElement.title = `請輸入正確的 ${requiredLength} 位數字！`;
+            } else {
+                inputElement.classList.remove('input-error');
+                inputElement.title = '';
+            }
         }
 
         function updatePaperNumber() {
             const inspType = document.getElementById('insp_type').value;
             const paperNum = (inspType === '既有') ? 'P3-62-14A' : 'P3-62-13A';
             document.getElementById('paper_number').value = paperNum;
-            
-            // 動態切換合格證/證明
             document.getElementById('cert_label_display').innerHTML = (inspType === '既有') ? '合格<br>證明' : '合格<br>證';
         }
 
@@ -648,13 +664,20 @@
                 if (el) {
                     if (el.type === 'checkbox') el.checked = data[id];
                     else el.value = data[id];
+
+                    // 💡 讀檔時同步觸發驗證檢查
+                    if (['cert_ymd', 'insp_date', 'valid_f_date', 'valid_t_date'].includes(id)) {
+                        validateDate(el, 7);
+                    }
+                    if (id === 'mfg_ym') {
+                        validateDate(el, 5);
+                    }
                 }
             }
             updatePaperNumber();
             updateRadiosFromHidden(); 
         }
 
-        // 💡 讀檔後同步更新單選鈕畫面
         function updateRadiosFromHidden() {
             const ids = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
             ids.forEach(id => {
@@ -708,7 +731,7 @@
         }
 
         // ==========================================
-        // 詞庫系統
+        // 詞庫系統 (優化版)
         // ==========================================
         let myPhrases = [];
         let activeInput = null;
@@ -752,7 +775,10 @@
                     } else {
                         if (activeInput) {
                             let currentVal = activeInput.value;
-                            activeInput.value = currentVal ? currentVal + " \n" + p : p;
+                            let separator = activeInput.tagName === 'TEXTAREA' ? '\n' : ' ';
+                            activeInput.value = currentVal ? currentVal + separator + p : p;
+                            // 詞庫輸入後主動觸發一次驗證
+                            if (activeInput.oninput) activeInput.oninput();
                         }
                     }
                 };
@@ -784,7 +810,7 @@
         }
 
         // ==========================================
-        // 💡 GitHub 專屬 PDF 產出邏輯
+        // 💡 PDF 產出邏輯 
         // ==========================================
         async function generatePDF(docType) {
             let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
@@ -818,9 +844,7 @@
                 
                 btn.innerText = '寫入資料中...';
 
-                // ==========================================
                 // 18A明細表專用：動態圓戳章
-                // ==========================================
                 if (docType === 'detail') {
                     const assocName = document.getElementById('assoc_name').value;
                     let stampFile = '';
@@ -859,10 +883,9 @@
                     }
                 }
                 
-                // 💡 移除 insp_type 的排除，允許其自動寫入 PDF
                 const skipIds = [
                     'press_shell', 'press_tube', 'temp_shell', 'temp_tube', 'vol_shell', 'vol_tube', 'toxic_shell', 'toxic_tube', 
-                    'equip_category', 
+                    'equip_category', 'insp_type', 
                     'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'paper_number'
                 ];
                 
@@ -960,7 +983,7 @@
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
                 const isReport = docType === 'report';
-                btn.innerText = isReport ? '產出 檢查報告' : '產出 明細表(18A)';
+                btn.innerText = isReport ? '產出 檢查報告' : '產出 明細表)';
                 btn.disabled = false;
             }
         }

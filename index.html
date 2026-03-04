@@ -3,45 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系統功能選單</title>
+    <title>危險性機械設備 - 表單填寫系統</title>
     <style>
-        /* (樣式維持原本不變) */
-        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; }
-        .header { background: #2c3e50; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 20px; letter-spacing: 1px; }
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .module-title { color: #34495e; border-bottom: 2px solid #bdc3c7; padding-bottom: 10px; margin-bottom: 25px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 25px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid #ecf0f1; border-top: 4px solid #3498db; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); filter: brightness(0.98); }
-        .card h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 18px; }
-        .card p { margin: 0; color: #7f8c8d; font-size: 13px; }
-        .card-form1 { border-top-color: #3498db; }
-        .card-form2 { border-top-color: #e74c3c; }
-        .card-admin { border-top-color: #9b59b6; }
+        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .menu-container { background: white; padding: 40px 50px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 450px; }
+        .menu-container h1 { color: #2c3e50; margin-bottom: 10px; font-size: 24px; }
+        .menu-container p { color: #7f8c8d; margin-bottom: 30px; font-size: 14px; }
+        .menu-btn { display: block; width: 100%; padding: 15px; margin-bottom: 15px; background: #3498db; color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; box-sizing: border-box; }
+        .menu-btn:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(52,152,219,0.3); }
+        .btn-green { background: #27ae60; } .btn-green:hover { background: #2ecc71; box-shadow: 0 5px 15px rgba(39,174,96,0.3); }
+        .btn-purple { background: #8e44ad; } .btn-purple:hover { background: #9b59b6; box-shadow: 0 5px 15px rgba(142,68,173,0.3); }
+        .btn-orange { background: #e67e22; } .btn-orange:hover { background: #f39c12; box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
+        .btn-dark { background: #34495e; margin-top: 30px; } .btn-dark:hover { background: #2c3e50; box-shadow: 0 5px 15px rgba(44,62,80,0.3); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>中機 - 檢查業務系統 (本機/GitHub版)</h1>
-    </div>
+    <div class="menu-container">
+        <h1>📑 檢查報告表填寫系統</h1>
+        <p>請選擇您要填寫的表單類型</p>
 
-    <div class="container">
-        <h2 class="module-title">請選擇作業項目</h2>
-        <div class="grid">
-            <div class="card card-form1" onclick="window.location.href='form1.html'">
-                <h3>壓力容器檢查報告</h3>
-                <p>主功能-1 (支援 13A / 14A 範本)</p>
-            </div>
-            <div class="card card-form2" onclick="window.location.href='form2.html'">
-                <h3>鍋爐明細表</h3>
-                <p>主功能-2 (支援 17A 範本)</p>
-            </div>
-            <div class="card card-admin" onclick="window.location.href='phrase.html'">
-                <h3>本機詞庫維護</h3>
-                <p>管理瀏覽器常用詞、匯出/匯入詞庫檔</p>
-            </div>
-        </div>
+        <a href="form1.html" class="menu-btn btn-green">1. 壓力容器 - 報告表/明細表</a>
+        <a href="form2.html" class="menu-btn btn-orange">2. 鍋爐 - 報告表/明細表</a>
+        <a href="form3.html" class="menu-btn btn-purple">3. 熔接明細表</a>
+        
+        <a href="phrase.html" class="menu-btn btn-dark">⚙️ 常用詞庫維護系統</a>
     </div>
 </body>
 </html>
