@@ -85,7 +85,7 @@
     <div class="container">
         <div style="text-align: center; margin-bottom: 10px;">
             <select id="assoc_name" class="header-input" style="width: 380px;">
-                <option value="" selected>-- 請選擇代檢機構 --</option>
+                <option value="" selected>-- 請選擇代檢機構 (不選則不套印) --</option>
                 <option value="中華鍋爐協會">中華鍋爐協會</option>
                 <option value="社團法人中華產業機械設備協會">社團法人中華產業機械設備協會</option>
                 <option value="中華民國工業安全衛生協會">中華民國工業安全衛生協會</option>
@@ -641,8 +641,8 @@
 
         function updatePaperNumber() {
             const inspType = document.getElementById('insp_type').value;
-            const paperNum = (inspType === '既有') ? 'P3-62-14A' : 'P3-62-13A';
-            document.getElementById('paper_number').value = paperNum;
+            // 永遠固定讀取 13A 範本，但 PDF 內的文字會根據選擇變更
+            document.getElementById('paper_number').value = (inspType === '既有') ? 'P3-62-14A' : 'P3-62-13A';
             document.getElementById('cert_label_display').innerHTML = (inspType === '既有') ? '合格<br>證明' : '合格<br>證';
         }
 
@@ -819,15 +819,15 @@
             btn.disabled = true;
 
             try {
-                let paperNum = '';
+                let templateFile = '';
                 if (docType === 'report') {
-                    paperNum = document.getElementById('paper_number').value; 
+                    templateFile = 'P3-62-13A'; // 💡 永遠固定讀取 13A 範本檔案
                 } else {
-                    paperNum = 'P3-62-18A'; 
+                    templateFile = 'P3-62-18A'; 
                 }
                 
-                const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
-                if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
+                const pdfRes = await fetch(`./assets/${templateFile}.pdf`);
+                if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + templateFile);
                 const pdfArrayBuffer = await pdfRes.arrayBuffer();
 
                 const { PDFDocument } = PDFLib;
@@ -939,7 +939,7 @@
                     { pdfField: 'vol_shell_vol_tube', val: `胴側: ${getVal('vol_shell')}   管側: ${getVal('vol_tube')}` },
                     { pdfField: 'toxic_shell_toxic_tube', val: `胴側: ${getVal('toxic_shell')}   管側: ${getVal('toxic_tube')}` },
                     { pdfField: 'vessel_type', val: vesselTitleVal },
-                    { pdfField: 'paperNumber', val: getVal('paper_number') },
+                    { pdfField: 'paperNumber', val: getVal('paper_number') }, // 💡 這裡會根據選擇填入 P3-62-13A 或 14A
                     { pdfField: 'detail_title', val: equipCategoryVal } 
                 ];
 
@@ -983,7 +983,7 @@
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
                 const isReport = docType === 'report';
-                btn.innerText = isReport ? '產出 檢查報告' : '產出 明細表)';
+                btn.innerText = isReport ? '產出 檢查報告' : '產出 明細表(18A)';
                 btn.disabled = false;
             }
         }
