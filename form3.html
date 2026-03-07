@@ -24,19 +24,16 @@
         
         input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #9b59b6; background-color: #f9ebff; box-shadow: 0 0 5px rgba(155, 89, 182, 0.5); }
+        .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
         .input-left { text-align: left !important; }
-        .text-left { text-align: left !important; padding-left: 10px !important;}
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
         textarea:focus { overflow-y: auto; }
         
-        .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
-
         .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #dcdde1 !important; background: transparent !important; color: #fff !important; }
         select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
         select.header-input option { color: #333; }
         
         .flex-row { display: flex; align-items: center; gap: 5px; }
-        .flex-between { display: flex; align-items: center; justify-content: space-between; width: 100%; }
         .checkbox-wrapper { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
         .w-xs { width: 50px !important; flex: none; }
         .w-sm { width: 80px !important; flex: none; }
@@ -46,11 +43,11 @@
         input[type="checkbox"], input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #9b59b6; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
-        /* 智慧詞庫浮動面板 */
+        /* 分區詞庫面板 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
         .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center;}
         .phrase-list { padding: 10px; max-height: 250px; overflow-y: auto; display: block; background: #fafafa;} 
-        .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; user-select: none; box-sizing: border-box; transition: 0.1s;}
+        .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; transition: 0.1s;}
         .phrase-chip:hover { background: #f9ebff; border-color: #9b59b6; color: #8e44ad;}
         .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
         .phrase-chip.del-mode:hover { background: #e74c3c; color: white; border-color: #c0392b;}
@@ -64,9 +61,7 @@
     <div class="toolbar">
         <div>
             <h1>熔接明細表 (16B) - 填寫系統</h1>
-            <div style="font-size:11px; color:#f9ebff; margin-top:4px;">
-                目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span>
-            </div>
+            <div style="font-size:11px; color:#f9ebff; margin-top:4px;">目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span></div>
         </div>
         <div style="display: flex; gap: 8px;">
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
@@ -78,10 +73,9 @@
     </div>
 
     <div class="container">
-        
         <div style="text-align: center; margin-bottom: 15px; background: #34495e; padding: 15px; border-radius: 6px;">
             <select id="assoc_name" class="header-input" style="width: 380px;">
-                <option value="" selected>-- 請選擇代檢機構 --</option>
+                <option value="" selected>-- 請選擇代檢機構 (不選則不套印) --</option>
                 <option value="中華鍋爐協會">中華鍋爐協會</option>
                 <option value="社團法人中華產業機械設備協會">社團法人中華產業機械設備協會</option>
                 <option value="中華民國工業安全衛生協會">中華民國工業安全衛生協會</option>
@@ -97,50 +91,39 @@
         </div>
 
         <table>
-            <colgroup>
-                <col style="width: 15%;">
-                <col style="width: 35%;">
-                <col style="width: 15%;">
-                <col style="width: 35%;">
-            </colgroup>
+            <colgroup><col style="width: 15%;"><col style="width: 35%;"><col style="width: 15%;"><col style="width: 35%;"></colgroup>
             <tr>
                 <td class="header-gray">編號</td>
-                <td><input type="text" id="report_no" class="input-left"></td>
+                <td><input type="text" id="report_no" class="input-left" data-category="基本資料"></td>
                 <td class="header-gray">型式及名稱</td>
-                <td><input type="text" id="equip_type" class="input-left"></td>
+                <td><input type="text" id="equip_type" class="input-left" data-category="基本資料"></td>
             </tr>
             <tr>
                 <td class="header-gray">最高使用壓力</td>
-                <td class="text-left">
-                    <div class="flex-row">胴側: <input type="text" id="press_shell" class="w-xs input-left"> 管側: <input type="text" id="press_tube" class="w-xs input-left"> kgf/cm²</div>
-                </td>
+                <td class="text-left"><input type="text" id="press_shell_press_tube" class="input-left" value="胴側:        管側:" data-category="基本資料"></td>
                 <td class="header-gray">最高使用溫度</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="max_temp" class="w-sm input-left"> °C</div></td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="max_temp" class="input-left" style="width: 100%;" data-category="基本資料"> °C</div></td>
             </tr>
             <tr>
                 <td class="header-gray">傳熱面積</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="heat_area" class="w-sm input-left"> m²</div></td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="heat_area" class="input-left" style="width: 100%;" data-category="基本資料"> m²</div></td>
                 <td class="header-gray">胴體內徑</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="shell_id" class="w-sm input-left"> mm</div></td>
+                <td class="text-left"><div class="flex-row"><input type="text" id="shell_id" class="input-left" style="width: 100%;" data-category="基本資料"> mm</div></td>
             </tr>
             <tr>
                 <td class="header-gray">內容積</td>
-                <td colspan="3" class="text-left"><div class="flex-row"><input type="text" id="vol" class="w-sm input-left"> m³</div></td>
+                <td colspan="3" class="text-left"><div class="flex-row"><input type="text" id="vol" class="input-left" style="width: 100%;" data-category="基本資料"> m³</div></td>
             </tr>
             <tr>
                 <td class="header-gray">熔接號碼</td>
-                <td class="text-left"><input type="text" id="weld_no" class="input-left"></td>
+                <td class="text-left"><input type="text" id="weld_no" class="input-left" data-category="基本資料"></td>
                 <td class="header-gray">檢查日期</td>
-                <td class="text-left"><input type="text" id="insp_date" class="w-md input-left" maxlength="7" placeholder="例:1120501" oninput="validateDate(this, 7)"></td>
+                <td class="text-left"><input type="text" id="insp_date" class="w-md input-left" maxlength="7" placeholder="例:1120501" oninput="validateDate(this, 7)" data-category="基本資料"></td>
             </tr>
         </table>
 
         <table>
-            <colgroup>
-                <col style="width: 25%;">
-                <col style="width: 35%;">
-                <col style="width: 40%;">
-            </colgroup>
+            <colgroup><col style="width: 25%;"><col style="width: 35%;"><col style="width: 40%;"></colgroup>
             <tr><th colspan="3" class="section-header">部 分 材 料 與 板 厚</th></tr>
             <tr>
                 <td class="header-gray">部 分</td>
@@ -149,59 +132,53 @@
             </tr>
             <tr>
                 <td class="header-gray">胴 體</td>
-                <td><input type="text" id="shell_mat"></td>
-                <td><input type="text" id="shell_t"></td>
+                <td><input type="text" id="shell_mat" data-category="部分材料與板厚"></td>
+                <td><input type="text" id="shell_t" data-category="部分材料與板厚"></td>
             </tr>
             <tr>
                 <td class="header-gray">端板或管板</td>
-                <td><input type="text" id="plate_mat"></td>
-                <td><input type="text" id="plate_t"></td>
+                <td><input type="text" id="plate_mat" data-category="部分材料與板厚"></td>
+                <td><input type="text" id="plate_t" data-category="部分材料與板厚"></td>
             </tr>
             <tr>
                 <td class="header-gray">蓋板或凸緣</td>
-                <td><input type="text" id="flange_mat"></td>
-                <td><input type="text" id="flange_t"></td>
+                <td><input type="text" id="flange_mat" data-category="部分材料與板厚"></td>
+                <td><input type="text" id="flange_t" data-category="部分材料與板厚"></td>
             </tr>
             <tr>
                 <td class="header-gray">爐筒或火室</td>
-                <td><input type="text" id="furnace_mat"></td>
-                <td><input type="text" id="furnace_t"></td>
+                <td><input type="text" id="furnace_mat" data-category="部分材料與板厚"></td>
+                <td><input type="text" id="furnace_t" data-category="部分材料與板厚"></td>
             </tr>
         </table>
 
         <table>
-            <colgroup>
-                <col style="width: 40%;">
-                <col style="width: 60%;">
-            </colgroup>
+            <colgroup><col style="width: 40%;"><col style="width: 60%;"></colgroup>
             <tr><th colspan="2" class="section-header">熔 接 詳 細 資 料</th></tr>
             <tr>
                 <td class="header-gray text-left">胴體縱接頭效率</td>
-                <td class="text-left"><textarea id="joint_eff" class="input-left" rows="2"></textarea></td>
+                <td class="text-left"><textarea id="joint_eff" class="input-left" rows="2" data-category="熔接詳細資料"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">胴體縱接頭種類及開槽形狀</td>
-                <td><textarea id="joint_type_long" class="input-left" rows="2"></textarea></td>
+                <td><textarea id="joint_type_long" class="input-left" rows="2" data-category="熔接詳細資料"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">胴體圓周接頭(包括胴體與端板之接頭)種類及開槽形狀</td>
-                <td><textarea id="joint_type_circ" class="input-left" rows="2"></textarea></td>
+                <td><textarea id="joint_type_circ" class="input-left" rows="2" data-category="熔接詳細資料"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">端板、管板、蓋板或凸緣等有接頭時其種類及開槽形狀</td>
-                <td><textarea id="joint_type_plate" class="input-left" rows="2"></textarea></td>
+                <td><textarea id="joint_type_plate" class="input-left" rows="2" data-category="熔接詳細資料"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">熔接條之種類</td>
-                <td><input type="text" id="weld_rod_type" class="input-left"></td>
+                <td><input type="text" id="weld_rod_type" class="input-left" data-category="熔接詳細資料"></td>
             </tr>
         </table>
 
         <table>
-            <colgroup>
-                <col style="width: 25%;">
-                <col style="width: 75%;">
-            </colgroup>
+            <colgroup><col style="width: 25%;"><col style="width: 75%;"></colgroup>
             <tr>
                 <td class="header-gray text-left">補強層修削方法</td>
                 <td class="text-left">
@@ -221,31 +198,98 @@
                         <label class="radio-label"><input type="radio" name="grp_stress" onchange="document.getElementById('stress_relief').value='爐內應力除去'">爐內應力除去</label>
                         <input type="hidden" id="stress_relief" value="">
                         <span style="margin-left:20px; font-weight:bold;">應力除去溫度: </span>
-                        <input type="text" id="stress_temp" class="w-sm"> °C
+                        <input type="text" id="stress_temp" class="w-sm" data-category="熔接詳細資料"> °C
                     </div>
                 </td>
             </tr>
             <tr>
                 <td class="header-gray text-left">製造廠名</td>
-                <td class="text-left"><input type="text" id="mfg_name" class="input-left"></td>
+                <td class="text-left"><input type="text" id="mfg_name" class="input-left" data-category="熔接詳細資料"></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">製造年月</td>
                 <td class="text-left">
-                    <div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205" oninput="validateDate(this, 5)"></div>
+                    <div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205" oninput="validateDate(this, 5)" data-category="熔接詳細資料"></div>
                 </td>
             </tr>
             <tr>
                 <td class="header-gray text-left">施工負責人姓名</td>
-                <td class="text-left"><input type="text" id="const_mgr" class="input-left"></td>
+                <td class="text-left"><input type="text" id="const_mgr" class="input-left" data-category="熔接詳細資料"></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">熔接人員姓名</td>
-                <td class="text-left"><input type="text" id="welder_name" class="input-left"></td>
+                <td class="text-left"><input type="text" id="welder_name" class="input-left" data-category="熔接詳細資料"></td>
+            </tr>
+        </table>
+
+        <table>
+            <colgroup>
+                <col style="width: 20%;">
+                <col style="width: 25%;">
+                <col style="width: 28%;">
+                <col style="width: 27%;">
+            </colgroup>
+            <tr><th colspan="4" class="section-header" style="background:#7f8c8d !important;">※ 試 驗 與 檢 查 結 果 (申請人勿填寫)</th></tr>
+            
+            <tr>
+                <td class="header-gray" rowspan="3">※機械試驗結果<br>(熔接部分)</td>
+                <td class="header-gray">抗拉試驗</td>
+                <td class="header-gray">自由或正面彎曲試驗</td>
+                <td class="header-gray">側面、反面彎曲試驗</td>
             </tr>
             <tr>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="flex-row">抗拉強度 <input type="text" id="tensile_strength" class="w-xs" data-category="熔接詳細資料"> kgf/mm²</div>
+                </td>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="checkbox-wrapper" style="justify-content: center;">
+                        <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='合格'">合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='不合格'">不合格</label>
+                        <input type="hidden" id="chk_bend_front" value="">
+                    </div>
+                </td>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="checkbox-wrapper" style="justify-content: center;">
+                        <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='合格'">合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='不合格'">不合格</label>
+                        <input type="hidden" id="chk_bend_side" value="">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="header-gray" style="text-align: center;">裂痕或不完全熔焊</td>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="checkbox-wrapper" style="justify-content: center;">
+                        <label class="radio-label"><input type="radio" name="grp_crack" onchange="document.getElementById('chk_bend_side_crack').value='有'">有</label>
+                        <label class="radio-label"><input type="radio" name="grp_crack" onchange="document.getElementById('chk_bend_side_crack').value='無'">無</label>
+                        <input type="hidden" id="chk_bend_side_crack" value="">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="header-gray" rowspan="2">※放射線檢查結果<br>(熔接部分)</td>
+                <td class="text-left" rowspan="2" style="vertical-align: middle;">
+                    <div class="checkbox-wrapper" style="flex-direction: column; align-items: flex-start; gap:8px; padding-left: 20px;">
+                        <label class="radio-label"><input type="radio" name="grp_rad" onchange="document.getElementById('rad_extent').value='全線照射'">全線照射</label>
+                        <label class="radio-label"><input type="radio" name="grp_rad" onchange="document.getElementById('rad_extent').value='部分照射'">部分照射</label>
+                        <input type="hidden" id="rad_extent" value="">
+                    </div>
+                </td>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="flex-row" style="justify-content: center;">氣孔程度 <input type="text" id="rad_pore_grade" class="w-xs" data-category="熔接詳細資料"> 級</div>
+                </td>
+                <td class="header-gray" rowspan="2">※檢查員簽章</td>
+            </tr>
+            <tr>
+                <td class="text-left" style="vertical-align: middle;">
+                    <div class="flex-row" style="justify-content: center;">熔渣滲入程度 <input type="text" id="rad_slag_grade" class="w-xs" data-category="熔接詳細資料"> 級</div>
+                </td>
+            </tr>
+
+            <tr>
                 <td class="header-gray text-left">備註</td>
-                <td class="text-left"><textarea id="remarks" class="input-left" rows="3"></textarea></td>
+                <td colspan="3" class="text-left"><textarea id="remarks" class="input-left" rows="3" data-category="熔接詳細資料"></textarea></td>
             </tr>
         </table>
     </div>
@@ -257,22 +301,22 @@
         </div>
         <div class="phrase-list" id="phrase-list"></div>
         <div class="phrase-actions">
-            <button class="btn-p-add" onclick="addCurrentToPhrase()">+ 加入詞庫</button>
+            <button class="btn-p-add" onclick="addCurrentToPhrase()">+ 加入分類詞庫</button>
             <button class="btn-p-del" id="toggle-del-btn" onclick="togglePhraseDelete()">🗑 刪除模式</button>
         </div>
     </div>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
+            const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+            window.getVal = getVal; 
+            
             initPhraseLibrary(); 
         });
 
         function validateDate(inputElement, requiredLength) {
             const val = inputElement.value.trim();
-            if (val === '') {
-                inputElement.classList.remove('input-error');
-                return;
-            }
+            if (val === '') { inputElement.classList.remove('input-error'); return; }
             const regex = new RegExp(`^\\d{${requiredLength}}$`);
             if (!regex.test(val)) {
                 inputElement.classList.add('input-error');
@@ -312,16 +356,17 @@
         function updateRadiosFromHidden() {
             const mappings = [
                 {id: 'weld_trim', group: 'grp_trim', vals: ['充份修削', '稍削', '不削']},
-                {id: 'stress_relief', group: 'grp_stress', vals: ['局部應力除去', '爐內應力除去']}
+                {id: 'stress_relief', group: 'grp_stress', vals: ['局部應力除去', '爐內應力除去']},
+                {id: 'chk_bend_front', group: 'grp_bend_f', vals: ['合格', '不合格']},
+                {id: 'chk_bend_side_crack', group: 'grp_crack', vals: ['有', '無']},
+                {id: 'chk_bend_side', group: 'grp_bend_s', vals: ['合格', '不合格']},
+                {id: 'rad_extent', group: 'grp_rad', vals: ['全線照射', '部分照射']}
             ];
-            
             mappings.forEach(m => {
                 const el = document.getElementById(m.id);
                 if (el && el.value) {
                     let radios = document.getElementsByName(m.group);
-                    m.vals.forEach((v, idx) => {
-                        if (el.value === v && radios[idx]) radios[idx].checked = true;
-                    });
+                    m.vals.forEach((v, idx) => { if (el.value === v && radios[idx]) radios[idx].checked = true; });
                 }
             });
         }
@@ -348,7 +393,6 @@
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -356,30 +400,38 @@
                     document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
                     document.getElementById('current-filename-display').style.color = "#8e44ad";
                     alert("檔案「" + file.name + "」載入成功！");
-                } catch(err) {
-                    alert("檔案解析失敗或格式不正確！");
-                }
+                } catch(err) { alert("檔案解析失敗！"); }
             };
             reader.readAsText(file);
             event.target.value = ""; 
         }
 
         // ==========================================
-        // 詞庫系統
+        // 💡 智慧分區詞庫系統
         // ==========================================
-        let myPhrases = [];
+        let myPhrases = {};
         let activeInput = null;
+        let activeCategory = '未分類';
         let isDelMode = false;
 
         function initPhraseLibrary() {
-            myPhrases = JSON.parse(localStorage.getItem('myPhrases') || '[]');
-            renderPhrases();
+            let saved = localStorage.getItem('myPhrasesObj');
+            if (saved) {
+                try {
+                    let parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) myPhrases = { "未分類": parsed };
+                    else myPhrases = parsed;
+                } catch(e) { myPhrases = {}; }
+            } else { myPhrases = {}; }
             
             document.addEventListener('focusin', function(e) {
                 if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
                     if(e.target.closest('#phrase-panel')) return; 
                     activeInput = e.target;
+                    activeCategory = activeInput.getAttribute('data-category') || '未分類';
+                    document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory;
                     document.getElementById('phrase-panel').style.display = 'flex'; 
+                    renderPhrases();
                 }
             });
         }
@@ -387,20 +439,22 @@
         function renderPhrases() {
             const list = document.getElementById('phrase-list');
             list.innerHTML = '';
-            if (myPhrases.length === 0) {
-                list.innerHTML = '<span style="color:#7f8c8d;font-size:12px;">目前無詞彙，請在表格輸入文字後點擊下方新增。</span>';
+            if (!myPhrases[activeCategory]) myPhrases[activeCategory] = [];
+            
+            if (myPhrases[activeCategory].length === 0) {
+                list.innerHTML = `<span style="color:#7f8c8d;font-size:12px;">【${activeCategory}】目前無詞彙，請在表格輸入文字後點擊下方新增。</span>`;
                 return;
             }
-            myPhrases.forEach((p, index) => {
+
+            myPhrases[activeCategory].forEach((p, index) => {
                 let chip = document.createElement('div');
                 chip.className = 'phrase-chip' + (isDelMode ? ' del-mode' : '');
                 chip.innerText = p;
-                
                 chip.onmousedown = function(e) {
                     e.preventDefault(); 
                     if (isDelMode) {
-                        if(confirm('確定要從詞庫刪除: 「' + p + '」 嗎？')) {
-                            myPhrases.splice(index, 1);
+                        if(confirm('確定要從【' + activeCategory + '】刪除: 「' + p + '」 嗎？')) {
+                            myPhrases[activeCategory].splice(index, 1);
                             savePhrasesToLocal();
                             renderPhrases();
                         }
@@ -426,18 +480,19 @@
         }
 
         function addCurrentToPhrase() {
-            if (!activeInput || !activeInput.value.trim()) { alert('請先在左側目前的輸入格內，打上你要加入的文字！'); return; }
+            if (!activeInput || !activeInput.value.trim()) { alert('請先在目前的輸入格內，打上你要加入的文字！'); return; }
             const newP = activeInput.value.trim();
-            if (myPhrases.includes(newP)) { alert('本機詞庫中已經有這個詞彙囉！'); return; }
-            myPhrases.push(newP);
+            if (!myPhrases[activeCategory]) myPhrases[activeCategory] = [];
+            if (myPhrases[activeCategory].includes(newP)) { alert('該分類詞庫中已經有這個詞彙囉！'); return; }
+            myPhrases[activeCategory].push(newP);
             savePhrasesToLocal();
             renderPhrases();
         }
 
         function savePhrasesToLocal() {
-            localStorage.setItem('myPhrases', JSON.stringify(myPhrases));
+            localStorage.setItem('myPhrasesObj', JSON.stringify(myPhrases));
             document.getElementById('phrase-title').innerText = '已儲存！';
-            setTimeout(() => document.getElementById('phrase-title').innerText = '常用詞庫', 1500);
+            setTimeout(() => document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory, 1500);
         }
 
         // ==========================================
@@ -449,8 +504,7 @@
             btn.disabled = true;
 
             try {
-                const paperNum = document.getElementById('paper_number').value; 
-                
+                const paperNum = window.getVal('paper_number'); 
                 const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
                 if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
                 const pdfArrayBuffer = await pdfRes.arrayBuffer();
@@ -469,12 +523,9 @@
                 
                 btn.innerText = '寫入資料中...';
 
-                // ==========================================
-                // 動態圓戳章 (座標: 398, 558)
-                // ==========================================
+                // 動態圓戳章
                 const assocName = document.getElementById('assoc_name').value;
                 let stampFile = '';
-                
                 if (assocName === '中華鍋爐協會') stampFile = 'stamp_boiler.png';
                 else if (assocName === '社團法人中華產業機械設備協會') stampFile = 'stamp_cmeea.png';
                 else if (assocName === '中華民國工業安全衛生協會') stampFile = 'stamp_isha.png';
@@ -485,51 +536,35 @@
                         if (imgRes.ok) {
                             const imgBytes = await imgRes.arrayBuffer();
                             const stampImage = await pdfDoc.embedPng(imgBytes);
-
                             const pages = pdfDoc.getPages();
                             const firstPage = pages[0];
-
                             const targetWidth = 140; 
                             const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
-
-                            firstPage.drawImage(stampImage, {
-                                x: 398,  
-                                y: 558,  
-                                width: targetWidth,
-                                height: targetHeight
-                            });
+                            firstPage.drawImage(stampImage, { x: 398, y: 558, width: targetWidth, height: targetHeight });
                         }
                     } catch (imgErr) { console.warn("無法載入戳章圖片", imgErr); }
                 }
-                
-                const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
 
-                // ==========================================
-                // 智慧防呆：打勾欄位寫入邏輯
-                // ==========================================
+                // 智慧防呆打勾
                 const checkPdfField = (fieldId) => {
-                    try { 
-                        form.getTextField(fieldId).setText('V'); 
-                    } catch(e) {
-                        try { 
-                            form.getCheckBox(fieldId).check(); 
-                        } catch(err) {}
-                    }
+                    try { form.getTextField(fieldId).setText('V'); } 
+                    catch(e) { try { form.getCheckBox(fieldId).check(); } catch(err) {} }
                 };
 
-                const trimVal = getVal('weld_trim');
-                if (trimVal === '充份修削') checkPdfField('chk_trim_1');
-                else if (trimVal === '稍削') checkPdfField('chk_trim_2');
-                else if (trimVal === '不削') checkPdfField('chk_trim_3');
+                const mappings = [
+                    {val: window.getVal('weld_trim'), opts: {'充份修削': 'chk_trim_1', '稍削': 'chk_trim_2', '不削': 'chk_trim_3'}},
+                    {val: window.getVal('stress_relief'), opts: {'局部應力除去': 'chk_stress_1', '爐內應力除去': 'chk_stress_2'}},
+                    {val: window.getVal('chk_bend_front'), opts: {'合格': 'chk_bend_f_1', '不合格': 'chk_bend_f_2'}},
+                    {val: window.getVal('chk_bend_side'), opts: {'合格': 'chk_bend_s_1', '不合格': 'chk_bend_s_2'}},
+                    {val: window.getVal('chk_bend_side_crack'), opts: {'有': 'chk_crack_1', '無': 'chk_crack_2'}},
+                    {val: window.getVal('rad_extent'), opts: {'全線照射': 'chk_rad_1', '部分照射': 'chk_rad_2'}}
+                ];
 
-                const stressVal = getVal('stress_relief');
-                if (stressVal === '局部應力除去') checkPdfField('chk_stress_1');
-                else if (stressVal === '爐內應力除去') checkPdfField('chk_stress_2');
+                mappings.forEach(m => {
+                    if (m.opts[m.val]) checkPdfField(m.opts[m.val]);
+                });
 
-                // ==========================================
-                // 一般欄位寫入
-                // ==========================================
-                const skipIds = ['paper_number', 'mfg_ym', 'press_shell', 'press_tube', 'weld_trim', 'stress_relief', 'insp_date']; 
+                const skipIds = ['paper_number', 'mfg_ym', 'press_shell', 'press_tube', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent']; 
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
@@ -552,40 +587,27 @@
                         } else {
                             const textField = form.getTextField(el.id);
                             if (el.value) {
-                                if (el.id === 'equip_category') {
-                                    textField.setText(el.value + "熔接明細表");
-                                } else {
-                                    textField.setText(el.value);
-                                }
+                                if (el.id === 'equip_category') textField.setText(el.value + "熔接明細表");
+                                else textField.setText(el.value);
                             }
-                            
                             if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
-                            if (el.id === 'joint_eff' || el.id === 'joint_type_long' || el.id === 'joint_type_circ' || el.id === 'joint_type_plate' || el.id === 'remarks') {
-                                textField.setFontSize(10);
-                            }
+                            if (['joint_eff', 'joint_type_long', 'joint_type_circ', 'joint_type_plate', 'remarks'].includes(el.id)) textField.setFontSize(10);
                         }
                     } catch (error) {}
                 });
 
-                // ==========================================
                 // 合併欄位寫入
-                // ==========================================
                 const customMerges = [
-                    { pdfField: 'press_shell_press_tube', val: `胴側: ${getVal('press_shell')}   管側: ${getVal('press_tube')}` }
+                    { pdfField: 'press_shell_press_tube', val: `胴側: ${window.getVal('press_shell')}   管側: ${window.getVal('press_tube')}` }
                 ];
-                
                 customMerges.forEach(merge => {
                     try {
                         const field = form.getTextField(merge.pdfField);
-                        if (field && merge.val.replace(/胴側:|管側:|\s/g, '').length > 0) {
-                            field.setText(merge.val);
-                        }
+                        if (field && merge.val.replace(/胴側:|管側:|\s/g, '').length > 0) field.setText(merge.val);
                     } catch(e) {}
                 });
 
-                // ==========================================
                 // 日期拆分邏輯
-                // ==========================================
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
@@ -598,8 +620,8 @@
                     }
                 };
 
-                writeSplitDate(getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null); 
-                writeSplitDate(getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d'); 
+                writeSplitDate(window.getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null); 
+                writeSplitDate(window.getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d'); 
 
                 form.updateFieldAppearances(customFont);
                 form.flatten();
@@ -613,7 +635,7 @@
             } catch (err) {
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
-                btn.innerText = '產出 明細表';
+                btn.innerText = '產出 明細表(16B)';
                 btn.disabled = false;
             }
         }
