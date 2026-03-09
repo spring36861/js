@@ -239,16 +239,23 @@
             </tr>
             <tr>
                 <td class="text-left" style="vertical-align: middle;">
-                    <div class="flex-row">抗拉強度 <input type="text" id="tensile_strength" class="w-xs" data-category="熔接詳細資料"> kgf/mm²</div>
+                    <div class="flex-row" style="justify-content: center;">抗拉強度 <input type="text" id="tensile_strength" class="w-xs" data-category="熔接詳細資料"> kgf/mm²</div>
                 </td>
-                <td class="text-left" style="vertical-align: middle;">
+                <td class="text-left" style="vertical-align: top; padding-top: 10px;">
+                    <div class="flex-row" style="justify-content: center; margin-bottom: 5px;">
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_front">圈選「正面」</label>
+                    </div>
                     <div class="checkbox-wrapper" style="justify-content: center;">
                         <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='合格'">合格</label>
                         <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='不合格'">不合格</label>
                         <input type="hidden" id="chk_bend_front" value="">
                     </div>
                 </td>
-                <td class="text-left" style="vertical-align: middle;">
+                <td class="text-left" style="vertical-align: top; padding-top: 10px;">
+                    <div class="flex-row" style="justify-content: center; margin-bottom: 5px; gap: 10px;">
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_side">圈選「側面」</label>
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_back">圈選「反面」</label>
+                    </div>
                     <div class="checkbox-wrapper" style="justify-content: center;">
                         <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='合格'">合格</label>
                         <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='不合格'">不合格</label>
@@ -450,6 +457,7 @@
                 let chip = document.createElement('div');
                 chip.className = 'phrase-chip' + (isDelMode ? ' del-mode' : '');
                 chip.innerText = p;
+                
                 chip.onmousedown = function(e) {
                     e.preventDefault(); 
                     if (isDelMode) {
@@ -523,6 +531,38 @@
                 
                 btn.innerText = '寫入資料中...';
 
+                // ==========================================
+                // 💡 繪製橢圓形 (圈選字眼功能)
+                // ==========================================
+                try {
+                    const ovalRes = await fetch(`./assets/oval.png`);
+                    if (ovalRes.ok) {
+                        const ovalBytes = await ovalRes.arrayBuffer();
+                        const ovalImage = await pdfDoc.embedPng(ovalBytes);
+                        const firstPage = pdfDoc.getPages()[0];
+                        
+                        // 👉 在這裡微調這三個圈選框的座標 (x, y) 以及寬高 (width, height)
+                        // (PDF座標原點在左下角，x往右移動，y往上移動)
+                        const oWidth = 30;   // 橢圓形寬度
+                        const oHeight = 15;  // 橢圓形高度
+                        
+                        // 1. 圈選「正面」
+                        if (document.getElementById('chk_oval_front').checked) {
+                            firstPage.drawImage(ovalImage, { x: 355, y: 261, width: oWidth, height: oHeight });
+                        }
+                        // 2. 圈選「側面」
+                        if (document.getElementById('chk_oval_side').checked) {
+                            firstPage.drawImage(ovalImage, { x: 427, y: 261, width: oWidth, height: oHeight });
+                        }
+                        // 3. 圈選「反面」
+                        if (document.getElementById('chk_oval_back').checked) {
+                            firstPage.drawImage(ovalImage, { x: 465, y: 261, width: oWidth, height: oHeight });
+                        }
+                    }
+                } catch (err) {
+                    console.warn("無法載入 oval.png，請確認檔案是否存在於 assets 資料夾下", err);
+                }
+
                 // 動態圓戳章
                 const assocName = document.getElementById('assoc_name').value;
                 let stampFile = '';
@@ -564,7 +604,7 @@
                     if (m.opts[m.val]) checkPdfField(m.opts[m.val]);
                 });
 
-                const skipIds = ['paper_number', 'mfg_ym', 'press_shell', 'press_tube', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent']; 
+                const skipIds = ['paper_number', 'mfg_ym', 'press_shell', 'press_tube', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent', 'chk_oval_front', 'chk_oval_side', 'chk_oval_back']; 
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
