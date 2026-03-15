@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>壓力容器 - 資料對應與填寫系統</title>
+    <title>壓力容器 - 檢查結果報告表/明細表 填寫系統</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 
@@ -12,8 +12,8 @@
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 80px; }
         .toolbar { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; color: white; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .toolbar h1 { margin: 0; font-size: 18px; line-height: 1.2;}
-        .btn-export { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-export:hover { background: #2ecc71; }
+        .btn-export { background: #e74c3c; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .btn-export:hover { background: #c0392b; }
         .btn-export:disabled { background: #95a5a6; cursor: not-allowed; }
         .btn-tool { color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
         .btn-tool:hover { filter: brightness(1.1); }
@@ -58,13 +58,15 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
-        /* 💡 選擇檢查種類彈出視窗 (Modal) */
+        /* 💡 選擇產出報表彈出視窗 (Modal) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 320px; }
-        .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; }
-        .modal-btn { display: block; width: 100%; padding: 12px; margin-bottom: 12px; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
-        .modal-btn:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(52,152,219,0.3); }
-        .modal-btn-cancel { background: #95a5a6; margin-top: 20px; }
+        .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
+        .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+        .modal-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; border: 1px solid #e9ecef; }
+        .modal-section h4 { margin: 0 0 12px 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .modal-btn { flex: 1; padding: 10px 0; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .modal-btn-cancel { width: 100%; background: #95a5a6; margin-top: 10px; }
         .modal-btn-cancel:hover { background: #7f8c8d; transform: none; box-shadow: none; }
     </style>
 </head>
@@ -80,16 +82,32 @@
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
             
-            <button class="btn-export" onclick="showInspTypeModal('report')" id="btn-pdf-report" style="background: #27ae60;">產出 檢查報告</button>
-            <button class="btn-export" onclick="showInspTypeModal('detail')" id="btn-pdf-detail" style="background: #2980b9;">產出 明細表</button>
+            <button class="btn-export" onclick="showCombinedModal()" id="btn-pdf-main">產出 PDF 報表</button>
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
     </div>
 
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 class="modal-title" id="insp-modal-title">請選擇檢查種類</h3>
-            <div id="insp-modal-buttons"></div>
+            <h3 class="modal-title">請選擇產出報表類型</h3>
+            
+            <div class="modal-section">
+                <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '竣工')">竣工</button>
+                    <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '既有')">既有</button>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4 style="color: #2980b9;">📋 明細表 (18A)</h4>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '構造')">構造</button>
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '重新')">重新</button>
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
+                </div>
+            </div>
+
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -107,7 +125,7 @@
         <table>
             <colgroup><col style="width: 8%;"><col style="width: 20%;"><col style="width: 52%;"><col style="width: 6%;"><col style="width: 14%;"></colgroup>
             <tr>
-                <td rowspan="2"><b>合格<br>證</b></td>
+                <td rowspan="2"><b id="cert_label_display">合格<br>證</b></td>
                 <td class="text-left"><div class="flex-row">第 <input type="text" id="cert_no" class="w-sm" data-category="基本資料"> 號</div></td>
                 <td rowspan="2" style="font-size: 18px; font-weight: bold; background: white; color: black; vertical-align: middle;">
                     <div class="flex-row" style="justify-content: center; gap: 15px;">
@@ -169,10 +187,10 @@
 
         <table>
             <colgroup>
-                <col style="width: 10%;"> <col style="width: 8%;"> <col style="width: 10%;"> 
+                <col style="width: 10%;"> <col style="width: 18%;"> <col style="width: 10%;"> 
                 <col style="width: 8%;"> <col style="width: 6%;"> <col style="width: 6%;"> 
                 <col style="width: 8%;"> <col style="width: 7%;"> <col style="width: 6%;"> 
-                <col style="width: 8%;"> <col style="width: 8%;"> <col style="width: 15%;"> 
+                <col style="width: 8%;"> <col style="width: 8%;"> <col style="width: 5%;"> 
             </colgroup>
             <tr><th colspan="12" class="section-header">構 造 檢 查</th></tr>
             
@@ -342,7 +360,7 @@
             </tr>
             <tr>
                 <td colspan="2">水壓試驗壓力<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
-                <td colspan="7" class="text-left"><div class="flex-row"><input type="text" id="test_press" class="w-sm input-left" data-category="安全閥與控制"> kgf/cm²</div></td>
+                <td colspan="7" class="text-left"><div class="flex-row" style="width: 100%;"><input type="text" id="test_press" class="input-left" style="flex: 1;" data-category="安全閥與控制"> <span style="flex: none;">kgf/cm²</span></div></td>
             </tr>
             <tr>
                 <td colspan="2">檢驗地址<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
@@ -378,13 +396,13 @@
                             <td class="header-gray">管材料</td><td class="header-gray">內徑</td><td class="header-gray">管厚</td><td class="header-gray">旋塞或瓣閥及數量</td>
                         </tr>
                         <tr>
-                            <td><input type="text" id="pg_max" data-category="竣工檢查"></td>
-                            <td><input type="text" id="pg_face" data-category="竣工檢查"></td>
-                            <td><input type="text" id="pg_qty" data-category="竣工檢查"></td>
-                            <td><input type="text" id="drain_mat" data-category="竣工檢查"></td>
-                            <td><input type="text" id="drain_id" data-category="竣工檢查"></td>
-                            <td><input type="text" id="drain_t" data-category="竣工檢查"></td>
-                            <td><input type="text" id="drain_valve" data-category="竣工檢查"></td>
+                            <td><textarea id="pg_max" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="pg_face" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="pg_qty" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="drain_mat" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="drain_id" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="drain_t" rows="1" data-category="竣工檢查"></textarea></td>
+                            <td><textarea id="drain_valve" rows="1" data-category="竣工檢查"></textarea></td>
                         </tr>
                         
                         <tr>
@@ -579,41 +597,22 @@
         window.addEventListener('DOMContentLoaded', () => {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
             window.getVal = getVal; 
-
+            
             initPhraseLibrary(); 
         });
 
-        let currentDocType = '';
-
-        // 💡 顯示彈出視窗
-        function showInspTypeModal(docType) {
-            currentDocType = docType;
-            const modal = document.getElementById('insp-modal');
-            const btnContainer = document.getElementById('insp-modal-buttons');
-            btnContainer.innerHTML = '';
-            
-            if (docType === 'report') {
-                document.getElementById('insp-modal-title').innerText = '請選擇【檢查報告】種類';
-                btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('竣工')">竣工</button>`;
-                btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('既有')">既有</button>`;
-            } else {
-                document.getElementById('insp-modal-title').innerText = '請選擇【明細表】種類';
-                btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('構造')">構造</button>`;
-                btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('重新')">重新</button>`;
-                btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('變更')">變更</button>`;
-            }
-            modal.style.display = 'flex';
+        // 💡 顯示整合型彈出視窗
+        function showCombinedModal() {
+            document.getElementById('insp-modal').style.display = 'flex';
         }
 
-        // 隱藏彈出視窗
         function closeInspModal() {
             document.getElementById('insp-modal').style.display = 'none';
         }
 
-        // 執行產出 PDF (接收彈出視窗選到的值)
-        function executeGeneratePDF(inspTypeVal) {
+        function executeGeneratePDF(docType, inspTypeVal) {
             closeInspModal();
-            generatePDF(currentDocType, inspTypeVal);
+            generatePDF(docType, inspTypeVal);
         }
 
         function validateDate(inputElement, requiredLength) {
@@ -806,8 +805,7 @@
         // 💡 PDF 產出邏輯 
         // ==========================================
         async function generatePDF(docType, inspTypeVal) {
-            let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
-            const btn = document.getElementById(btnId);
+            const btn = document.getElementById('btn-pdf-main');
             
             const originalBtnText = btn.innerText;
             btn.innerText = '讀取範本中...';
@@ -815,7 +813,6 @@
 
             try {
                 let templateFile = '';
-                // 💡 永遠固定讀取 13A 或 18A 當底圖檔案
                 if (docType === 'report') {
                     templateFile = 'P3-62-13A'; 
                 } else {
@@ -839,6 +836,27 @@
                 const form = pdfDoc.getForm();
                 
                 btn.innerText = '寫入資料中...';
+
+                // 💡 隱形處理：將 s8_qty 同步寫入 PDF 裡的 ss8_qty 欄位
+                try {
+                    if (window.getVal('s8_qty')) {
+                        const ss8Field = form.getTextField('ss8_qty');
+                        if (ss8Field) ss8Field.setText(window.getVal('s8_qty'));
+                    }
+                } catch(e) {}
+                
+                // 💡 額外處理：將 content_name 消除換行後，寫入 content_name2
+                try {
+                    let rawContent = window.getVal('content_name');
+                    if (rawContent) {
+                        let flatContent = rawContent.replace(/[\r\n]+/g, '');
+                        const c2Field = form.getTextField('content_name2');
+                        if (c2Field) {
+                            c2Field.setText(flatContent);
+                            c2Field.setFontSize(11);
+                        }
+                    }
+                } catch(e) {}
 
                 if (docType === 'detail') {
                     const assocName = document.getElementById('assoc_name').value;
@@ -893,7 +911,7 @@
                 safeSetText(['lvl2_size_2', 'lvl2_size', 'lvl2_dia', 'lvl2_dia_2'], window.getVal('lvl2_size_2'));
                 safeSetText(['lvl2_qty_2', 'lvl2_qty'], window.getVal('lvl2_qty_2'));
                 
-                const skipIds = ['equip_category', 'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'inspect_date', 'paper_number', 'lvl1_size_1', 'lvl1_qty_1', 'lvl2_size_2', 'lvl2_qty_2'];
+                const skipIds = ['equip_category', 'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'inspect_date', 'paper_number', 'lvl1_size_1', 'lvl1_qty_1', 'lvl2_size_2', 'lvl2_qty_2', 'ss8_qty'];
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
@@ -923,6 +941,42 @@
                                 writeValue = '-';
                             }
 
+                            // ==========================================
+                            // 💡 智慧換行計算：中文(全形)算2單位，英文數字(半形)算1單位
+                            // ==========================================
+                            if (el.tagName.toLowerCase() === 'textarea' && ['insp_notes', 'detail_rem', 'content_name', 'joint_type'].includes(el.id)) {
+                                if (writeValue) {
+                                    let lines = writeValue.split('\n');
+                                    let newText = [];
+                                    
+                                    // 💡 設定特定欄位的最大寬度 (明細表為41字=82單位，其餘16字=32單位)
+                                    const MAX_WIDTH = (el.id === 'detail_rem') ? 82 : 32; 
+
+                                    lines.forEach(line => {
+                                        let currentLine = '';
+                                        let currentWidth = 0;
+
+                                        for (let i = 0; i < line.length; i++) {
+                                            let char = line[i];
+                                            let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
+
+                                            if (currentWidth + charWidth > MAX_WIDTH) {
+                                                newText.push(currentLine);
+                                                currentLine = char;
+                                                currentWidth = charWidth;
+                                            } else {
+                                                currentLine += char;
+                                                currentWidth += charWidth;
+                                            }
+                                        }
+                                        if (currentLine) {
+                                            newText.push(currentLine);
+                                        }
+                                    });
+                                    writeValue = newText.join('\n');
+                                }
+                            }
+
                             if (writeValue) textField.setText(writeValue);
                             
                             if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
@@ -936,7 +990,7 @@
                     ? `${inspTypeVal}${equipCategoryVal}檢查結果報告表` 
                     : `${equipCategoryVal}${inspTypeVal}檢查結果報告表`;
 
-                // 💡 寫入 insp_type 到對應的 PDF 欄位中
+                // 寫入 insp_type 到對應的 PDF 欄位中
                 try {
                     const inspTypeField = form.getTextField('insp_type');
                     if (inspTypeField) inspTypeField.setText(inspTypeVal);
@@ -947,7 +1001,6 @@
                     if (certTitleField) certTitleField.setText(inspTypeVal === '既有' ? '合格證明' : '合格證');
                 } catch(e) {}
 
-                // 決定要在 PDF 裡面印出什麼編號
                 let displayPaperNumber = templateFile; 
                 if (docType === 'report' && inspTypeVal === '既有') {
                     displayPaperNumber = 'P3-62-14A'; 
