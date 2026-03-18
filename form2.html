@@ -32,6 +32,7 @@
         input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #e74c3c; background-color: #fdf2e9; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); }
         .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
+        .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
         .input-left { text-align: left !important; }
         .text-left { text-align: left !important; padding-left: 10px !important;}
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
@@ -57,10 +58,10 @@
         input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #e74c3c; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
-        /* 分區詞庫面板 */
-        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
-        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center;}
-        .phrase-list { padding: 10px; max-height: 250px; overflow-y: auto; display: block; background: #fafafa;} 
+        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
+        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
+        .phrase-header:active { cursor: grabbing; }
+        .phrase-list { padding: 10px; max-height: 200px; overflow-y: auto; display: block; background: #fafafa;} 
         .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; transition: 0.1s;}
         .phrase-chip:hover { background: #e8f4f8; border-color: #3498db; color: #2980b9;}
         .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
@@ -69,14 +70,27 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
-        /* 💡 選擇檢查種類彈出視窗 (Modal) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 320px; }
-        .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; }
-        .modal-btn { display: block; width: 100%; padding: 12px; margin-bottom: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
-        .modal-btn:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
-        .modal-btn-cancel { background: #95a5a6; margin-top: 20px; }
+        .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
+        .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+        .modal-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; border: 1px solid #e9ecef; }
+        .modal-section h4 { margin: 0 0 12px 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .modal-btn { flex: 1; padding: 10px 0; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .modal-btn-cancel { width: 100%; background: #95a5a6; margin-top: 10px; }
         .modal-btn-cancel:hover { background: #7f8c8d; transform: none; box-shadow: none; }
+
+        .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
+        .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
+        .align-cell:hover { background: #d35400; }
+        .align-cell.active { background: #e74c3c; border-color: #c0392b; }
+        .align-cell::after { content: ''; width: 4px; height: 4px; background: #95a5a6; border-radius: 50%; } 
+        .align-cell.active::after { background: #fff; }
+
+        .align-row { display: flex; gap: 2px; width: 55px; height: 22px; flex: none; }
+        .align-btn { flex: 1; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; font-size: 10px; color:#2c3e50; display:flex; align-items:center; justify-content:center; transition: 0.1s;}
+        .align-btn:hover { background: #d35400; color:white;}
+        .align-btn.active { background: #e74c3c; color:white; border-color: #c0392b; }
     </style>
 </head>
 <body>
@@ -90,17 +104,31 @@
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
-            
-            <button class="btn-export" onclick="generatePDF('report', '竣工')" id="btn-pdf-report" style="background: #27ae60;">產出 報告表</button>
-            <button class="btn-export" onclick="showInspTypeModal('detail')" id="btn-pdf-detail" style="background: #2980b9;">產出 明細表</button>
+            <button class="btn-export" onclick="showCombinedModal()" id="btn-pdf-main">產出 PDF 報表</button>
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
     </div>
 
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 class="modal-title" id="insp-modal-title">請選擇明細表種類</h3>
-            <div id="insp-modal-buttons"></div>
+            <h3 class="modal-title">請選擇產出報表類型</h3>
+            
+            <div class="modal-section">
+                <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '竣工')">竣工</button>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4 style="color: #2980b9;">📋 明細表 (17A)</h4>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '構造')">構造</button>
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '重新')">重新</button>
+                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
+                </div>
+            </div>
+
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -398,7 +426,7 @@
             
             <tr>
                 <td class="header-gray">水壓試驗壓力<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
-                <td colspan="6" class="text-left"><div class="flex-row"><input type="text" id="test_press" class="w-sm input-left" data-category="安全裝置與控制"> kgf/cm²</div></td>
+                <td colspan="6" class="text-left"><div class="flex-row" style="width: 100%;"><input type="text" id="test_press" class="input-left" style="flex: 1;" data-category="安全裝置與控制"> <span style="flex: none;">kgf/cm²</span></div></td>
             </tr>
             <tr>
                 <td class="header-gray">檢驗地址<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
@@ -507,11 +535,11 @@
                             </td>
                             <td class="text-left">
                                 <div class="flex-between">
-                                    <span>水位測定裝置</span>
+                                    <span>壓力表</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='無'">無</label>
-                                        <input type="hidden" id="chk_water_lvl_dev" value="" data-category="竣工檢查">
+                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='無'">無</label>
+                                        <input type="hidden" id="chk_pg" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
@@ -562,11 +590,11 @@
                             </td>
                             <td class="text-left">
                                 <div class="flex-between">
-                                    <span>自動控制裝置</span>
+                                    <span>水位測定裝置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='無'">無</label>
-                                        <input type="hidden" id="chk_auto_ctrl" value="" data-category="竣工檢查">
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='無'">無</label>
+                                        <input type="hidden" id="chk_water_lvl_dev" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
@@ -587,11 +615,11 @@
                             </td>
                             <td class="text-left">
                                 <div class="flex-between">
-                                    <span>附屬裝置</span>
+                                    <span>自動控制裝置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='無'">無</label>
-                                        <input type="hidden" id="chk_attach_dev" value="" data-category="竣工檢查">
+                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='無'">無</label>
+                                        <input type="hidden" id="chk_auto_ctrl" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
@@ -610,7 +638,14 @@
                                 </div>
                             </td>
                             <td class="text-left">
-                                
+                                <div class="flex-between">
+                                    <span>附屬裝置</span>
+                                    <div class="checkbox-wrapper">
+                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='無'">無</label>
+                                        <input type="hidden" id="chk_attach_dev" value="" data-category="竣工檢查">
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </table>
@@ -624,6 +659,17 @@
             <span id="phrase-title">常用詞庫</span>
             <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;">✖</button>
         </div>
+        
+        <div style="padding: 5px 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; text-align: center;">
+            <button onclick="toggleFontSettings()" style="width: 100%; padding: 5px; font-size: 12px; background: #34495e; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️ 切換 PDF 排版設定</button>
+        </div>
+
+        <div id="font-settings-container" style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #2c3e50;">🖋️ 針對目前欄位的排版設定</div>
+            <div id="font-size-inputs"></div>
+            <button onclick="resetFontSizes()" style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻ 清除目前欄位排版設定</button>
+        </div>
+
         <div class="phrase-list" id="phrase-list"></div>
         <div class="phrase-actions">
             <button class="btn-p-add" onclick="addCurrentToPhrase()">+ 加入分類詞庫</button>
@@ -632,47 +678,103 @@
     </div>
 
     <script>
+        let customFontSizes = {};
+        let customWrapLimits = {};
+        let customAlignments = {}; 
+
+        const fieldMappingObj = {
+            'cert_ymd': [{id: 'cert_ymd_y'}, {id: 'cert_ymd_m'}, {id: 'cert_ymd_d'}],
+            'mfg_ym': [{id: 'mfg_ym_y'}, {id: 'mfg_ym_m'}],
+            'b_insp_date2': [{id: 'b_insp_date2_y'}, {id: 'b_insp_date2_m'}, {id: 'b_insp_date2_d'}],
+            'valid_f_date': [{id: 'valid_f_date_y'}, {id: 'valid_f_date_m'}, {id: 'valid_f_date_d'}],
+            'valid_t_date': [{id: 'valid_t_date_y'}, {id: 'valid_t_date_m'}, {id: 'valid_t_date_d'}],
+            'insp_date': [{id: 'insp_date_y'}, {id: 'insp_date_m'}, {id: 'insp_date_d'}],
+            'b_inspect_date': [{id: 'b_inspect_ymd_y'}, {id: 'b_inspect_ymd_m'}, {id: 'b_inspect_ymd_d'}]
+        };
+
+        const fieldMappingLocal = {
+            'cert_ymd': [{id: 'cert_ymd_y', label: '年'}, {id: 'cert_ymd_m', label: '月'}, {id: 'cert_ymd_d', label: '日'}],
+            'mfg_ym': [{id: 'mfg_ym_y', label: '年'}, {id: 'mfg_ym_m', label: '月'}],
+            'b_insp_date2': [{id: 'b_insp_date2_y', label: '年'}, {id: 'b_insp_date2_m', label: '月'}, {id: 'b_insp_date2_d', label: '日'}],
+            'valid_f_date': [{id: 'valid_f_date_y', label: '年'}, {id: 'valid_f_date_m', label: '月'}, {id: 'valid_f_date_d', label: '日'}],
+            'valid_t_date': [{id: 'valid_t_date_y', label: '年'}, {id: 'valid_t_date_m', label: '月'}, {id: 'valid_t_date_d', label: '日'}],
+            'insp_date': [{id: 'insp_date_y', label: '年'}, {id: 'insp_date_m', label: '月'}, {id: 'insp_date_d', label: '日'}],
+            'b_inspect_date': [{id: 'b_inspect_ymd_y', label: '年'}, {id: 'b_inspect_ymd_m', label: '月'}, {id: 'b_inspect_ymd_d', label: '日'}]
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
             window.getVal = getVal; 
             
             initPhraseLibrary(); 
+            makePanelDraggable(); 
+            updateHighlights();
         });
 
-        let currentDocType = '';
+        function makePanelDraggable() {
+            const panel = document.getElementById('phrase-panel');
+            const header = panel.querySelector('.phrase-header');
+            let isDragging = false;
+            let offsetX, offsetY;
 
-        // 💡 顯示彈出視窗 (僅供明細表使用)
-        function showInspTypeModal(docType) {
-            currentDocType = docType;
-            const modal = document.getElementById('insp-modal');
-            const btnContainer = document.getElementById('insp-modal-buttons');
-            btnContainer.innerHTML = '';
-            
-            document.getElementById('insp-modal-title').innerText = '請選擇【明細表】種類';
-            btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('構造')">構造</button>`;
-            btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('重新')">重新</button>`;
-            btnContainer.innerHTML += `<button class="modal-btn" onclick="executeGeneratePDF('變更')">變更</button>`;
-            
-            modal.style.display = 'flex';
+            header.addEventListener('mousedown', function(e) {
+                if(e.target.tagName === 'BUTTON') return; 
+                isDragging = true;
+                header.style.cursor = 'grabbing';
+                const rect = panel.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+                panel.style.left = rect.left + 'px';
+                panel.style.top = rect.top + 'px';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                e.preventDefault(); 
+                let x = e.clientX - offsetX;
+                let y = e.clientY - offsetY;
+                x = Math.max(0, Math.min(x, window.innerWidth - panel.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - panel.offsetHeight));
+                panel.style.left = x + 'px';
+                panel.style.top = y + 'px';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    header.style.cursor = 'grab';
+                }
+            });
         }
 
-        // 隱藏彈出視窗
-        function closeInspModal() {
-            document.getElementById('insp-modal').style.display = 'none';
+        function updateHighlights() {
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(el => {
+                if (!el.id) return;
+                let pdfFields = fieldMappingObj[el.id] || [{id: el.id}];
+                let hasCustom = pdfFields.some(f => customFontSizes[f.id] || customWrapLimits[f.id] || customAlignments[f.id]);
+                if (hasCustom) el.classList.add('has-custom-setting');
+                else el.classList.remove('has-custom-setting');
+            });
         }
 
-        // 執行產出 PDF (接收彈出視窗選到的值)
-        function executeGeneratePDF(inspTypeVal) {
+        window.toggleFontSettings = function() {
+            const container = document.getElementById('font-settings-container');
+            container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        }
+
+        function showCombinedModal() { document.getElementById('insp-modal').style.display = 'flex'; }
+        function closeInspModal() { document.getElementById('insp-modal').style.display = 'none'; }
+        function executeGeneratePDF(docType, inspTypeVal) {
             closeInspModal();
-            generatePDF(currentDocType, inspTypeVal);
+            generatePDF(docType, inspTypeVal);
         }
 
         function validateDate(inputElement, requiredLength) {
             const val = inputElement.value.trim();
-            if (val === '') {
-                inputElement.classList.remove('input-error');
-                return;
-            }
+            if (val === '') { inputElement.classList.remove('input-error'); return; }
             const regex = new RegExp(`^\\d{${requiredLength}}$`);
             if (!regex.test(val)) {
                 inputElement.classList.add('input-error');
@@ -700,12 +802,20 @@
                 if (el.type === 'checkbox') data[el.id] = el.checked;
                 else data[el.id] = el.value;
             });
+            data['_fontSizes'] = customFontSizes;
+            data['_wrapLimits'] = customWrapLimits;
+            data['_alignments'] = customAlignments;
             return JSON.stringify(data, null, 2);
         }
 
         function restoreFormData(jsonStr) {
             let data = JSON.parse(jsonStr);
+            customFontSizes = data['_fontSizes'] || {};
+            customWrapLimits = data['_wrapLimits'] || {};
+            customAlignments = data['_alignments'] || {};
+
             for (let id in data) {
+                if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
                 let el = document.getElementById(id);
                 if (el) {
                     if (el.type === 'checkbox') el.checked = data[id];
@@ -722,6 +832,8 @@
             if(document.getElementById('fuel_coal')) document.getElementById('fuel_coal').checked = fuelVal.includes('煤炭');
             if(document.getElementById('fuel_gas')) document.getElementById('fuel_gas').checked = fuelVal.includes('瓦斯');
             if(document.getElementById('fuel_other')) document.getElementById('fuel_other').checked = fuelVal.includes('其他');
+            
+            updateHighlights();
         }
 
         function updateRadiosFromHidden() {
@@ -748,7 +860,7 @@
         }
 
         function doSaveLocal() {
-            let defaultName = document.getElementById('equip_no').value || "鍋爐未命名";
+            let defaultName = document.getElementById('equip_no').value || "未命名";
             let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_表單");
             if (!filename) return;
 
@@ -769,7 +881,6 @@
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -777,17 +888,12 @@
                     document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
                     document.getElementById('current-filename-display').style.color = "#2980b9";
                     alert("檔案「" + file.name + "」載入成功！");
-                } catch(err) {
-                    alert("檔案解析失敗或格式不正確！");
-                }
+                } catch(err) { alert("檔案解析失敗或格式不正確！"); }
             };
             reader.readAsText(file);
             event.target.value = ""; 
         }
 
-        // ==========================================
-        // 💡 智慧分區詞庫系統
-        // ==========================================
         let myPhrases = {};
         let activeInput = null;
         let activeCategory = '未分類';
@@ -810,9 +916,111 @@
                     activeCategory = activeInput.getAttribute('data-category') || '未分類';
                     document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory;
                     document.getElementById('phrase-panel').style.display = 'flex'; 
+                    
+                    renderFontSettings(); 
                     renderPhrases();
                 }
             });
+        }
+
+        function renderFontSettings() {
+            const container = document.getElementById('font-size-inputs');
+            container.innerHTML = '';
+            if (!activeInput || !activeInput.id) return;
+            
+            let pdfFields = fieldMappingLocal[activeInput.id] || [{id: activeInput.id, label: '單一欄位'}];
+            
+            pdfFields.forEach(fieldObj => {
+                let val = customFontSizes[fieldObj.id] || '';
+                let wrapVal = customWrapLimits[fieldObj.id] || '';
+                let alignVal = customAlignments[fieldObj.id] || '';
+                
+                let el = document.getElementById(activeInput.id);
+                let isMultiline = (el && el.tagName.toLowerCase() === 'textarea');
+                
+                let div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'space-between';
+                div.style.marginBottom = '8px';
+                div.style.borderBottom = '1px dashed #dcdde1';
+                div.style.paddingBottom = '6px';
+                
+                let wrapInputHtml = isMultiline ? `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">` : ``;
+
+                let alignHtml = '';
+                if (isMultiline) {
+                    alignHtml = `
+                        <div class="align-grid">
+                            <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                            <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                            <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                            <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                            <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                            <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                            <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                            <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                            <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                        </div>
+                    `;
+                } else {
+                    alignHtml = `
+                        <div class="align-row">
+                            <div class="align-btn ${alignVal==='L'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'L')">左</div>
+                            <div class="align-btn ${alignVal==='C'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'C')">中</div>
+                            <div class="align-btn ${alignVal==='R'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'R')">右</div>
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    <div style="font-size:11px; color:#34495e; width: 80px; word-break:break-all;">
+                        <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
+                    </div>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
+                        ${wrapInputHtml}
+                        ${alignHtml}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.updateFontSize = function(el) {
+            let pdfField = el.getAttribute('data-pdf-field');
+            if (el.value) customFontSizes[pdfField] = Number(el.value);
+            else delete customFontSizes[pdfField];
+            updateHighlights();
+        }
+
+        window.updateWrapLimit = function(el) {
+            let wrapField = el.getAttribute('data-wrap-field');
+            if (el.value) customWrapLimits[wrapField] = Number(el.value);
+            else delete customWrapLimits[wrapField];
+            updateHighlights();
+        }
+
+        window.updateAlign = function(fieldId, alignCode) {
+            if (customAlignments[fieldId] === alignCode) {
+                delete customAlignments[fieldId]; 
+            } else {
+                customAlignments[fieldId] = alignCode;
+            }
+            renderFontSettings(); 
+            updateHighlights();
+        }
+
+        window.resetFontSizes = function() {
+            if (!activeInput || !activeInput.id) return;
+            let pdfFields = fieldMappingObj[activeInput.id] || [{id: activeInput.id}];
+            pdfFields.forEach(fieldObj => {
+                delete customFontSizes[fieldObj.id];
+                delete customWrapLimits[fieldObj.id];
+                delete customAlignments[fieldObj.id];
+            });
+            renderFontSettings(); 
+            updateHighlights();
         }
 
         function renderPhrases() {
@@ -871,20 +1079,17 @@
 
         function savePhrasesToLocal() {
             localStorage.setItem('myPhrasesObj', JSON.stringify(myPhrases));
-            document.getElementById('phrase-title').innerText = '已儲存！';
-            setTimeout(() => document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory, 1500);
         }
 
         // ==========================================
-        // 💡 PDF 產出邏輯
+        // 💡 PDF 產出邏輯 
         // ==========================================
-        // 💡 修改：加入預設值 '竣工'，讓一鍵產出報告表能順利執行
-        async function generatePDF(docType, inspTypeVal = '竣工') {
-            let btnId = docType === 'report' ? 'btn-pdf-report' : 'btn-pdf-detail';
+        async function generatePDF(docType, inspTypeVal) {
+            let btnId = 'btn-pdf-main';
             const btn = document.getElementById(btnId);
-
+            
             const originalBtnText = btn.innerText;
-            btn.innerText = '讀取 PDF 範本中...';
+            btn.innerText = '讀取範本中...';
             btn.disabled = true;
 
             try {
@@ -907,7 +1112,61 @@
                 const form = pdfDoc.getForm();
                 
                 btn.innerText = '寫入資料中...';
-                
+
+                // ==========================================
+                // 💡 上帝模式：絕對座標與精準對齊繪圖法
+                // ==========================================
+                const drawTextAbsolutely = (fieldObj, text, targetFontSize, isTextArea, fieldId) => {
+                    if (!text) return;
+                    const widgets = fieldObj.acroField.getWidgets();
+                    if (!widgets || widgets.length === 0) return;
+                    
+                    const rect = widgets[0].getRectangle();
+                    const firstPage = pdfDoc.getPages()[0]; 
+                    const lines = text.split('\n');
+                    
+                    fieldObj.setText(''); // 清空預設值
+
+                    let align = customAlignments[fieldId];
+                    if (!align) {
+                        align = isTextArea ? 'TL' : 'ML'; 
+                    }
+                    if (!isTextArea && ['L', 'C', 'R'].includes(align)) {
+                        align = 'M' + align; 
+                    }
+
+                    let actualFontSize = targetFontSize;
+                    let totalHeight = lines.length * (actualFontSize * 1.2);
+
+                    let startY;
+                    const vAlign = align.charAt(0);
+                    if (vAlign === 'T') {
+                        startY = rect.y + rect.height - actualFontSize - 2;
+                    } else if (vAlign === 'B') {
+                        startY = rect.y + totalHeight - actualFontSize + 2;
+                    } else { // 'M' 中間
+                        startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
+                    }
+
+                    let currentY = startY;
+                    lines.forEach(line => {
+                        let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
+                        let xPos;
+                        const hAlign = align.charAt(1) || align.charAt(0);
+                        
+                        if (hAlign === 'R') {
+                            xPos = rect.x + rect.width - lineWidth - 2;
+                        } else if (hAlign === 'C') {
+                            xPos = rect.x + (rect.width - lineWidth) / 2;
+                        } else { // 'L'
+                            xPos = rect.x + 2;
+                        }
+
+                        firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
+                        currentY -= (actualFontSize * 1.2); 
+                    });
+                };
+
                 if (docType === 'detail') {
                     const assocName = document.getElementById('assoc_name').value;
                     let stampFile = '';
@@ -925,10 +1184,9 @@
                                 const firstPage = pages[0];
                                 const targetWidth = 140; 
                                 const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
-
                                 firstPage.drawImage(stampImage, { x: 395, y: 620, width: targetWidth, height: targetHeight });
                             }
-                        } catch (imgErr) { console.warn("無法載入戳章圖片", imgErr); }
+                        } catch (imgErr) {}
                     }
                 }
                 
@@ -936,13 +1194,12 @@
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
-                    if (!el.id || skipIds.includes(el.id)) return;
-                    if(el.name === 'fuel_cb') return; 
+                    if (!el.id || skipIds.includes(el.id) || el.name === 'fuel_cb') return;
 
                     try {
                         const field = form.getField(el.id);
                         if (!field) return; 
-                        
+
                         if (el.type === 'checkbox') {
                             try {
                                 const textField = form.getTextField(el.id);
@@ -955,31 +1212,75 @@
                             }
                         } else {
                             const textField = form.getTextField(el.id);
-
-                            // 💡 將被選擇「無」的隱藏變數值改為寫入 "-"
                             let writeValue = el.value;
+                            if (el.id === 'equip_category' && writeValue) writeValue += "明細表";
+
                             const radioHiddenIds = ['chk_install_pos', 'chk_install_found', 'chk_install_method', 'chk_chimney', 'chk_op_select', 'chk_op_qual', 'chk_sv', 'chk_pg', 'chk_brick', 'chk_water_lvl_dev', 'chk_auto_ctrl', 'chk_attach_dev'];
-                            if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) {
-                                writeValue = '-';
+                            if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) writeValue = '-';
+
+                            let isTextArea = el.tagName.toLowerCase() === 'textarea';
+
+                            if (isTextArea && ['b_joint_type', 'summary', 'detail_rem', 'insp_notes'].includes(el.id)) {
+                                if (writeValue) {
+                                    let lines = writeValue.split('\n');
+                                    let newText = [];
+                                    let defaultWrap = (el.id === 'detail_rem') ? 38 : 16; 
+                                    let targetChars = customWrapLimits[el.id] ? Number(customWrapLimits[el.id]) : defaultWrap;
+                                    const MAX_WIDTH = targetChars * 2; 
+
+                                    lines.forEach(line => {
+                                        let currentLine = '';
+                                        let currentWidth = 0;
+                                        for (let i = 0; i < line.length; i++) {
+                                            let char = line[i];
+                                            let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
+
+                                            if (currentWidth + charWidth > MAX_WIDTH) {
+                                                newText.push(currentLine);
+                                                currentLine = char;
+                                                currentWidth = charWidth;
+                                            } else {
+                                                currentLine += char;
+                                                currentWidth += charWidth;
+                                            }
+                                        }
+                                        if (currentLine) newText.push(currentLine);
+                                    });
+                                    writeValue = newText.join('\n');
+                                }
                             }
 
-                            if (writeValue) textField.setText(writeValue);
-                            
-                            if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
-                            if (el.id === 'b_joint_type' || el.id === 'summary' || el.id === 'detail_rem') textField.setFontSize(10);
+                            if (customFontSizes[el.id] || customAlignments[el.id]) {
+                                let fontSizeToUse = customFontSizes[el.id] ? Number(customFontSizes[el.id]) : 11;
+                                drawTextAbsolutely(textField, writeValue, fontSizeToUse, isTextArea, el.id);
+                            } else {
+                                if (['b_joint_type', 'summary', 'detail_rem'].includes(el.id)) textField.setFontSize(10);
+                                if (isTextArea) try { textField.enableMultiline(); } catch(e){} 
+                                textField.setText(writeValue);
+                            }
                         }
                     } catch (error) {}
                 });
 
-                // 💡 寫入 insp_type 到對應的 PDF 欄位中
                 try {
                     const inspTypeField = form.getTextField('insp_type');
-                    if (inspTypeField) inspTypeField.setText(inspTypeVal);
+                    if (inspTypeField) {
+                        if (customFontSizes['insp_type'] || customAlignments['insp_type']) {
+                            let size = customFontSizes['insp_type'] ? Number(customFontSizes['insp_type']) : 11;
+                            drawTextAbsolutely(inspTypeField, inspTypeVal, size, false, 'insp_type');
+                        } else inspTypeField.setText(inspTypeVal);
+                    }
                 } catch(e) {}
 
                 try {
                     const certTitleField = form.getTextField('cert_title');
-                    if (certTitleField) certTitleField.setText(inspTypeVal === '既有' ? '合格證明' : '合格證');
+                    if (certTitleField) {
+                        let cVal = inspTypeVal === '既有' ? '合格證明' : '合格證';
+                        if (customFontSizes['cert_title'] || customAlignments['cert_title']) {
+                            let size = customFontSizes['cert_title'] ? Number(customFontSizes['cert_title']) : 11;
+                            drawTextAbsolutely(certTitleField, cVal, size, false, 'cert_title');
+                        } else certTitleField.setText(cVal);
+                    }
                 } catch(e) {}
 
                 const mergeSlash = (val1, val2) => {
@@ -1016,20 +1317,24 @@
                 customMerges.forEach(merge => {
                     try {
                         const field = form.getTextField(merge.pdfField);
-                        if (field && merge.val.replace(/胴側:|管側:|\s|\//g, '').length > 0) field.setText(merge.val);
+                        if (field && merge.val.replace(/胴側:|管側:|\s|\//g, '').length > 0) {
+                            if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField]) {
+                                let size = customFontSizes[merge.pdfField] ? Number(customFontSizes[merge.pdfField]) : 11;
+                                drawTextAbsolutely(field, merge.val, size, false, merge.pdfField);
+                            } else field.setText(merge.val);
+                        }
                     } catch(e) {}
                 });
 
-                // 日期拆分邏輯
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
-                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
-                        try { form.getTextField(dId).setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
                     } else if (val.length === 5 && !dId) {
-                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
-                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
                     }
                 };
 
@@ -1053,7 +1358,7 @@
             } catch (err) {
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
-                btn.innerText = originalBtnText;
+                btn.innerText = '產出 PDF 報表';
                 btn.disabled = false;
             }
         }

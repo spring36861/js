@@ -30,6 +30,7 @@
         input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #3498db; background-color: #f0f8ff; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
         .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
+        .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
         .input-left { text-align: left !important; }
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
         textarea:focus { overflow-y: auto; }
@@ -46,10 +47,10 @@
         input[type="checkbox"], input[type="radio"] { transform: scale(1.4); margin: 0 4px 0 0; cursor: pointer; accent-color: #3498db; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
-        /* 分區詞庫面板 */
-        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: 0.3s; }
-        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center;}
-        .phrase-list { padding: 10px; max-height: 250px; overflow-y: auto; display: block; background: #fafafa;} 
+        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
+        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
+        .phrase-header:active { cursor: grabbing; }
+        .phrase-list { padding: 10px; max-height: 200px; overflow-y: auto; display: block; background: #fafafa;} 
         .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; transition: 0.1s;}
         .phrase-chip:hover { background: #e8f4f8; border-color: #3498db; color: #2980b9;}
         .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
@@ -58,7 +59,6 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
-        /* 💡 選擇產出報表彈出視窗 (Modal) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
         .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
@@ -68,6 +68,19 @@
         .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .modal-btn-cancel { width: 100%; background: #95a5a6; margin-top: 10px; }
         .modal-btn-cancel:hover { background: #7f8c8d; transform: none; box-shadow: none; }
+
+        /* 💡 視覺化排版控制項 CSS */
+        .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
+        .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
+        .align-cell:hover { background: #d35400; }
+        .align-cell.active { background: #e74c3c; border-color: #c0392b; }
+        .align-cell::after { content: ''; width: 4px; height: 4px; background: #95a5a6; border-radius: 50%; } 
+        .align-cell.active::after { background: #fff; }
+
+        .align-row { display: flex; gap: 2px; width: 55px; height: 22px; flex: none; }
+        .align-btn { flex: 1; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; font-size: 10px; color:#2c3e50; display:flex; align-items:center; justify-content:center; transition: 0.1s;}
+        .align-btn:hover { background: #d35400; color:white;}
+        .align-btn.active { background: #e74c3c; color:white; border-color: #c0392b; }
     </style>
 </head>
 <body>
@@ -81,7 +94,6 @@
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
-            
             <button class="btn-export" onclick="showCombinedModal()" id="btn-pdf-main">產出 PDF 報表</button>
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
@@ -90,7 +102,6 @@
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">請選擇產出報表類型</h3>
-            
             <div class="modal-section">
                 <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
                 <div style="display: flex; gap: 10px;">
@@ -98,7 +109,6 @@
                     <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '既有')">既有</button>
                 </div>
             </div>
-
             <div class="modal-section">
                 <h4 style="color: #2980b9;">📋 明細表 (18A)</h4>
                 <div style="display: flex; gap: 10px;">
@@ -107,7 +117,6 @@
                     <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
                 </div>
             </div>
-
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -586,6 +595,17 @@
             <span id="phrase-title">常用詞庫</span>
             <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;">✖</button>
         </div>
+        
+        <div style="padding: 5px 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; text-align: center;">
+            <button onclick="toggleFontSettings()" style="width: 100%; padding: 5px; font-size: 12px; background: #34495e; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️ 切換 PDF 排版設定</button>
+        </div>
+
+        <div id="font-settings-container" style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #2c3e50;">🖋️ 針對目前欄位的排版設定</div>
+            <div id="font-size-inputs"></div>
+            <button onclick="resetFontSizes()" style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻ 清除目前欄位排版設定</button>
+        </div>
+
         <div class="phrase-list" id="phrase-list"></div>
         <div class="phrase-actions">
             <button class="btn-p-add" onclick="addCurrentToPhrase()">+ 加入分類詞庫</button>
@@ -594,22 +614,98 @@
     </div>
 
     <script>
+        let customFontSizes = {};
+        let customWrapLimits = {};
+        let customAlignments = {}; // 💡 儲存對齊設定
+
+        const fieldMappingObj = {
+            'cert_ymd': [{id: 'cert_y'}, {id: 'cert_m'}, {id: 'cert_d'}],
+            'mfg_ym': [{id: 'mfg_y'}, {id: 'mfg_m'}],
+            'valid_f_date': [{id: 'valid_f_date_y'}, {id: 'valid_f_date_m'}, {id: 'valid_f_date_d'}],
+            'valid_t_date': [{id: 'valid_t_date_y'}, {id: 'valid_t_date_m'}, {id: 'valid_t_date_d'}],
+            'insp_date': [{id: 'insp_date_y'}, {id: 'insp_date_m'}, {id: 'insp_date_d'}],
+            'inspect_date': [{id: 'inspect_ymd_y'}, {id: 'inspect_ymd_m'}, {id: 'inspect_ymd_d'}],
+            'content_name': [{id: 'content_name'}, {id: 'content_name2'}],
+            's8_qty': [{id: 's8_qty'}, {id: 'ss8_qty'}]
+        };
+
+        const fieldMappingLocal = {
+            'cert_ymd': [{id: 'cert_y', label: '年'}, {id: 'cert_m', label: '月'}, {id: 'cert_d', label: '日'}],
+            'mfg_ym': [{id: 'mfg_y', label: '年'}, {id: 'mfg_m', label: '月'}],
+            'valid_f_date': [{id: 'valid_f_date_y', label: '年'}, {id: 'valid_f_date_m', label: '月'}, {id: 'valid_f_date_d', label: '日'}],
+            'valid_t_date': [{id: 'valid_t_date_y', label: '年'}, {id: 'valid_t_date_m', label: '月'}, {id: 'valid_t_date_d', label: '日'}],
+            'insp_date': [{id: 'insp_date_y', label: '年'}, {id: 'insp_date_m', label: '月'}, {id: 'insp_date_d', label: '日'}],
+            'inspect_date': [{id: 'inspect_ymd_y', label: '年'}, {id: 'inspect_ymd_m', label: '月'}, {id: 'inspect_ymd_d', label: '日'}],
+            'content_name': [{id: 'content_name', label: '報告表(13A)'}, {id: 'content_name2', label: '明細表(18A)'}],
+            's8_qty': [{id: 's8_qty', label: '數量(上)'}, {id: 'ss8_qty', label: '數量(下)'}]
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
             window.getVal = getVal; 
             
             initPhraseLibrary(); 
+            makePanelDraggable(); 
+            updateHighlights(); 
         });
 
-        // 💡 顯示整合型彈出視窗
-        function showCombinedModal() {
-            document.getElementById('insp-modal').style.display = 'flex';
+        function makePanelDraggable() {
+            const panel = document.getElementById('phrase-panel');
+            const header = panel.querySelector('.phrase-header');
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            header.addEventListener('mousedown', function(e) {
+                if(e.target.tagName === 'BUTTON') return; 
+                isDragging = true;
+                header.style.cursor = 'grabbing';
+                const rect = panel.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+                panel.style.left = rect.left + 'px';
+                panel.style.top = rect.top + 'px';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                e.preventDefault(); 
+                let x = e.clientX - offsetX;
+                let y = e.clientY - offsetY;
+                x = Math.max(0, Math.min(x, window.innerWidth - panel.offsetWidth));
+                y = Math.max(0, Math.min(y, window.innerHeight - panel.offsetHeight));
+                panel.style.left = x + 'px';
+                panel.style.top = y + 'px';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    header.style.cursor = 'grab';
+                }
+            });
         }
 
-        function closeInspModal() {
-            document.getElementById('insp-modal').style.display = 'none';
+        function updateHighlights() {
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(el => {
+                if (!el.id) return;
+                let pdfFields = fieldMappingObj[el.id] || [{id: el.id}];
+                // 💡 檢查是否有設定 字型、字數 或 對齊方式
+                let hasCustom = pdfFields.some(f => customFontSizes[f.id] || customWrapLimits[f.id] || customAlignments[f.id]);
+                if (hasCustom) el.classList.add('has-custom-setting');
+                else el.classList.remove('has-custom-setting');
+            });
         }
 
+        window.toggleFontSettings = function() {
+            const container = document.getElementById('font-settings-container');
+            container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        }
+
+        function showCombinedModal() { document.getElementById('insp-modal').style.display = 'flex'; }
+        function closeInspModal() { document.getElementById('insp-modal').style.display = 'none'; }
         function executeGeneratePDF(docType, inspTypeVal) {
             closeInspModal();
             generatePDF(docType, inspTypeVal);
@@ -617,10 +713,7 @@
 
         function validateDate(inputElement, requiredLength) {
             const val = inputElement.value.trim();
-            if (val === '') {
-                inputElement.classList.remove('input-error');
-                return;
-            }
+            if (val === '') { inputElement.classList.remove('input-error'); return; }
             const regex = new RegExp(`^\\d{${requiredLength}}$`);
             if (!regex.test(val)) {
                 inputElement.classList.add('input-error');
@@ -639,12 +732,20 @@
                 if (el.type === 'checkbox') data[el.id] = el.checked;
                 else data[el.id] = el.value;
             });
+            data['_fontSizes'] = customFontSizes;
+            data['_wrapLimits'] = customWrapLimits;
+            data['_alignments'] = customAlignments; // 💡 儲存對齊設定
             return JSON.stringify(data, null, 2);
         }
 
         function restoreFormData(jsonStr) {
             let data = JSON.parse(jsonStr);
+            customFontSizes = data['_fontSizes'] || {};
+            customWrapLimits = data['_wrapLimits'] || {};
+            customAlignments = data['_alignments'] || {}; // 💡 讀取對齊設定
+
             for (let id in data) {
+                if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
                 let el = document.getElementById(id);
                 if (el) {
                     if (el.type === 'checkbox') el.checked = data[id];
@@ -655,6 +756,7 @@
                 }
             }
             updateRadiosFromHidden(); 
+            updateHighlights();
         }
 
         function updateRadiosFromHidden() {
@@ -711,9 +813,6 @@
             event.target.value = ""; 
         }
 
-        // ==========================================
-        // 💡 智慧分區詞庫系統
-        // ==========================================
         let myPhrases = {};
         let activeInput = null;
         let activeCategory = '未分類';
@@ -736,9 +835,113 @@
                     activeCategory = activeInput.getAttribute('data-category') || '未分類';
                     document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory;
                     document.getElementById('phrase-panel').style.display = 'flex'; 
+                    
+                    renderFontSettings(); 
                     renderPhrases();
                 }
             });
+        }
+
+        function renderFontSettings() {
+            const container = document.getElementById('font-size-inputs');
+            container.innerHTML = '';
+            if (!activeInput || !activeInput.id) return;
+            
+            let pdfFields = fieldMappingLocal[activeInput.id] || [{id: activeInput.id, label: '單一欄位'}];
+            
+            pdfFields.forEach(fieldObj => {
+                let val = customFontSizes[fieldObj.id] || '';
+                let wrapVal = customWrapLimits[fieldObj.id] || '';
+                let alignVal = customAlignments[fieldObj.id] || '';
+                
+                let el = document.getElementById(activeInput.id);
+                let isMultiline = (el && el.tagName.toLowerCase() === 'textarea') || fieldObj.id === 'content_name2';
+                
+                let div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'space-between';
+                div.style.marginBottom = '8px';
+                div.style.borderBottom = '1px dashed #dcdde1';
+                div.style.paddingBottom = '6px';
+                
+                let wrapInputHtml = isMultiline ? `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">` : ``;
+
+                // 💡 對齊控制 UI (九宮格 or 三按鈕)
+                let alignHtml = '';
+                if (isMultiline) {
+                    alignHtml = `
+                        <div class="align-grid">
+                            <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                            <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                            <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                            <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                            <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                            <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                            <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                            <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                            <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                        </div>
+                    `;
+                } else {
+                    alignHtml = `
+                        <div class="align-row">
+                            <div class="align-btn ${alignVal==='L'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'L')">左</div>
+                            <div class="align-btn ${alignVal==='C'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'C')">中</div>
+                            <div class="align-btn ${alignVal==='R'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'R')">右</div>
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    <div style="font-size:11px; color:#34495e; width: 80px; word-break:break-all;">
+                        <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
+                    </div>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
+                        ${wrapInputHtml}
+                        ${alignHtml}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.updateFontSize = function(el) {
+            let pdfField = el.getAttribute('data-pdf-field');
+            if (el.value) customFontSizes[pdfField] = Number(el.value);
+            else delete customFontSizes[pdfField];
+            updateHighlights();
+        }
+
+        window.updateWrapLimit = function(el) {
+            let wrapField = el.getAttribute('data-wrap-field');
+            if (el.value) customWrapLimits[wrapField] = Number(el.value);
+            else delete customWrapLimits[wrapField];
+            updateHighlights();
+        }
+
+        // 💡 點擊更新對齊方式
+        window.updateAlign = function(fieldId, alignCode) {
+            if (customAlignments[fieldId] === alignCode) {
+                delete customAlignments[fieldId]; // 重複點擊則取消
+            } else {
+                customAlignments[fieldId] = alignCode;
+            }
+            renderFontSettings(); // 重新渲染更新 Active 樣式
+            updateHighlights();
+        }
+
+        window.resetFontSizes = function() {
+            if (!activeInput || !activeInput.id) return;
+            let pdfFields = fieldMappingObj[activeInput.id] || [{id: activeInput.id}];
+            pdfFields.forEach(fieldObj => {
+                delete customFontSizes[fieldObj.id];
+                delete customWrapLimits[fieldObj.id];
+                delete customAlignments[fieldObj.id];
+            });
+            renderFontSettings(); 
+            updateHighlights();
         }
 
         function renderPhrases() {
@@ -797,8 +1000,6 @@
 
         function savePhrasesToLocal() {
             localStorage.setItem('myPhrasesObj', JSON.stringify(myPhrases));
-            document.getElementById('phrase-title').innerText = '已儲存！';
-            setTimeout(() => document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory, 1500);
         }
 
         // ==========================================
@@ -837,23 +1038,90 @@
                 
                 btn.innerText = '寫入資料中...';
 
-                // 💡 隱形處理：將 s8_qty 同步寫入 PDF 裡的 ss8_qty 欄位
+                // ==========================================
+                // 💡 上帝模式：絕對座標與精準對齊繪圖法
+                // ==========================================
+                const drawTextAbsolutely = (fieldObj, text, targetFontSize, isTextArea, fieldId) => {
+                    if (!text) return;
+                    const widgets = fieldObj.acroField.getWidgets();
+                    if (!widgets || widgets.length === 0) return;
+                    
+                    const rect = widgets[0].getRectangle();
+                    const firstPage = pdfDoc.getPages()[0]; 
+                    const lines = text.split('\n');
+                    
+                    fieldObj.setText(''); // 清空預設值
+
+                    // 💡 讀取使用者的對齊設定
+                    let align = customAlignments[fieldId];
+                    if (!align) {
+                        // 預設值：單行靠左置中(ML)，多行靠左上(TL)
+                        align = isTextArea ? 'TL' : 'ML'; 
+                    }
+                    if (!isTextArea && ['L', 'C', 'R'].includes(align)) {
+                        align = 'M' + align; // 將單行設定轉換為九宮格的內部格式
+                    }
+
+                    // 取得精準寬高
+                    let actualFontSize = targetFontSize;
+                    let totalHeight = lines.length * (actualFontSize * 1.2);
+
+                    // 💡 計算起始 Y 座標 (垂直對齊)
+                    let startY;
+                    const vAlign = align.charAt(0);
+                    if (vAlign === 'T') {
+                        startY = rect.y + rect.height - actualFontSize - 2;
+                    } else if (vAlign === 'B') {
+                        startY = rect.y + totalHeight - actualFontSize + 2;
+                    } else { // 'M' 中間
+                        startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
+                    }
+
+                    // 💡 畫出每一行並計算 X 座標 (水平對齊)
+                    let currentY = startY;
+                    lines.forEach(line => {
+                        let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
+                        let xPos;
+                        const hAlign = align.charAt(1) || align.charAt(0);
+                        
+                        if (hAlign === 'R') {
+                            xPos = rect.x + rect.width - lineWidth - 2;
+                        } else if (hAlign === 'C') {
+                            xPos = rect.x + (rect.width - lineWidth) / 2;
+                        } else { // 'L'
+                            xPos = rect.x + 2;
+                        }
+
+                        firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
+                        currentY -= (actualFontSize * 1.2); 
+                    });
+                };
+
                 try {
                     if (window.getVal('s8_qty')) {
                         const ss8Field = form.getTextField('ss8_qty');
-                        if (ss8Field) ss8Field.setText(window.getVal('s8_qty'));
+                        if (ss8Field) {
+                            if (customFontSizes['ss8_qty']) {
+                                drawTextAbsolutely(ss8Field, window.getVal('s8_qty'), Number(customFontSizes['ss8_qty']), false, 'ss8_qty');
+                            } else {
+                                ss8Field.setText(window.getVal('s8_qty'));
+                            }
+                        }
                     }
                 } catch(e) {}
                 
-                // 💡 額外處理：將 content_name 消除換行後，寫入 content_name2
                 try {
                     let rawContent = window.getVal('content_name');
                     if (rawContent) {
                         let flatContent = rawContent.replace(/[\r\n]+/g, '');
                         const c2Field = form.getTextField('content_name2');
                         if (c2Field) {
-                            c2Field.setText(flatContent);
-                            c2Field.setFontSize(11);
+                            if (customFontSizes['content_name2']) {
+                                drawTextAbsolutely(c2Field, flatContent, Number(customFontSizes['content_name2']), true, 'content_name2');
+                            } else {
+                                c2Field.setFontSize(11);
+                                c2Field.setText(flatContent);
+                            }
                         }
                     }
                 } catch(e) {}
@@ -861,14 +1129,9 @@
                 if (docType === 'detail') {
                     const assocName = document.getElementById('assoc_name').value;
                     let stampFile = '';
-                    
-                    if (assocName === '中華鍋爐協會') {
-                        stampFile = 'stamp_boiler.png';
-                    } else if (assocName === '社團法人中華產業機械設備協會') {
-                        stampFile = 'stamp_cmeea.png';
-                    } else if (assocName === '中華民國工業安全衛生協會') {
-                        stampFile = 'stamp_isha.png';
-                    }
+                    if (assocName === '中華鍋爐協會') stampFile = 'stamp_boiler.png';
+                    else if (assocName === '社團法人中華產業機械設備協會') stampFile = 'stamp_cmeea.png';
+                    else if (assocName === '中華民國工業安全衛生協會') stampFile = 'stamp_isha.png';
 
                     if (stampFile) {
                         try {
@@ -876,40 +1139,35 @@
                             if (imgRes.ok) {
                                 const imgBytes = await imgRes.arrayBuffer();
                                 const stampImage = await pdfDoc.embedPng(imgBytes);
-
                                 const pages = pdfDoc.getPages();
                                 const firstPage = pages[0];
-
                                 const targetWidth = 140; 
                                 const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
-
-                                firstPage.drawImage(stampImage, {
-                                    x: 401,  
-                                    y: 625,  
-                                    width: targetWidth,
-                                    height: targetHeight
-                                });
+                                firstPage.drawImage(stampImage, { x: 401, y: 625, width: targetWidth, height: targetHeight });
                             }
-                        } catch (imgErr) {
-                            console.warn("無法載入戳章圖片", imgErr);
-                        }
+                        } catch (imgErr) {}
                     }
                 }
 
-                const safeSetText = (pdfFieldNames, val) => {
+                const safeSetText = (pdfFieldNames, val, baseId) => {
                     if (!val) return;
                     for (let name of pdfFieldNames) {
                         try {
-                            form.getTextField(name).setText(val);
+                            let f = form.getTextField(name);
+                            if (customFontSizes[baseId]) {
+                                drawTextAbsolutely(f, val, Number(customFontSizes[baseId]), false, baseId);
+                            } else {
+                                f.setText(val);
+                            }
                             return; 
                         } catch(e) {}
                     }
                 };
 
-                safeSetText(['lvl1_size_1', 'lvl1_size', 'lvl1_dia', 'lvl1_dia_1'], window.getVal('lvl1_size_1'));
-                safeSetText(['lvl1_qty_1', 'lvl1_qty'], window.getVal('lvl1_qty_1'));
-                safeSetText(['lvl2_size_2', 'lvl2_size', 'lvl2_dia', 'lvl2_dia_2'], window.getVal('lvl2_size_2'));
-                safeSetText(['lvl2_qty_2', 'lvl2_qty'], window.getVal('lvl2_qty_2'));
+                safeSetText(['lvl1_size_1', 'lvl1_size', 'lvl1_dia', 'lvl1_dia_1'], window.getVal('lvl1_size_1'), 'lvl1_size_1');
+                safeSetText(['lvl1_qty_1', 'lvl1_qty'], window.getVal('lvl1_qty_1'), 'lvl1_qty_1');
+                safeSetText(['lvl2_size_2', 'lvl2_size', 'lvl2_dia', 'lvl2_dia_2'], window.getVal('lvl2_size_2'), 'lvl2_size_2');
+                safeSetText(['lvl2_qty_2', 'lvl2_qty'], window.getVal('lvl2_qty_2'), 'lvl2_qty_2');
                 
                 const skipIds = ['equip_category', 'cert_ymd', 'mfg_ym', 'valid_f_date', 'valid_t_date', 'insp_date', 'inspect_date', 'paper_number', 'lvl1_size_1', 'lvl1_qty_1', 'lvl2_size_2', 'lvl2_qty_2', 'ss8_qty'];
                 
@@ -936,30 +1194,27 @@
                             
                             let writeValue = el.value;
                             const radioHiddenIds = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
-                            // 將所有的 "無" 都寫入為 "-"
+                            
                             if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) {
                                 writeValue = '-';
                             }
 
-                            // ==========================================
-                            // 💡 智慧換行計算：中文(全形)算2單位，英文數字(半形)算1單位
-                            // ==========================================
-                            if (el.tagName.toLowerCase() === 'textarea' && ['insp_notes', 'detail_rem', 'content_name', 'joint_type'].includes(el.id)) {
+                            let isTextArea = el.tagName.toLowerCase() === 'textarea';
+
+                            if (isTextArea && ['insp_notes', 'detail_rem', 'content_name', 'joint_type'].includes(el.id)) {
                                 if (writeValue) {
                                     let lines = writeValue.split('\n');
                                     let newText = [];
-                                    
-                                    // 💡 設定特定欄位的最大寬度 (明細表為41字=82單位，其餘16字=32單位)
-                                    const MAX_WIDTH = (el.id === 'detail_rem') ? 82 : 32; 
+                                    let defaultWrap = (el.id === 'detail_rem') ? 38 : 16; 
+                                    let targetChars = customWrapLimits[el.id] ? Number(customWrapLimits[el.id]) : defaultWrap;
+                                    const MAX_WIDTH = targetChars * 2; 
 
                                     lines.forEach(line => {
                                         let currentLine = '';
                                         let currentWidth = 0;
-
                                         for (let i = 0; i < line.length; i++) {
                                             let char = line[i];
                                             let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
-
                                             if (currentWidth + charWidth > MAX_WIDTH) {
                                                 newText.push(currentLine);
                                                 currentLine = char;
@@ -969,36 +1224,43 @@
                                                 currentWidth += charWidth;
                                             }
                                         }
-                                        if (currentLine) {
-                                            newText.push(currentLine);
-                                        }
+                                        if (currentLine) newText.push(currentLine);
                                     });
                                     writeValue = newText.join('\n');
                                 }
                             }
 
-                            if (writeValue) textField.setText(writeValue);
-                            
-                            if (el.tagName.toLowerCase() === 'textarea') try { textField.enableMultiline(); } catch(e){} 
-                            if (el.id === 'content_name' || el.id === 'joint_type' || el.id === 'detail_rem') textField.setFontSize(11);
+                            if (customFontSizes[el.id]) {
+                                drawTextAbsolutely(textField, writeValue, Number(customFontSizes[el.id]), isTextArea, el.id);
+                            } else {
+                                if (['content_name', 'joint_type', 'detail_rem'].includes(el.id)) {
+                                    textField.setFontSize(11);
+                                }
+                                if (isTextArea) try { textField.enableMultiline(); } catch(e){} 
+                                textField.setText(writeValue);
+                            }
                         }
                     } catch (error) {}
                 });
 
                 const equipCategoryVal = window.getVal('equip_category');
-                const vesselTitleVal = (inspTypeVal === '既有') 
-                    ? `${inspTypeVal}${equipCategoryVal}檢查結果報告表` 
-                    : `${equipCategoryVal}${inspTypeVal}檢查結果報告表`;
+                const vesselTitleVal = (inspTypeVal === '既有') ? `${inspTypeVal}${equipCategoryVal}檢查結果報告表` : `${equipCategoryVal}${inspTypeVal}檢查結果報告表`;
 
-                // 寫入 insp_type 到對應的 PDF 欄位中
                 try {
                     const inspTypeField = form.getTextField('insp_type');
-                    if (inspTypeField) inspTypeField.setText(inspTypeVal);
+                    if (inspTypeField) {
+                        if (customFontSizes['insp_type']) drawTextAbsolutely(inspTypeField, inspTypeVal, Number(customFontSizes['insp_type']), false, 'insp_type');
+                        else inspTypeField.setText(inspTypeVal);
+                    }
                 } catch(e) {}
 
                 try {
                     const certTitleField = form.getTextField('cert_title');
-                    if (certTitleField) certTitleField.setText(inspTypeVal === '既有' ? '合格證明' : '合格證');
+                    if (certTitleField) {
+                        let cVal = inspTypeVal === '既有' ? '合格證明' : '合格證';
+                        if (customFontSizes['cert_title']) drawTextAbsolutely(certTitleField, cVal, Number(customFontSizes['cert_title']), false, 'cert_title');
+                        else certTitleField.setText(cVal);
+                    }
                 } catch(e) {}
 
                 let displayPaperNumber = templateFile; 
@@ -1015,20 +1277,22 @@
                 customMerges.forEach(merge => {
                     try {
                         const field = form.getTextField(merge.pdfField);
-                        if (field) field.setText(merge.val);
+                        if (field) {
+                            if (customFontSizes[merge.pdfField]) drawTextAbsolutely(field, merge.val, Number(customFontSizes[merge.pdfField]), false, merge.pdfField);
+                            else field.setText(merge.val);
+                        }
                     } catch(e) {}
                 });
 
-                // 日期拆分寫入
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
-                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
-                        try { form.getTextField(dId).setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); if(customFontSizes[yId]) drawTextAbsolutely(f, val.substring(0, 3), Number(customFontSizes[yId]), false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); if(customFontSizes[mId]) drawTextAbsolutely(f, val.substring(3, 5), Number(customFontSizes[mId]), false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(dId); if(customFontSizes[dId]) drawTextAbsolutely(f, val.substring(5, 7), Number(customFontSizes[dId]), false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
                     } else if (val.length === 5 && !dId) {
-                        try { form.getTextField(yId).setText(val.substring(0, 3)); } catch(e){}
-                        try { form.getTextField(mId).setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); if(customFontSizes[yId]) drawTextAbsolutely(f, val.substring(0, 3), Number(customFontSizes[yId]), false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); if(customFontSizes[mId]) drawTextAbsolutely(f, val.substring(3, 5), Number(customFontSizes[mId]), false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
                     }
                 };
 
@@ -1051,7 +1315,6 @@
             } catch (err) {
                 alert('產出 PDF 發生錯誤：\n' + err.message);
             } finally {
-                // 恢復按鈕文字與狀態
                 btn.innerText = originalBtnText;
                 btn.disabled = false;
             }
