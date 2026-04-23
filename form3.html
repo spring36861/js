@@ -26,7 +26,7 @@
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #9b59b6; background-color: #f9ebff; box-shadow: 0 0 5px rgba(155, 89, 182, 0.5); }
         .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
         
-        /* 💡 客製化排版設定醒目提示 */
+        /* 客製化排版設定醒目提示 */
         .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
         
         .input-left { text-align: left !important; }
@@ -47,7 +47,7 @@
         input[type="checkbox"], input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #9b59b6; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
-        /* 💡 詞庫面板：加入了拖曳的滑鼠指標樣式 */
+        /* 詞庫面板 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
         .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
         .phrase-header:active { cursor: grabbing; }
@@ -60,7 +60,7 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
-        /* 💡 視覺化排版控制項 CSS */
+        /* 視覺化排版控制項 CSS */
         .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
         .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
         .align-cell:hover { background: #9b59b6; }
@@ -346,6 +346,9 @@
         let customFontSizes = {};
         let customWrapLimits = {};
         let customAlignments = {}; 
+        
+        // 💡 記憶載入檔案名稱的全域變數
+        let currentLoadedFilename = "";
 
         const fieldMappingObj = {
             'mfg_ym': [{id: 'mfg_ym_y'}, {id: 'mfg_ym_m'}],
@@ -486,10 +489,15 @@
             });
         }
 
+        // 💡 升級版存檔功能：預設帶入上次讀取的檔名
         function doSaveLocal() {
-            let defaultName = document.getElementById('report_no').value || "熔接未命名";
-            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_明細表");
+            let fallbackName = document.getElementById('report_no').value || "熔接未命名";
+            let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_明細表";
+            
+            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
+
+            currentLoadedFilename = filename; 
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -505,6 +513,7 @@
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
 
+        // 💡 升級版讀檔功能：記錄檔名
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -512,7 +521,8 @@
             reader.onload = function(e) {
                 try {
                     restoreFormData(e.target.result);
-                    document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
+                    currentLoadedFilename = file.name.replace('.json', '');
+                    document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#8e44ad";
                     alert("檔案「" + file.name + "」載入成功！");
                 } catch(err) { alert("檔案解析失敗！"); }
@@ -605,7 +615,7 @@
                         <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
                     </div>
                     <div style="display:flex; gap:4px; align-items:center;">
-                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
+                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字體大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
                         ${wrapInputHtml}
                         ${alignHtml}
                     </div>
@@ -737,6 +747,27 @@
                 btn.innerText = '寫入資料中...';
 
                 // ==========================================
+                // 💡 關鍵修復：補回打勾欄位邏輯 (checkPdfField)
+                // ==========================================
+                const checkPdfField = (fieldId) => {
+                    try { form.getTextField(fieldId).setText('V'); } 
+                    catch(e) { try { form.getCheckBox(fieldId).check(); } catch(err) {} }
+                };
+
+                const mappings = [
+                    {val: window.getVal('weld_trim'), opts: {'充份修削': 'chk_trim_1', '稍削': 'chk_trim_2', '不削': 'chk_trim_3'}},
+                    {val: window.getVal('stress_relief'), opts: {'局部應力除去': 'chk_stress_1', '爐內應力除去': 'chk_stress_2'}},
+                    {val: window.getVal('chk_bend_front'), opts: {'合格': 'chk_bend_f_1', '不合格': 'chk_bend_f_2'}},
+                    {val: window.getVal('chk_bend_side'), opts: {'合格': 'chk_bend_s_1', '不合格': 'chk_bend_s_2'}},
+                    {val: window.getVal('chk_bend_side_crack'), opts: {'有': 'chk_crack_1', '無': 'chk_crack_2'}},
+                    {val: window.getVal('rad_extent'), opts: {'全線照射': 'chk_rad_1', '部分照射': 'chk_rad_2'}}
+                ];
+
+                mappings.forEach(m => {
+                    if (m.opts[m.val]) checkPdfField(m.opts[m.val]);
+                });
+
+                // ==========================================
                 // 💡 上帝模式：絕對座標與精準對齊繪圖法
                 // ==========================================
                 const drawTextAbsolutely = (fieldObj, text, targetFontSize, isTextArea, fieldId) => {
@@ -827,7 +858,8 @@
                     } catch (imgErr) {}
                 }
 
-                const skipIds = ['paper_number', 'mfg_ym', 'press_shell', 'press_tube', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent', 'chk_oval_front', 'chk_oval_side', 'chk_oval_back']; 
+                // 💡 跳過已經特別處理的打勾等欄位
+                const skipIds = ['paper_number', 'mfg_ym', 'insp_date', 'weld_trim', 'stress_relief', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent', 'chk_oval_front', 'chk_oval_side', 'chk_oval_back']; 
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
@@ -896,21 +928,6 @@
                             }
                         }
                     } catch (error) {}
-                });
-
-                const customMerges = [
-                    { pdfField: 'press_shell_press_tube', val: `胴側: ${window.getVal('press_shell')}   管側: ${window.getVal('press_tube')}` }
-                ];
-                customMerges.forEach(merge => {
-                    try {
-                        const field = form.getTextField(merge.pdfField);
-                        if (field && merge.val.replace(/胴側:|管側:|\s/g, '').length > 0) {
-                            if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField]) {
-                                let size = customFontSizes[merge.pdfField] ? Number(customFontSizes[merge.pdfField]) : 11;
-                                drawTextAbsolutely(field, merge.val, size, false, merge.pdfField);
-                            } else field.setText(merge.val);
-                        }
-                    } catch(e) {}
                 });
 
                 const writeSplitDate = (val, yId, mId, dId) => {

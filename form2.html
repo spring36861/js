@@ -112,14 +112,12 @@
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">請選擇產出報表類型</h3>
-            
             <div class="modal-section">
                 <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
                 <div style="display: flex; gap: 10px;">
                     <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '竣工')">竣工</button>
                 </div>
             </div>
-
             <div class="modal-section">
                 <h4 style="color: #2980b9;">📋 明細表 (17A)</h4>
                 <div style="display: flex; gap: 10px;">
@@ -128,7 +126,6 @@
                     <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
                 </div>
             </div>
-
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -204,11 +201,17 @@
 
         <table>
             <colgroup>
-                <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> 
-                <col style="width: 14%;"> <col style="width: 8%;">  <col style="width: 8%;">  
-                <col style="width: 10%;"> <col style="width: 10%;"> <col style="width: 10%;"> 
+                <col style="width: 10%;"> 
+                <col style="width: 6%;">  
+                <col style="width: 14%;"> 
+                <col style="width: 8%;">
+                <col style="width: 14%;"> 
+                <col style="width: 15%;">
+                <col style="width: 10%;"> 
+                <col style="width: 7%;">
+                <col style="width: 16%;"> 
             </colgroup>
-            <tr><th colspan="10" class="section-header">構 造 明 細</th></tr>
+            <tr><th colspan="9" class="section-header">構 造 明 細</th></tr>
             
             <tr>
                 <td rowspan="2" class="header-gray">項目</td>
@@ -218,11 +221,10 @@
                 <td rowspan="2" class="header-gray">最大/最小內徑或<br>曲緣半徑 (mm)</td>
                 <td rowspan="2" class="header-gray">長度<br>(mm)</td>
                 <td rowspan="2" class="header-gray">板厚<br>(mm)</td>
-                <td colspan="3" class="header-gray">補強材</td>
+                <td colspan="2" class="header-gray">補強材</td>
             </tr>
             <tr class="row-divider">
-                <td class="header-gray" style="border-top:1px solid #dcdde1;">種類</td>
-                <td class="header-gray" style="border-top:1px solid #dcdde1;">材料</td>
+                <td class="header-gray" style="border-top:1px solid #dcdde1;">種類/材料</td>
                 <td class="header-gray" style="border-top:1px solid #dcdde1;">厚或徑(mm)</td>
             </tr>
 
@@ -255,11 +257,13 @@
                     document.write(`<td><textarea id="${p}_t${suf}" rows="1" data-category="構造明細"></textarea></td>`);
                     
                     if(r.hasReinf) {
-                        document.write(`<td><textarea id="${p}_rtype${suf}" rows="1" data-category="構造明細"></textarea></td>`);
-                        document.write(`<td><textarea id="${p}_rmat${suf}" rows="1" data-category="構造明細"></textarea></td>`);
+                        document.write(`<td>
+                            <textarea id="${p}_rtype${suf}" rows="1" placeholder="種類" data-category="構造明細"></textarea>
+                            <textarea id="${p}_rmat${suf}" rows="1" placeholder="材料" data-category="構造明細"></textarea>
+                        </td>`);
                         document.write(`<td><textarea id="${p}_rsize${suf}" rows="1" data-category="構造明細"></textarea></td>`);
                     } else {
-                        document.write(`<td class="bg-skip" colspan="3"></td>`);
+                        document.write(`<td class="bg-skip" colspan="2"></td>`);
                     }
                     document.write(`</tr>`);
                 });
@@ -273,7 +277,7 @@
                 <td><textarea id="b_furn_max_id" rows="1" placeholder="最大內徑" data-category="構造明細"></textarea></td>
                 <td class="bg-skip" rowspan="2"></td> 
                 <td rowspan="2"><textarea id="b_furn_t" style="height:50px;" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" colspan="3" rowspan="2"></td> 
+                <td class="bg-skip" colspan="2" rowspan="2"></td> 
             </tr>
             <tr class="row-divider">
                 <td><textarea id="b_furn_min_id" rows="1" placeholder="最小內徑" data-category="構造明細"></textarea></td>
@@ -287,7 +291,7 @@
                 <td><textarea id="b_dome_max_id" rows="1" placeholder="最大內徑" data-category="構造明細"></textarea></td>
                 <td class="bg-skip" rowspan="2"></td> 
                 <td><textarea id="b_dome_t" rows="1" placeholder="板厚" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" colspan="3" rowspan="2"></td> 
+                <td class="bg-skip" colspan="2" rowspan="2"></td> 
             </tr>
             <tr class="row-divider">
                 <td><textarea id="b_dome_rad" rows="1" placeholder="曲緣內半徑" data-category="構造明細"></textarea></td>
@@ -681,6 +685,8 @@
         let customFontSizes = {};
         let customWrapLimits = {};
         let customAlignments = {}; 
+        
+        let currentLoadedFilename = "";
 
         const fieldMappingObj = {
             'cert_ymd': [{id: 'cert_ymd_y'}, {id: 'cert_ymd_m'}, {id: 'cert_ymd_d'}],
@@ -804,7 +810,7 @@
             });
             data['_fontSizes'] = customFontSizes;
             data['_wrapLimits'] = customWrapLimits;
-            data['_alignments'] = customAlignments;
+            data['_alignments'] = customAlignments; 
             return JSON.stringify(data, null, 2);
         }
 
@@ -812,7 +818,7 @@
             let data = JSON.parse(jsonStr);
             customFontSizes = data['_fontSizes'] || {};
             customWrapLimits = data['_wrapLimits'] || {};
-            customAlignments = data['_alignments'] || {};
+            customAlignments = data['_alignments'] || {}; 
 
             for (let id in data) {
                 if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
@@ -860,9 +866,13 @@
         }
 
         function doSaveLocal() {
-            let defaultName = document.getElementById('equip_no').value || "未命名";
-            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_表單");
+            let fallbackName = document.getElementById('equip_no').value || "未命名";
+            let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_表單";
+            
+            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
+
+            currentLoadedFilename = filename;
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -885,7 +895,8 @@
             reader.onload = function(e) {
                 try {
                     restoreFormData(e.target.result);
-                    document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
+                    currentLoadedFilename = file.name.replace('.json', '');
+                    document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#2980b9";
                     alert("檔案「" + file.name + "」載入成功！");
                 } catch(err) { alert("檔案解析失敗或格式不正確！"); }
@@ -991,14 +1002,14 @@
             let pdfField = el.getAttribute('data-pdf-field');
             if (el.value) customFontSizes[pdfField] = Number(el.value);
             else delete customFontSizes[pdfField];
-            updateHighlights();
+            updateHighlights(); 
         }
 
         window.updateWrapLimit = function(el) {
             let wrapField = el.getAttribute('data-wrap-field');
             if (el.value) customWrapLimits[wrapField] = Number(el.value);
             else delete customWrapLimits[wrapField];
-            updateHighlights();
+            updateHighlights(); 
         }
 
         window.updateAlign = function(fieldId, alignCode) {
@@ -1020,7 +1031,7 @@
                 delete customAlignments[fieldObj.id];
             });
             renderFontSettings(); 
-            updateHighlights();
+            updateHighlights(); 
         }
 
         function renderPhrases() {
@@ -1125,8 +1136,9 @@
                     const firstPage = pdfDoc.getPages()[0]; 
                     const lines = text.split('\n');
                     
-                    fieldObj.setText(''); // 清空預設值
+                    fieldObj.setText('');
 
+                    // 讀取使用者的對齊設定，沒設定則單行給ML(左中)，多行給TL(左上)
                     let align = customAlignments[fieldId];
                     if (!align) {
                         align = isTextArea ? 'TL' : 'ML'; 
@@ -1138,6 +1150,7 @@
                     let actualFontSize = targetFontSize;
                     let totalHeight = lines.length * (actualFontSize * 1.2);
 
+                    // 計算起始 Y 座標 (垂直對齊)
                     let startY;
                     const vAlign = align.charAt(0);
                     if (vAlign === 'T') {
@@ -1148,6 +1161,7 @@
                         startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
                     }
 
+                    // 畫出每一行並計算 X 座標 (水平對齊)
                     let currentY = startY;
                     lines.forEach(line => {
                         let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
@@ -1194,7 +1208,8 @@
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
-                    if (!el.id || skipIds.includes(el.id) || el.name === 'fuel_cb') return;
+                    // 💡 注意：這裡已修復 fuel_cb 的判斷
+                    if (!el.id || skipIds.includes(el.id)) return;
 
                     try {
                         const field = form.getField(el.id);
@@ -1254,7 +1269,9 @@
                                 let fontSizeToUse = customFontSizes[el.id] ? Number(customFontSizes[el.id]) : 11;
                                 drawTextAbsolutely(textField, writeValue, fontSizeToUse, isTextArea, el.id);
                             } else {
-                                if (['b_joint_type', 'summary', 'detail_rem'].includes(el.id)) textField.setFontSize(10);
+                                if (['b_joint_type', 'summary', 'detail_rem'].includes(el.id)) {
+                                    textField.setFontSize(10);
+                                }
                                 if (isTextArea) try { textField.enableMultiline(); } catch(e){} 
                                 textField.setText(writeValue);
                             }
