@@ -30,7 +30,10 @@
         input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #3498db; background-color: #f0f8ff; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
         .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
+        
+        /* 💡 客製化排版設定醒目提示 */
         .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
+        
         .input-left { text-align: left !important; }
         textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
         textarea:focus { overflow-y: auto; }
@@ -47,6 +50,7 @@
         input[type="checkbox"], input[type="radio"] { transform: scale(1.4); margin: 0 4px 0 0; cursor: pointer; accent-color: #3498db; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
+        /* 💡 詞庫面板：加入了拖曳的滑鼠指標樣式 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
         .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
         .phrase-header:active { cursor: grabbing; }
@@ -59,6 +63,7 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
+        /* 選擇產出報表彈出視窗 (Modal) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
         .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
@@ -94,6 +99,7 @@
             <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
             <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
+            
             <button class="btn-export" onclick="showCombinedModal()" id="btn-pdf-main">產出 PDF 報表</button>
             <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
         </div>
@@ -102,6 +108,7 @@
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">請選擇產出報表類型</h3>
+            
             <div class="modal-section">
                 <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
                 <div style="display: flex; gap: 10px;">
@@ -109,6 +116,7 @@
                     <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '既有')">既有</button>
                 </div>
             </div>
+
             <div class="modal-section">
                 <h4 style="color: #2980b9;">📋 明細表 (18A)</h4>
                 <div style="display: flex; gap: 10px;">
@@ -117,6 +125,7 @@
                     <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
                 </div>
             </div>
+
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -616,7 +625,10 @@
     <script>
         let customFontSizes = {};
         let customWrapLimits = {};
-        let customAlignments = {}; // 💡 儲存對齊設定
+        let customAlignments = {}; 
+        
+        // 💡 記憶載入檔案名稱的全域變數
+        let currentLoadedFilename = "";
 
         const fieldMappingObj = {
             'cert_ymd': [{id: 'cert_y'}, {id: 'cert_m'}, {id: 'cert_d'}],
@@ -646,7 +658,7 @@
             
             initPhraseLibrary(); 
             makePanelDraggable(); 
-            updateHighlights(); 
+            updateHighlights();
         });
 
         function makePanelDraggable() {
@@ -692,7 +704,6 @@
             inputs.forEach(el => {
                 if (!el.id) return;
                 let pdfFields = fieldMappingObj[el.id] || [{id: el.id}];
-                // 💡 檢查是否有設定 字型、字數 或 對齊方式
                 let hasCustom = pdfFields.some(f => customFontSizes[f.id] || customWrapLimits[f.id] || customAlignments[f.id]);
                 if (hasCustom) el.classList.add('has-custom-setting');
                 else el.classList.remove('has-custom-setting');
@@ -734,7 +745,7 @@
             });
             data['_fontSizes'] = customFontSizes;
             data['_wrapLimits'] = customWrapLimits;
-            data['_alignments'] = customAlignments; // 💡 儲存對齊設定
+            data['_alignments'] = customAlignments;
             return JSON.stringify(data, null, 2);
         }
 
@@ -742,7 +753,7 @@
             let data = JSON.parse(jsonStr);
             customFontSizes = data['_fontSizes'] || {};
             customWrapLimits = data['_wrapLimits'] || {};
-            customAlignments = data['_alignments'] || {}; // 💡 讀取對齊設定
+            customAlignments = data['_alignments'] || {};
 
             for (let id in data) {
                 if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
@@ -778,10 +789,15 @@
             });
         }
 
+        // 💡 升級版存檔功能：預設帶入上次讀取的檔名
         function doSaveLocal() {
-            let defaultName = document.getElementById('comp_name').value || "未命名";
-            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName + "_檢查表");
+            let fallbackName = document.getElementById('comp_name').value || "未命名";
+            let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_檢查表";
+            
+            let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
+
+            currentLoadedFilename = filename; 
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -797,6 +813,7 @@
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
 
+        // 💡 升級版讀檔功能：記錄檔名
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -804,7 +821,8 @@
             reader.onload = function(e) {
                 try {
                     restoreFormData(e.target.result);
-                    document.getElementById('current-filename-display').innerText = file.name.replace('.json', '');
+                    currentLoadedFilename = file.name.replace('.json', '');
+                    document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#2980b9";
                     alert("檔案「" + file.name + "」載入成功！");
                 } catch(err) { alert("檔案解析失敗！"); }
@@ -867,7 +885,6 @@
                 
                 let wrapInputHtml = isMultiline ? `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">` : ``;
 
-                // 💡 對齊控制 UI (九宮格 or 三按鈕)
                 let alignHtml = '';
                 if (isMultiline) {
                     alignHtml = `
@@ -898,7 +915,7 @@
                         <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
                     </div>
                     <div style="display:flex; gap:4px; align-items:center;">
-                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
+                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字體大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
                         ${wrapInputHtml}
                         ${alignHtml}
                     </div>
@@ -921,14 +938,13 @@
             updateHighlights();
         }
 
-        // 💡 點擊更新對齊方式
         window.updateAlign = function(fieldId, alignCode) {
             if (customAlignments[fieldId] === alignCode) {
-                delete customAlignments[fieldId]; // 重複點擊則取消
+                delete customAlignments[fieldId]; 
             } else {
                 customAlignments[fieldId] = alignCode;
             }
-            renderFontSettings(); // 重新渲染更新 Active 樣式
+            renderFontSettings(); 
             updateHighlights();
         }
 
@@ -1006,7 +1022,8 @@
         // 💡 PDF 產出邏輯 
         // ==========================================
         async function generatePDF(docType, inspTypeVal) {
-            const btn = document.getElementById('btn-pdf-main');
+            let btnId = 'btn-pdf-main';
+            const btn = document.getElementById(btnId);
             
             const originalBtnText = btn.innerText;
             btn.innerText = '讀取範本中...';
@@ -1038,9 +1055,6 @@
                 
                 btn.innerText = '寫入資料中...';
 
-                // ==========================================
-                // 💡 上帝模式：絕對座標與精準對齊繪圖法
-                // ==========================================
                 const drawTextAbsolutely = (fieldObj, text, targetFontSize, isTextArea, fieldId) => {
                     if (!text) return;
                     const widgets = fieldObj.acroField.getWidgets();
@@ -1050,23 +1064,19 @@
                     const firstPage = pdfDoc.getPages()[0]; 
                     const lines = text.split('\n');
                     
-                    fieldObj.setText(''); // 清空預設值
+                    fieldObj.setText(''); 
 
-                    // 💡 讀取使用者的對齊設定
                     let align = customAlignments[fieldId];
                     if (!align) {
-                        // 預設值：單行靠左置中(ML)，多行靠左上(TL)
                         align = isTextArea ? 'TL' : 'ML'; 
                     }
                     if (!isTextArea && ['L', 'C', 'R'].includes(align)) {
-                        align = 'M' + align; // 將單行設定轉換為九宮格的內部格式
+                        align = 'M' + align; 
                     }
 
-                    // 取得精準寬高
                     let actualFontSize = targetFontSize;
                     let totalHeight = lines.length * (actualFontSize * 1.2);
 
-                    // 💡 計算起始 Y 座標 (垂直對齊)
                     let startY;
                     const vAlign = align.charAt(0);
                     if (vAlign === 'T') {
@@ -1077,7 +1087,6 @@
                         startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
                     }
 
-                    // 💡 畫出每一行並計算 X 座標 (水平對齊)
                     let currentY = startY;
                     lines.forEach(line => {
                         let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
@@ -1101,8 +1110,9 @@
                     if (window.getVal('s8_qty')) {
                         const ss8Field = form.getTextField('ss8_qty');
                         if (ss8Field) {
-                            if (customFontSizes['ss8_qty']) {
-                                drawTextAbsolutely(ss8Field, window.getVal('s8_qty'), Number(customFontSizes['ss8_qty']), false, 'ss8_qty');
+                            if (customFontSizes['ss8_qty'] || customAlignments['ss8_qty']) {
+                                let size = customFontSizes['ss8_qty'] ? Number(customFontSizes['ss8_qty']) : 11;
+                                drawTextAbsolutely(ss8Field, window.getVal('s8_qty'), size, false, 'ss8_qty');
                             } else {
                                 ss8Field.setText(window.getVal('s8_qty'));
                             }
@@ -1116,8 +1126,9 @@
                         let flatContent = rawContent.replace(/[\r\n]+/g, '');
                         const c2Field = form.getTextField('content_name2');
                         if (c2Field) {
-                            if (customFontSizes['content_name2']) {
-                                drawTextAbsolutely(c2Field, flatContent, Number(customFontSizes['content_name2']), true, 'content_name2');
+                            if (customFontSizes['content_name2'] || customAlignments['content_name2']) {
+                                let size = customFontSizes['content_name2'] ? Number(customFontSizes['content_name2']) : 11;
+                                drawTextAbsolutely(c2Field, flatContent, size, true, 'content_name2');
                             } else {
                                 c2Field.setFontSize(11);
                                 c2Field.setText(flatContent);
@@ -1154,8 +1165,9 @@
                     for (let name of pdfFieldNames) {
                         try {
                             let f = form.getTextField(name);
-                            if (customFontSizes[baseId]) {
-                                drawTextAbsolutely(f, val, Number(customFontSizes[baseId]), false, baseId);
+                            if (customFontSizes[baseId] || customAlignments[baseId]) {
+                                let size = customFontSizes[baseId] ? Number(customFontSizes[baseId]) : 11;
+                                drawTextAbsolutely(f, val, size, false, baseId);
                             } else {
                                 f.setText(val);
                             }
@@ -1194,7 +1206,6 @@
                             
                             let writeValue = el.value;
                             const radioHiddenIds = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
-                            
                             if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) {
                                 writeValue = '-';
                             }
@@ -1215,6 +1226,7 @@
                                         for (let i = 0; i < line.length; i++) {
                                             let char = line[i];
                                             let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
+
                                             if (currentWidth + charWidth > MAX_WIDTH) {
                                                 newText.push(currentLine);
                                                 currentLine = char;
@@ -1230,8 +1242,9 @@
                                 }
                             }
 
-                            if (customFontSizes[el.id]) {
-                                drawTextAbsolutely(textField, writeValue, Number(customFontSizes[el.id]), isTextArea, el.id);
+                            if (customFontSizes[el.id] || customAlignments[el.id]) {
+                                let fontSizeToUse = customFontSizes[el.id] ? Number(customFontSizes[el.id]) : 11;
+                                drawTextAbsolutely(textField, writeValue, fontSizeToUse, isTextArea, el.id);
                             } else {
                                 if (['content_name', 'joint_type', 'detail_rem'].includes(el.id)) {
                                     textField.setFontSize(11);
@@ -1244,13 +1257,17 @@
                 });
 
                 const equipCategoryVal = window.getVal('equip_category');
-                const vesselTitleVal = (inspTypeVal === '既有') ? `${inspTypeVal}${equipCategoryVal}檢查結果報告表` : `${equipCategoryVal}${inspTypeVal}檢查結果報告表`;
+                const vesselTitleVal = (inspTypeVal === '既有') 
+                    ? `${inspTypeVal}${equipCategoryVal}檢查結果報告表` 
+                    : `${equipCategoryVal}${inspTypeVal}檢查結果報告表`;
 
                 try {
                     const inspTypeField = form.getTextField('insp_type');
                     if (inspTypeField) {
-                        if (customFontSizes['insp_type']) drawTextAbsolutely(inspTypeField, inspTypeVal, Number(customFontSizes['insp_type']), false, 'insp_type');
-                        else inspTypeField.setText(inspTypeVal);
+                        if (customFontSizes['insp_type'] || customAlignments['insp_type']) {
+                            let size = customFontSizes['insp_type'] ? Number(customFontSizes['insp_type']) : 11;
+                            drawTextAbsolutely(inspTypeField, inspTypeVal, size, false, 'insp_type');
+                        } else inspTypeField.setText(inspTypeVal);
                     }
                 } catch(e) {}
 
@@ -1258,8 +1275,10 @@
                     const certTitleField = form.getTextField('cert_title');
                     if (certTitleField) {
                         let cVal = inspTypeVal === '既有' ? '合格證明' : '合格證';
-                        if (customFontSizes['cert_title']) drawTextAbsolutely(certTitleField, cVal, Number(customFontSizes['cert_title']), false, 'cert_title');
-                        else certTitleField.setText(cVal);
+                        if (customFontSizes['cert_title'] || customAlignments['cert_title']) {
+                            let size = customFontSizes['cert_title'] ? Number(customFontSizes['cert_title']) : 11;
+                            drawTextAbsolutely(certTitleField, cVal, size, false, 'cert_title');
+                        } else certTitleField.setText(cVal);
                     }
                 } catch(e) {}
 
@@ -1278,8 +1297,10 @@
                     try {
                         const field = form.getTextField(merge.pdfField);
                         if (field) {
-                            if (customFontSizes[merge.pdfField]) drawTextAbsolutely(field, merge.val, Number(customFontSizes[merge.pdfField]), false, merge.pdfField);
-                            else field.setText(merge.val);
+                            if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField]) {
+                                let size = customFontSizes[merge.pdfField] ? Number(customFontSizes[merge.pdfField]) : 11;
+                                drawTextAbsolutely(field, merge.val, size, false, merge.pdfField);
+                            } else field.setText(merge.val);
                         }
                     } catch(e) {}
                 });
@@ -1287,12 +1308,12 @@
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { let f = form.getTextField(yId); if(customFontSizes[yId]) drawTextAbsolutely(f, val.substring(0, 3), Number(customFontSizes[yId]), false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); if(customFontSizes[mId]) drawTextAbsolutely(f, val.substring(3, 5), Number(customFontSizes[mId]), false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
-                        try { let f = form.getTextField(dId); if(customFontSizes[dId]) drawTextAbsolutely(f, val.substring(5, 7), Number(customFontSizes[dId]), false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
                     } else if (val.length === 5 && !dId) {
-                        try { let f = form.getTextField(yId); if(customFontSizes[yId]) drawTextAbsolutely(f, val.substring(0, 3), Number(customFontSizes[yId]), false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); if(customFontSizes[mId]) drawTextAbsolutely(f, val.substring(3, 5), Number(customFontSizes[mId]), false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
                     }
                 };
 
