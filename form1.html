@@ -30,8 +30,6 @@
         input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
         input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #3498db; background-color: #f0f8ff; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
         .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
-        
-        /* 💡 客製化排版設定醒目提示 */
         .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
         
         .input-left { text-align: left !important; }
@@ -50,7 +48,6 @@
         input[type="checkbox"], input[type="radio"] { transform: scale(1.4); margin: 0 4px 0 0; cursor: pointer; accent-color: #3498db; }
         .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
 
-        /* 💡 詞庫面板：加入了拖曳的滑鼠指標樣式 */
         .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
         .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
         .phrase-header:active { cursor: grabbing; }
@@ -63,7 +60,6 @@
         .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
         .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
 
-        /* 選擇產出報表彈出視窗 (Modal) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
         .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
@@ -74,7 +70,6 @@
         .modal-btn-cancel { width: 100%; background: #95a5a6; margin-top: 10px; }
         .modal-btn-cancel:hover { background: #7f8c8d; transform: none; box-shadow: none; }
 
-        /* 💡 視覺化排版控制項 CSS */
         .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
         .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
         .align-cell:hover { background: #d35400; }
@@ -627,7 +622,7 @@
         let customWrapLimits = {};
         let customAlignments = {}; 
         
-        // 💡 記憶載入檔案名稱的全域變數
+        // 記憶檔名
         let currentLoadedFilename = "";
 
         const fieldMappingObj = {
@@ -658,7 +653,7 @@
             
             initPhraseLibrary(); 
             makePanelDraggable(); 
-            updateHighlights();
+            updateHighlights(); 
         });
 
         function makePanelDraggable() {
@@ -745,7 +740,7 @@
             });
             data['_fontSizes'] = customFontSizes;
             data['_wrapLimits'] = customWrapLimits;
-            data['_alignments'] = customAlignments;
+            data['_alignments'] = customAlignments; 
             return JSON.stringify(data, null, 2);
         }
 
@@ -753,7 +748,7 @@
             let data = JSON.parse(jsonStr);
             customFontSizes = data['_fontSizes'] || {};
             customWrapLimits = data['_wrapLimits'] || {};
-            customAlignments = data['_alignments'] || {};
+            customAlignments = data['_alignments'] || {}; 
 
             for (let id in data) {
                 if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
@@ -789,7 +784,6 @@
             });
         }
 
-        // 💡 升級版存檔功能：預設帶入上次讀取的檔名
         function doSaveLocal() {
             let fallbackName = document.getElementById('comp_name').value || "未命名";
             let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_檢查表";
@@ -797,7 +791,7 @@
             let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
 
-            currentLoadedFilename = filename; 
+            currentLoadedFilename = filename;
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -813,7 +807,6 @@
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
 
-        // 💡 升級版讀檔功能：記錄檔名
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -873,8 +866,9 @@
                 let alignVal = customAlignments[fieldObj.id] || '';
                 
                 let el = document.getElementById(activeInput.id);
-                let isMultiline = (el && el.tagName.toLowerCase() === 'textarea') || fieldObj.id === 'content_name2';
-                
+                // 多行欄位一律給字數設定框與九宮格
+                let isMultiline = true; // 放寬限制，讓所有欄位都可以強制換行與九宮格對齊
+
                 let div = document.createElement('div');
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
@@ -883,35 +877,24 @@
                 div.style.borderBottom = '1px dashed #dcdde1';
                 div.style.paddingBottom = '6px';
                 
-                let wrapInputHtml = isMultiline ? `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">` : ``;
+                let wrapInputHtml = `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" title="手動設定換行字數" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">`;
 
-                let alignHtml = '';
-                if (isMultiline) {
-                    alignHtml = `
-                        <div class="align-grid">
-                            <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
-                            <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
-                            <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
-                            <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
-                            <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
-                            <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
-                            <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
-                            <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
-                            <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
-                        </div>
-                    `;
-                } else {
-                    alignHtml = `
-                        <div class="align-row">
-                            <div class="align-btn ${alignVal==='L'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'L')">左</div>
-                            <div class="align-btn ${alignVal==='C'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'C')">中</div>
-                            <div class="align-btn ${alignVal==='R'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'R')">右</div>
-                        </div>
-                    `;
-                }
+                let alignHtml = `
+                    <div class="align-grid">
+                        <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                        <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                        <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                        <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                        <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                        <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                        <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                        <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                        <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                    </div>
+                `;
 
                 div.innerHTML = `
-                    <div style="font-size:11px; color:#34495e; width: 80px; word-break:break-all;">
+                    <div style="font-size:11px; color:#34495e; width: 75px; word-break:break-all;">
                         <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
                     </div>
                     <div style="display:flex; gap:4px; align-items:center;">
@@ -1019,6 +1002,35 @@
         }
 
         // ==========================================
+        // 💡 換行處理引擎 (支援手動設定與預設)
+        // ==========================================
+        function applyWrap(text, targetChars) {
+            if (!text || !targetChars) return text;
+            let lines = text.split('\n');
+            let newText = [];
+            const MAX_WIDTH = targetChars * 2; 
+
+            lines.forEach(line => {
+                let currentLine = '';
+                let currentWidth = 0;
+                for (let i = 0; i < line.length; i++) {
+                    let char = line[i];
+                    let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
+                    if (currentWidth + charWidth > MAX_WIDTH) {
+                        newText.push(currentLine);
+                        currentLine = char;
+                        currentWidth = charWidth;
+                    } else {
+                        currentLine += char;
+                        currentWidth += charWidth;
+                    }
+                }
+                if (currentLine) newText.push(currentLine);
+            });
+            return newText.join('\n');
+        }
+
+        // ==========================================
         // 💡 PDF 產出邏輯 
         // ==========================================
         async function generatePDF(docType, inspTypeVal) {
@@ -1055,6 +1067,9 @@
                 
                 btn.innerText = '寫入資料中...';
 
+                // ==========================================
+                // 💡 上帝模式：絕對座標與精準對齊繪圖法
+                // ==========================================
                 const drawTextAbsolutely = (fieldObj, text, targetFontSize, isTextArea, fieldId) => {
                     if (!text) return;
                     const widgets = fieldObj.acroField.getWidgets();
@@ -1075,16 +1090,17 @@
                     }
 
                     let actualFontSize = targetFontSize;
-                    let totalHeight = lines.length * (actualFontSize * 1.2);
+                    let lineHeight = actualFontSize * 1.2;
+                    let textBlockHeight = (lines.length - 1) * lineHeight + actualFontSize;
 
                     let startY;
                     const vAlign = align.charAt(0);
                     if (vAlign === 'T') {
                         startY = rect.y + rect.height - actualFontSize - 2;
                     } else if (vAlign === 'B') {
-                        startY = rect.y + totalHeight - actualFontSize + 2;
+                        startY = rect.y + textBlockHeight - actualFontSize + 2;
                     } else { // 'M' 中間
-                        startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
+                        startY = rect.y + (rect.height / 2) + (textBlockHeight / 2) - actualFontSize - 2;
                     }
 
                     let currentY = startY;
@@ -1102,7 +1118,7 @@
                         }
 
                         firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
-                        currentY -= (actualFontSize * 1.2); 
+                        currentY -= lineHeight; 
                     });
                 };
 
@@ -1110,11 +1126,17 @@
                     if (window.getVal('s8_qty')) {
                         const ss8Field = form.getTextField('ss8_qty');
                         if (ss8Field) {
-                            if (customFontSizes['ss8_qty'] || customAlignments['ss8_qty']) {
+                            let writeValue = window.getVal('s8_qty');
+                            let isGodMode = customFontSizes['ss8_qty'] || customAlignments['ss8_qty'] || customWrapLimits['ss8_qty'];
+                            
+                            let targetChars = customWrapLimits['ss8_qty'] ? Number(customWrapLimits['ss8_qty']) : null;
+                            writeValue = applyWrap(writeValue, targetChars);
+
+                            if (isGodMode) {
                                 let size = customFontSizes['ss8_qty'] ? Number(customFontSizes['ss8_qty']) : 11;
-                                drawTextAbsolutely(ss8Field, window.getVal('s8_qty'), size, false, 'ss8_qty');
+                                drawTextAbsolutely(ss8Field, writeValue, size, false, 'ss8_qty');
                             } else {
-                                ss8Field.setText(window.getVal('s8_qty'));
+                                ss8Field.setText(writeValue);
                             }
                         }
                     }
@@ -1123,15 +1145,26 @@
                 try {
                     let rawContent = window.getVal('content_name');
                     if (rawContent) {
-                        let flatContent = rawContent.replace(/[\r\n]+/g, '');
+                        let writeValue = rawContent.replace(/[\r\n]+/g, '');
+                        let isGodMode = customFontSizes['content_name2'] || customAlignments['content_name2'] || customWrapLimits['content_name2'];
+                        
+                        let targetChars = null;
+                        if (customWrapLimits['content_name2']) {
+                            targetChars = Number(customWrapLimits['content_name2']);
+                        } else if (isGodMode) {
+                            targetChars = 20; 
+                        }
+                        
+                        writeValue = applyWrap(writeValue, targetChars);
+
                         const c2Field = form.getTextField('content_name2');
                         if (c2Field) {
-                            if (customFontSizes['content_name2'] || customAlignments['content_name2']) {
+                            if (isGodMode) {
                                 let size = customFontSizes['content_name2'] ? Number(customFontSizes['content_name2']) : 11;
-                                drawTextAbsolutely(c2Field, flatContent, size, true, 'content_name2');
+                                drawTextAbsolutely(c2Field, writeValue, size, true, 'content_name2');
                             } else {
                                 c2Field.setFontSize(11);
-                                c2Field.setText(flatContent);
+                                c2Field.setText(writeValue);
                             }
                         }
                     }
@@ -1203,46 +1236,27 @@
                             }
                         } else {
                             const textField = form.getTextField(el.id);
-                            
                             let writeValue = el.value;
+                            
                             const radioHiddenIds = ['chk_install', 'chk_lvl_dev', 'chk_found', 'chk_auto', 'chk_method', 'chk_temp', 'chk_op_select', 'chk_sv', 'chk_qual', 'chk_reduce', 'chk_pg'];
                             if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) {
                                 writeValue = '-';
                             }
 
                             let isTextArea = el.tagName.toLowerCase() === 'textarea';
+                            let isGodMode = customFontSizes[el.id] || customAlignments[el.id] || customWrapLimits[el.id];
 
-                            if (isTextArea && ['insp_notes', 'detail_rem', 'content_name', 'joint_type'].includes(el.id)) {
-                                if (writeValue) {
-                                    let lines = writeValue.split('\n');
-                                    let newText = [];
-                                    let defaultWrap = (el.id === 'detail_rem') ? 38 : 16; 
-                                    let targetChars = customWrapLimits[el.id] ? Number(customWrapLimits[el.id]) : defaultWrap;
-                                    const MAX_WIDTH = targetChars * 2; 
-
-                                    lines.forEach(line => {
-                                        let currentLine = '';
-                                        let currentWidth = 0;
-                                        for (let i = 0; i < line.length; i++) {
-                                            let char = line[i];
-                                            let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
-
-                                            if (currentWidth + charWidth > MAX_WIDTH) {
-                                                newText.push(currentLine);
-                                                currentLine = char;
-                                                currentWidth = charWidth;
-                                            } else {
-                                                currentLine += char;
-                                                currentWidth += charWidth;
-                                            }
-                                        }
-                                        if (currentLine) newText.push(currentLine);
-                                    });
-                                    writeValue = newText.join('\n');
-                                }
+                            let targetChars = null;
+                            if (customWrapLimits[el.id]) {
+                                targetChars = Number(customWrapLimits[el.id]);
+                            } else if (isTextArea) {
+                                if (isGodMode) targetChars = 20; 
+                                else targetChars = (el.id === 'detail_rem') ? 38 : 16;
                             }
 
-                            if (customFontSizes[el.id] || customAlignments[el.id]) {
+                            writeValue = applyWrap(writeValue, targetChars);
+
+                            if (isGodMode) {
                                 let fontSizeToUse = customFontSizes[el.id] ? Number(customFontSizes[el.id]) : 11;
                                 drawTextAbsolutely(textField, writeValue, fontSizeToUse, isTextArea, el.id);
                             } else {
@@ -1308,12 +1322,12 @@
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
-                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]||customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
                     } else if (val.length === 5 && !dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
                     }
                 };
 

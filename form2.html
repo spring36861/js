@@ -14,7 +14,6 @@
         .toolbar h1 { margin: 0; font-size: 18px; line-height: 1.2;}
         .btn-export { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
         .btn-export:hover { background: #2ecc71; }
-        .btn-export:disabled { background: #95a5a6; cursor: not-allowed; }
         .btn-tool { color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
         .btn-tool:hover { filter: brightness(1.1); }
 
@@ -112,12 +111,14 @@
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">請選擇產出報表類型</h3>
+            
             <div class="modal-section">
                 <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
                 <div style="display: flex; gap: 10px;">
                     <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '竣工')">竣工</button>
                 </div>
             </div>
+
             <div class="modal-section">
                 <h4 style="color: #2980b9;">📋 明細表 (17A)</h4>
                 <div style="display: flex; gap: 10px;">
@@ -126,6 +127,7 @@
                     <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
                 </div>
             </div>
+
             <button class="modal-btn modal-btn-cancel" onclick="closeInspModal()">取消產出</button>
         </div>
     </div>
@@ -686,6 +688,7 @@
         let customWrapLimits = {};
         let customAlignments = {}; 
         
+        // 💡 記憶載入檔案名稱的全域變數
         let currentLoadedFilename = "";
 
         const fieldMappingObj = {
@@ -865,6 +868,7 @@
             });
         }
 
+        // 💡 升級版存檔功能：預設帶入上次讀取的檔名
         function doSaveLocal() {
             let fallbackName = document.getElementById('equip_no').value || "未命名";
             let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_表單";
@@ -872,7 +876,7 @@
             let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
 
-            currentLoadedFilename = filename;
+            currentLoadedFilename = filename; 
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -888,6 +892,7 @@
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
 
+        // 💡 升級版讀檔功能：記錄檔名
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -899,7 +904,7 @@
                     document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#2980b9";
                     alert("檔案「" + file.name + "」載入成功！");
-                } catch(err) { alert("檔案解析失敗或格式不正確！"); }
+                } catch(err) { alert("檔案解析失敗！"); }
             };
             reader.readAsText(file);
             event.target.value = ""; 
@@ -947,7 +952,8 @@
                 let alignVal = customAlignments[fieldObj.id] || '';
                 
                 let el = document.getElementById(activeInput.id);
-                let isMultiline = (el && el.tagName.toLowerCase() === 'textarea');
+                // 💡 解除多行限制：所有欄位皆可手動設定換行字數與九宮格
+                let isMultiline = true; 
                 
                 let div = document.createElement('div');
                 div.style.display = 'flex';
@@ -957,39 +963,28 @@
                 div.style.borderBottom = '1px dashed #dcdde1';
                 div.style.paddingBottom = '6px';
                 
-                let wrapInputHtml = isMultiline ? `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數/行" style="width:50px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">` : ``;
+                let wrapInputHtml = `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數" title="設定一行最多塞幾個中文字 (預設為 20)" style="width:45px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">`;
 
-                let alignHtml = '';
-                if (isMultiline) {
-                    alignHtml = `
-                        <div class="align-grid">
-                            <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
-                            <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
-                            <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
-                            <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
-                            <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
-                            <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
-                            <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
-                            <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
-                            <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
-                        </div>
-                    `;
-                } else {
-                    alignHtml = `
-                        <div class="align-row">
-                            <div class="align-btn ${alignVal==='L'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'L')">左</div>
-                            <div class="align-btn ${alignVal==='C'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'C')">中</div>
-                            <div class="align-btn ${alignVal==='R'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'R')">右</div>
-                        </div>
-                    `;
-                }
+                let alignHtml = `
+                    <div class="align-grid">
+                        <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                        <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                        <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                        <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                        <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                        <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                        <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                        <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                        <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                    </div>
+                `;
 
                 div.innerHTML = `
-                    <div style="font-size:11px; color:#34495e; width: 80px; word-break:break-all;">
+                    <div style="font-size:11px; color:#34495e; width: 75px; word-break:break-all;">
                         <b>${fieldObj.label}</b><br><span style="font-size:9px; color:#7f8c8d;">(${fieldObj.id})</span>
                     </div>
                     <div style="display:flex; gap:4px; align-items:center;">
-                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型大小" style="width:55px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
+                        <input type="number" data-pdf-field="${fieldObj.id}" value="${val}" placeholder="字型" style="width:45px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateFontSize(this)">
                         ${wrapInputHtml}
                         ${alignHtml}
                     </div>
@@ -1093,6 +1088,35 @@
         }
 
         // ==========================================
+        // 💡 換行處理引擎 (支援手動設定與預設)
+        // ==========================================
+        function applyWrap(text, targetChars) {
+            if (!text || !targetChars) return text;
+            let lines = text.split('\n');
+            let newText = [];
+            const MAX_WIDTH = targetChars * 2; 
+
+            lines.forEach(line => {
+                let currentLine = '';
+                let currentWidth = 0;
+                for (let i = 0; i < line.length; i++) {
+                    let char = line[i];
+                    let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
+                    if (currentWidth + charWidth > MAX_WIDTH) {
+                        newText.push(currentLine);
+                        currentLine = char;
+                        currentWidth = charWidth;
+                    } else {
+                        currentLine += char;
+                        currentWidth += charWidth;
+                    }
+                }
+                if (currentLine) newText.push(currentLine);
+            });
+            return newText.join('\n');
+        }
+
+        // ==========================================
         // 💡 PDF 產出邏輯 
         // ==========================================
         async function generatePDF(docType, inspTypeVal) {
@@ -1136,9 +1160,8 @@
                     const firstPage = pdfDoc.getPages()[0]; 
                     const lines = text.split('\n');
                     
-                    fieldObj.setText('');
+                    fieldObj.setText(''); // 清空預設值
 
-                    // 讀取使用者的對齊設定，沒設定則單行給ML(左中)，多行給TL(左上)
                     let align = customAlignments[fieldId];
                     if (!align) {
                         align = isTextArea ? 'TL' : 'ML'; 
@@ -1148,20 +1171,19 @@
                     }
 
                     let actualFontSize = targetFontSize;
-                    let totalHeight = lines.length * (actualFontSize * 1.2);
+                    let lineHeight = actualFontSize * 1.2;
+                    let textBlockHeight = (lines.length - 1) * lineHeight + actualFontSize;
 
-                    // 計算起始 Y 座標 (垂直對齊)
                     let startY;
                     const vAlign = align.charAt(0);
                     if (vAlign === 'T') {
                         startY = rect.y + rect.height - actualFontSize - 2;
                     } else if (vAlign === 'B') {
-                        startY = rect.y + totalHeight - actualFontSize + 2;
+                        startY = rect.y + textBlockHeight - actualFontSize + 2;
                     } else { // 'M' 中間
-                        startY = rect.y + (rect.height + totalHeight) / 2 - actualFontSize - (actualFontSize * 0.1);
+                        startY = rect.y + (rect.height / 2) + (textBlockHeight / 2) - actualFontSize - 2;
                     }
 
-                    // 畫出每一行並計算 X 座標 (水平對齊)
                     let currentY = startY;
                     lines.forEach(line => {
                         let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
@@ -1177,7 +1199,7 @@
                         }
 
                         firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
-                        currentY -= (actualFontSize * 1.2); 
+                        currentY -= lineHeight; 
                     });
                 };
 
@@ -1208,7 +1230,7 @@
                 
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
-                    // 💡 注意：這裡已修復 fuel_cb 的判斷
+                    // 💡 注意：不跳過 fuel_cb
                     if (!el.id || skipIds.includes(el.id)) return;
 
                     try {
@@ -1226,6 +1248,9 @@
                                 } catch(err) {}
                             }
                         } else {
+                            // 若為 fuel_type 則不用寫入，因為有獨立的 checkbox (fuel_oil, fuel_coal 等) 會被上面邏輯處理
+                            if (el.id === 'fuel_type') return;
+
                             const textField = form.getTextField(el.id);
                             let writeValue = el.value;
                             if (el.id === 'equip_category' && writeValue) writeValue += "明細表";
@@ -1234,38 +1259,19 @@
                             if (radioHiddenIds.includes(el.id) && (writeValue === '-' || writeValue === '無')) writeValue = '-';
 
                             let isTextArea = el.tagName.toLowerCase() === 'textarea';
+                            let isGodMode = customFontSizes[el.id] || customAlignments[el.id] || customWrapLimits[el.id];
 
-                            if (isTextArea && ['b_joint_type', 'summary', 'detail_rem', 'insp_notes'].includes(el.id)) {
-                                if (writeValue) {
-                                    let lines = writeValue.split('\n');
-                                    let newText = [];
-                                    let defaultWrap = (el.id === 'detail_rem') ? 38 : 16; 
-                                    let targetChars = customWrapLimits[el.id] ? Number(customWrapLimits[el.id]) : defaultWrap;
-                                    const MAX_WIDTH = targetChars * 2; 
-
-                                    lines.forEach(line => {
-                                        let currentLine = '';
-                                        let currentWidth = 0;
-                                        for (let i = 0; i < line.length; i++) {
-                                            let char = line[i];
-                                            let charWidth = char.charCodeAt(0) > 255 ? 2 : 1;
-
-                                            if (currentWidth + charWidth > MAX_WIDTH) {
-                                                newText.push(currentLine);
-                                                currentLine = char;
-                                                currentWidth = charWidth;
-                                            } else {
-                                                currentLine += char;
-                                                currentWidth += charWidth;
-                                            }
-                                        }
-                                        if (currentLine) newText.push(currentLine);
-                                    });
-                                    writeValue = newText.join('\n');
-                                }
+                            let targetChars = null;
+                            if (customWrapLimits[el.id]) {
+                                targetChars = Number(customWrapLimits[el.id]);
+                            } else if (isTextArea) {
+                                if (isGodMode) targetChars = 20; 
+                                else targetChars = (el.id === 'detail_rem') ? 38 : 16;
                             }
 
-                            if (customFontSizes[el.id] || customAlignments[el.id]) {
+                            writeValue = applyWrap(writeValue, targetChars);
+
+                            if (isGodMode) {
                                 let fontSizeToUse = customFontSizes[el.id] ? Number(customFontSizes[el.id]) : 11;
                                 drawTextAbsolutely(textField, writeValue, fontSizeToUse, isTextArea, el.id);
                             } else {
@@ -1282,7 +1288,7 @@
                 try {
                     const inspTypeField = form.getTextField('insp_type');
                     if (inspTypeField) {
-                        if (customFontSizes['insp_type'] || customAlignments['insp_type']) {
+                        if (customFontSizes['insp_type'] || customAlignments['insp_type'] || customWrapLimits['insp_type']) {
                             let size = customFontSizes['insp_type'] ? Number(customFontSizes['insp_type']) : 11;
                             drawTextAbsolutely(inspTypeField, inspTypeVal, size, false, 'insp_type');
                         } else inspTypeField.setText(inspTypeVal);
@@ -1293,7 +1299,7 @@
                     const certTitleField = form.getTextField('cert_title');
                     if (certTitleField) {
                         let cVal = inspTypeVal === '既有' ? '合格證明' : '合格證';
-                        if (customFontSizes['cert_title'] || customAlignments['cert_title']) {
+                        if (customFontSizes['cert_title'] || customAlignments['cert_title'] || customWrapLimits['cert_title']) {
                             let size = customFontSizes['cert_title'] ? Number(customFontSizes['cert_title']) : 11;
                             drawTextAbsolutely(certTitleField, cVal, size, false, 'cert_title');
                         } else certTitleField.setText(cVal);
@@ -1335,9 +1341,14 @@
                     try {
                         const field = form.getTextField(merge.pdfField);
                         if (field && merge.val.replace(/胴側:|管側:|\s|\//g, '').length > 0) {
-                            if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField]) {
+                            if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField] || customWrapLimits[merge.pdfField]) {
                                 let size = customFontSizes[merge.pdfField] ? Number(customFontSizes[merge.pdfField]) : 11;
-                                drawTextAbsolutely(field, merge.val, size, false, merge.pdfField);
+                                
+                                let writeValue = merge.val;
+                                let targetChars = customWrapLimits[merge.pdfField] ? Number(customWrapLimits[merge.pdfField]) : 20;
+                                writeValue = applyWrap(writeValue, targetChars);
+
+                                drawTextAbsolutely(field, writeValue, size, false, merge.pdfField);
                             } else field.setText(merge.val);
                         }
                     } catch(e) {}
@@ -1346,12 +1357,12 @@
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
-                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]||customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
                     } else if (val.length === 5 && !dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
                     }
                 };
 
