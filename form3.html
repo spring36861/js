@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,90 +9,460 @@
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 
     <style>
-        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; font-size: 13px; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 80px; }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; background: #8e44ad; color: white; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .toolbar h1 { margin: 0; font-size: 18px; line-height: 1.2;}
-        .btn-export { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-export:hover { background: #2ecc71; }
-        .btn-tool { color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-tool:hover { filter: brightness(1.1); }
+        body {
+            font-family: "Noto Sans TC", "微軟正黑體", sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            font-size: 13px;
+            color: #333;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background-color: #fff; }
-        th, td { border: 1px solid #dcdde1; padding: 6px; text-align: center; vertical-align: middle; }
-        th { background-color: #7f8c8d; font-weight: bold; color: white; }
-        .section-header { background-color: #2c3e50 !important; color: white !important; font-size: 14px; letter-spacing: 2px; padding: 8px !important; }
-        
-        input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
-        input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #9b59b6; background-color: #f9ebff; box-shadow: 0 0 5px rgba(155, 89, 182, 0.5); }
-        .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
-        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 80px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #8e44ad;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar h1 {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .btn-export {
+            background: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #2ecc71;
+        }
+
+        .btn-tool {
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-tool:hover {
+            filter: brightness(1.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+
+        th,
+        td {
+            border: 1px solid #dcdde1;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #7f8c8d;
+            font-weight: bold;
+            color: white;
+        }
+
+        .section-header {
+            background-color: #2c3e50 !important;
+            color: white !important;
+            font-size: 14px;
+            letter-spacing: 2px;
+            padding: 8px !important;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #bdc3c7;
+            background-color: #fff;
+            border-radius: 3px;
+            padding: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #2c3e50;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #9b59b6;
+            background-color: #f9ebff;
+            box-shadow: 0 0 5px rgba(155, 89, 182, 0.5);
+        }
+
+        .input-error {
+            border: 2px solid #e74c3c !important;
+            background-color: #fdedec !important;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important;
+            color: #c0392b !important;
+            font-weight: bold;
+        }
+
         /* 客製化排版設定醒目提示 */
-        .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
-        
-        .input-left { text-align: left !important; }
-        textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
-        textarea:focus { overflow-y: auto; }
-        
-        .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #dcdde1 !important; background: transparent !important; color: #fff !important; }
-        select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
-        select.header-input option { color: #333; }
-        
-        .flex-row { display: flex; align-items: center; gap: 5px; }
-        .checkbox-wrapper { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
-        .w-xs { width: 50px !important; flex: none; }
-        .w-sm { width: 80px !important; flex: none; }
-        .w-md { width: 120px !important; flex: none; }
-        .header-gray { background: #f5f6fa; font-weight: bold; color: #2c3e50; }
+        .has-custom-setting {
+            border: 2px solid #f39c12 !important;
+            background-color: #fcf3cf !important;
+            box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3);
+        }
 
-        input[type="checkbox"], input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #9b59b6; }
-        .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
+        .input-left {
+            text-align: left !important;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 28px;
+            line-height: 1.3;
+            overflow-y: hidden;
+        }
+
+        textarea:focus {
+            overflow-y: auto;
+        }
+
+        .header-input {
+            font-size: 18px !important;
+            font-weight: bold !important;
+            border: none !important;
+            border-bottom: 1px dashed #dcdde1 !important;
+            background: transparent !important;
+            color: #fff !important;
+        }
+
+        select.header-input {
+            cursor: pointer;
+            text-align-last: center;
+            padding-bottom: 2px;
+        }
+
+        select.header-input option {
+            color: #333;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .w-xs {
+            width: 50px !important;
+            flex: none;
+        }
+
+        .w-sm {
+            width: 80px !important;
+            flex: none;
+        }
+
+        .w-md {
+            width: 120px !important;
+            flex: none;
+        }
+
+        .header-gray {
+            background: #f5f6fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            transform: scale(1.3);
+            margin: 0 4px 0 0;
+            cursor: pointer;
+            accent-color: #9b59b6;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #2c3e50;
+            font-weight: bold;
+        }
 
         /* 詞庫面板 */
-        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
-        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
-        .phrase-header:active { cursor: grabbing; }
-        .phrase-list { padding: 10px; max-height: 200px; overflow-y: auto; display: block; background: #fafafa;} 
-        .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; transition: 0.1s;}
-        .phrase-chip:hover { background: #f9ebff; border-color: #9b59b6; color: #8e44ad;}
-        .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
-        .phrase-chip.del-mode:hover { background: #e74c3c; color: white; border-color: #c0392b;}
-        .phrase-actions { padding: 10px; border-top: 1px solid #ecf0f1; display: flex; gap: 8px; background: white; border-radius: 0 0 8px 8px;}
-        .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
-        .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
+        .phrase-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 340px;
+            background: white;
+            border: 2px solid #8e44ad;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            display: none;
+            flex-direction: column;
+            transition: opacity 0.3s;
+        }
 
-        .btn-char { background: #f5f6fa; border: 1px solid #dcdde1; border-radius: 3px; padding: 4px 8px; cursor: pointer; font-size: 14px; color: #2c3e50; transition: 0.2s; font-family: sans-serif; font-weight: bold; }
-        .btn-char:hover { background: #9b59b6; color: white; border-color: #8e44ad; }
-        .phrase-panel.minimized > div:not(.phrase-header) { display: none !important; }
-        .phrase-panel.minimized { width: auto; min-width: 200px; }
+        .phrase-header {
+            background: #8e44ad;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .phrase-header:active {
+            cursor: grabbing;
+        }
+
+        .phrase-list {
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: block;
+            background: #fafafa;
+        }
+
+        .phrase-chip {
+            display: block;
+            width: 100%;
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+            background: #fff;
+            border: 1px solid #bdc3c7;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #2c3e50;
+            transition: 0.1s;
+        }
+
+        .phrase-chip:hover {
+            background: #f9ebff;
+            border-color: #9b59b6;
+            color: #8e44ad;
+        }
+
+        .phrase-chip.del-mode {
+            background: #fdedec;
+            border-color: #e74c3c;
+            color: #c0392b;
+        }
+
+        .phrase-chip.del-mode:hover {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .phrase-actions {
+            padding: 10px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            gap: 8px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .phrase-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .btn-p-add {
+            background: #27ae60;
+        }
+
+        .btn-p-del {
+            background: #7f8c8d;
+        }
+
+        .btn-p-del.active {
+            background: #e74c3c;
+        }
+
+        .btn-char {
+            background: #f5f6fa;
+            border: 1px solid #dcdde1;
+            border-radius: 3px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2c3e50;
+            transition: 0.2s;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        .btn-char:hover {
+            background: #9b59b6;
+            color: white;
+            border-color: #8e44ad;
+        }
+
+        .phrase-panel.minimized>div:not(.phrase-header) {
+            display: none !important;
+        }
+
+        .phrase-panel.minimized {
+            width: auto;
+            min-width: 200px;
+        }
 
         /* 視覺化排版控制項 CSS */
-        .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
-        .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
-        .align-cell:hover { background: #9b59b6; }
-        .align-cell.active { background: #8e44ad; border-color: #732d91; }
-        .align-cell::after { content: ''; width: 4px; height: 4px; background: #95a5a6; border-radius: 50%; } 
-        .align-cell.active::after { background: #fff; }
+        .align-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            width: 45px;
+            height: 45px;
+            flex: none;
+        }
 
-        .align-row { display: flex; gap: 2px; width: 55px; height: 22px; flex: none; }
-        .align-btn { flex: 1; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; font-size: 10px; color:#2c3e50; display:flex; align-items:center; justify-content:center; transition: 0.1s;}
-        .align-btn:hover { background: #9b59b6; color:white;}
-        .align-btn.active { background: #8e44ad; color:white; border-color: #732d91; }
+        .align-cell {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .align-cell:hover {
+            background: #9b59b6;
+        }
+
+        .align-cell.active {
+            background: #8e44ad;
+            border-color: #732d91;
+        }
+
+        .align-cell::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: #95a5a6;
+            border-radius: 50%;
+        }
+
+        .align-cell.active::after {
+            background: #fff;
+        }
+
+        .align-row {
+            display: flex;
+            gap: 2px;
+            width: 55px;
+            height: 22px;
+            flex: none;
+        }
+
+        .align-btn {
+            flex: 1;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 10px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+        }
+
+        .align-btn:hover {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .align-btn.active {
+            background: #8e44ad;
+            color: white;
+            border-color: #732d91;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="toolbar">
         <div>
             <h1>熔接明細表 (16B) - 填寫系統</h1>
-            <div style="font-size:11px; color:#f9ebff; margin-top:4px;">目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span></div>
+            <div style="font-size:11px; color:#f9ebff; margin-top:4px;">目前編輯: <span id="current-filename-display"
+                    style="color:#f1c40f; font-weight:bold;">未命名表單</span></div>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
-            <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
+            <button onclick="window.location.href='index.html'" class="btn-tool"
+                style="background: #7f8c8d;">回主選單</button>
+            <button onclick="document.getElementById('local-file-input').click()" class="btn-tool"
+                style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
             <button class="btn-export" onclick="generatePDF()" id="btn-pdf-detail">產出 明細表(16B)</button>
-            <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+            <input type="file" id="local-file-input" accept=".json" style="display:none;"
+                onchange="handleFileSelect(event)">
         </div>
     </div>
 
@@ -114,7 +485,12 @@
         </div>
 
         <table>
-            <colgroup><col style="width: 15%;"><col style="width: 35%;"><col style="width: 15%;"><col style="width: 35%;"></colgroup>
+            <colgroup>
+                <col style="width: 15%;">
+                <col style="width: 35%;">
+                <col style="width: 15%;">
+                <col style="width: 35%;">
+            </colgroup>
             <tr>
                 <td class="header-gray">編號</td>
                 <td><input type="text" id="report_no" class="input-left" data-category="基本資料"></td>
@@ -123,31 +499,51 @@
             </tr>
             <tr>
                 <td class="header-gray">最高使用壓力</td>
-                <td class="text-left"><input type="text" id="press_shell_press_tube" class="input-left" value="胴側:        管側:" data-category="基本資料"></td>
+                <td class="text-left"><input type="text" id="press_shell_press_tube" class="input-left"
+                        value="胴側:        管側:" data-category="基本資料"></td>
                 <td class="header-gray">最高使用溫度</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="max_temp" class="input-left" style="width: 100%;" data-category="基本資料"> °C</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="max_temp" class="input-left" style="width: 100%;"
+                            data-category="基本資料"> °C</div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">傳熱面積</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="heat_area" class="input-left" style="width: 100%;" data-category="基本資料"> m²</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="heat_area" class="input-left" style="width: 100%;"
+                            data-category="基本資料"> m²</div>
+                </td>
                 <td class="header-gray">胴體內徑</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="shell_id" class="input-left" style="width: 100%;" data-category="基本資料"> mm</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="shell_id" class="input-left" style="width: 100%;"
+                            data-category="基本資料"> mm</div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">內容積</td>
-                <td colspan="3" class="text-left"><div class="flex-row"><input type="text" id="vol" class="input-left" style="width: 100%;" data-category="基本資料"> m³</div></td>
+                <td colspan="3" class="text-left">
+                    <div class="flex-row"><input type="text" id="vol" class="input-left" style="width: 100%;"
+                            data-category="基本資料"> m³</div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">熔接號碼</td>
                 <td class="text-left"><input type="text" id="weld_no" class="input-left" data-category="基本資料"></td>
                 <td class="header-gray">檢查日期</td>
-                <td class="text-left"><input type="text" id="insp_date" class="w-md input-left" maxlength="7" placeholder="例:1120501" oninput="validateDate(this, 7)" data-category="基本資料"></td>
+                <td class="text-left"><input type="text" id="insp_date" class="w-md input-left" maxlength="7"
+                        placeholder="例:1120501" oninput="validateDate(this, 7)" data-category="基本資料"></td>
             </tr>
         </table>
 
         <table>
-            <colgroup><col style="width: 25%;"><col style="width: 35%;"><col style="width: 40%;"></colgroup>
-            <tr><th colspan="3" class="section-header">部 分 材 料 與 板 厚</th></tr>
+            <colgroup>
+                <col style="width: 25%;">
+                <col style="width: 35%;">
+                <col style="width: 40%;">
+            </colgroup>
+            <tr>
+                <th colspan="3" class="section-header">部 分 材 料 與 板 厚</th>
+            </tr>
             <tr>
                 <td class="header-gray">部 分</td>
                 <td class="header-gray">材 料</td>
@@ -176,11 +572,17 @@
         </table>
 
         <table>
-            <colgroup><col style="width: 40%;"><col style="width: 60%;"></colgroup>
-            <tr><th colspan="2" class="section-header">熔 接 詳 細 資 料</th></tr>
+            <colgroup>
+                <col style="width: 40%;">
+                <col style="width: 60%;">
+            </colgroup>
+            <tr>
+                <th colspan="2" class="section-header">熔 接 詳 細 資 料</th>
+            </tr>
             <tr>
                 <td class="header-gray text-left">胴體縱接頭效率</td>
-                <td class="text-left"><textarea id="joint_eff" class="input-left" rows="2" data-category="熔接詳細資料"></textarea></td>
+                <td class="text-left"><textarea id="joint_eff" class="input-left" rows="2"
+                        data-category="熔接詳細資料"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray text-left">胴體縱接頭種類及開槽形狀</td>
@@ -201,14 +603,20 @@
         </table>
 
         <table>
-            <colgroup><col style="width: 25%;"><col style="width: 75%;"></colgroup>
+            <colgroup>
+                <col style="width: 25%;">
+                <col style="width: 75%;">
+            </colgroup>
             <tr>
                 <td class="header-gray text-left">補強層修削方法</td>
                 <td class="text-left">
                     <div class="checkbox-wrapper">
-                        <label class="radio-label"><input type="radio" name="grp_trim" onchange="document.getElementById('weld_trim').value='充份修削'">充份修削</label>
-                        <label class="radio-label"><input type="radio" name="grp_trim" onchange="document.getElementById('weld_trim').value='稍削'">稍削</label>
-                        <label class="radio-label"><input type="radio" name="grp_trim" onchange="document.getElementById('weld_trim').value='不削'">不削</label>
+                        <label class="radio-label"><input type="radio" name="grp_trim"
+                                onchange="document.getElementById('weld_trim').value='充份修削'">充份修削</label>
+                        <label class="radio-label"><input type="radio" name="grp_trim"
+                                onchange="document.getElementById('weld_trim').value='稍削'">稍削</label>
+                        <label class="radio-label"><input type="radio" name="grp_trim"
+                                onchange="document.getElementById('weld_trim').value='不削'">不削</label>
                         <input type="hidden" id="weld_trim" value="">
                     </div>
                 </td>
@@ -217,8 +625,10 @@
                 <td class="header-gray text-left">應力除去方法</td>
                 <td class="text-left">
                     <div class="checkbox-wrapper">
-                        <label class="radio-label"><input type="radio" name="grp_stress" onchange="document.getElementById('stress_relief').value='局部應力除去'">局部應力除去</label>
-                        <label class="radio-label"><input type="radio" name="grp_stress" onchange="document.getElementById('stress_relief').value='爐內應力除去'">爐內應力除去</label>
+                        <label class="radio-label"><input type="radio" name="grp_stress"
+                                onchange="document.getElementById('stress_relief').value='局部應力除去'">局部應力除去</label>
+                        <label class="radio-label"><input type="radio" name="grp_stress"
+                                onchange="document.getElementById('stress_relief').value='爐內應力除去'">爐內應力除去</label>
                         <input type="hidden" id="stress_relief" value="">
                         <span style="margin-left:20px; font-weight:bold;">應力除去溫度: </span>
                         <input type="text" id="stress_temp" class="w-sm" data-category="熔接詳細資料"> °C
@@ -232,7 +642,8 @@
             <tr>
                 <td class="header-gray text-left">製造年月</td>
                 <td class="text-left">
-                    <div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205" oninput="validateDate(this, 5)" data-category="熔接詳細資料"></div>
+                    <div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5"
+                            placeholder="例: 11205" oninput="validateDate(this, 5)" data-category="熔接詳細資料"></div>
                 </td>
             </tr>
             <tr>
@@ -241,7 +652,8 @@
             </tr>
             <tr>
                 <td class="header-gray text-left">熔接人員姓名</td>
-                <td class="text-left"><input type="text" id="welder_name" class="input-left" data-category="熔接詳細資料"></td>
+                <td class="text-left"><input type="text" id="welder_name" class="input-left" data-category="熔接詳細資料">
+                </td>
             </tr>
         </table>
 
@@ -252,8 +664,11 @@
                 <col style="width: 28%;">
                 <col style="width: 27%;">
             </colgroup>
-            <tr><th colspan="4" class="section-header" style="background:#7f8c8d !important;">※ 試 驗 與 檢 查 結 果 (申請人勿填寫)</th></tr>
-            
+            <tr>
+                <th colspan="4" class="section-header" style="background:#7f8c8d !important;">※ 試 驗 與 檢 查 結 果 (申請人勿填寫)
+                </th>
+            </tr>
+
             <tr>
                 <td class="header-gray" rowspan="3">※機械試驗結果<br>(熔接部分)</td>
                 <td class="header-gray">抗拉試驗</td>
@@ -262,26 +677,34 @@
             </tr>
             <tr>
                 <td class="text-left" style="vertical-align: middle;">
-                    <div class="flex-row" style="justify-content: center;">抗拉強度 <input type="text" id="tensile_strength" class="w-xs" data-category="熔接詳細資料"> kgf/mm²</div>
+                    <div class="flex-row" style="justify-content: center;">抗拉強度 <input type="text" id="tensile_strength"
+                            class="w-xs" data-category="熔接詳細資料"> kgf/mm²</div>
                 </td>
                 <td class="text-left" style="vertical-align: top; padding-top: 10px;">
                     <div class="flex-row" style="justify-content: center; margin-bottom: 5px;">
-                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_front">圈選「正面」</label>
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox"
+                                id="chk_oval_front">圈選「正面」</label>
                     </div>
                     <div class="checkbox-wrapper" style="justify-content: center;">
-                        <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='合格'">合格</label>
-                        <label class="radio-label"><input type="radio" name="grp_bend_f" onchange="document.getElementById('chk_bend_front').value='不合格'">不合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_f"
+                                onchange="document.getElementById('chk_bend_front').value='合格'">合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_f"
+                                onchange="document.getElementById('chk_bend_front').value='不合格'">不合格</label>
                         <input type="hidden" id="chk_bend_front" value="">
                     </div>
                 </td>
                 <td class="text-left" style="vertical-align: top; padding-top: 10px;">
                     <div class="flex-row" style="justify-content: center; margin-bottom: 5px; gap: 10px;">
-                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_side">圈選「側面」</label>
-                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox" id="chk_oval_back">圈選「反面」</label>
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox"
+                                id="chk_oval_side">圈選「側面」</label>
+                        <label class="radio-label" style="color: #c0392b;"><input type="checkbox"
+                                id="chk_oval_back">圈選「反面」</label>
                     </div>
                     <div class="checkbox-wrapper" style="justify-content: center;">
-                        <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='合格'">合格</label>
-                        <label class="radio-label"><input type="radio" name="grp_bend_s" onchange="document.getElementById('chk_bend_side').value='不合格'">不合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_s"
+                                onchange="document.getElementById('chk_bend_side').value='合格'">合格</label>
+                        <label class="radio-label"><input type="radio" name="grp_bend_s"
+                                onchange="document.getElementById('chk_bend_side').value='不合格'">不合格</label>
                         <input type="hidden" id="chk_bend_side" value="">
                     </div>
                 </td>
@@ -290,8 +713,10 @@
                 <td colspan="2" class="header-gray" style="text-align: center;">裂痕或不完全熔焊</td>
                 <td class="text-left" style="vertical-align: middle;">
                     <div class="checkbox-wrapper" style="justify-content: center;">
-                        <label class="radio-label"><input type="radio" name="grp_crack" onchange="document.getElementById('chk_bend_side_crack').value='有'">有</label>
-                        <label class="radio-label"><input type="radio" name="grp_crack" onchange="document.getElementById('chk_bend_side_crack').value='無'">無</label>
+                        <label class="radio-label"><input type="radio" name="grp_crack"
+                                onchange="document.getElementById('chk_bend_side_crack').value='有'">有</label>
+                        <label class="radio-label"><input type="radio" name="grp_crack"
+                                onchange="document.getElementById('chk_bend_side_crack').value='無'">無</label>
                         <input type="hidden" id="chk_bend_side_crack" value="">
                     </div>
                 </td>
@@ -300,26 +725,32 @@
             <tr>
                 <td class="header-gray" rowspan="2">※放射線檢查結果<br>(熔接部分)</td>
                 <td class="text-left" rowspan="2" style="vertical-align: middle;">
-                    <div class="checkbox-wrapper" style="flex-direction: column; align-items: flex-start; gap:8px; padding-left: 20px;">
-                        <label class="radio-label"><input type="radio" name="grp_rad" onchange="document.getElementById('rad_extent').value='全線照射'">全線照射</label>
-                        <label class="radio-label"><input type="radio" name="grp_rad" onchange="document.getElementById('rad_extent').value='部分照射'">部分照射</label>
+                    <div class="checkbox-wrapper"
+                        style="flex-direction: column; align-items: flex-start; gap:8px; padding-left: 20px;">
+                        <label class="radio-label"><input type="radio" name="grp_rad"
+                                onchange="document.getElementById('rad_extent').value='全線照射'">全線照射</label>
+                        <label class="radio-label"><input type="radio" name="grp_rad"
+                                onchange="document.getElementById('rad_extent').value='部分照射'">部分照射</label>
                         <input type="hidden" id="rad_extent" value="">
                     </div>
                 </td>
                 <td class="text-left" style="vertical-align: middle;">
-                    <div class="flex-row" style="justify-content: center;">氣孔程度 <input type="text" id="rad_pore_grade" class="w-xs" data-category="熔接詳細資料"> 級</div>
+                    <div class="flex-row" style="justify-content: center;">氣孔程度 <input type="text" id="rad_pore_grade"
+                            class="w-xs" data-category="熔接詳細資料"> 級</div>
                 </td>
                 <td class="header-gray" rowspan="2">※檢查員簽章</td>
             </tr>
             <tr>
                 <td class="text-left" style="vertical-align: middle;">
-                    <div class="flex-row" style="justify-content: center;">熔渣滲入程度 <input type="text" id="rad_slag_grade" class="w-xs" data-category="熔接詳細資料"> 級</div>
+                    <div class="flex-row" style="justify-content: center;">熔渣滲入程度 <input type="text" id="rad_slag_grade"
+                            class="w-xs" data-category="熔接詳細資料"> 級</div>
                 </td>
             </tr>
 
             <tr>
                 <td class="header-gray text-left">備註</td>
-                <td colspan="3" class="text-left"><textarea id="remarks" class="input-left" rows="3" data-category="熔接詳細資料"></textarea></td>
+                <td colspan="3" class="text-left"><textarea id="remarks" class="input-left" rows="3"
+                        data-category="熔接詳細資料"></textarea></td>
             </tr>
         </table>
     </div>
@@ -328,12 +759,16 @@
         <div class="phrase-header">
             <span id="phrase-title">常用詞庫</span>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <button onclick="toggleMinimizePhrasePanel()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;font-weight:bold;margin-bottom:4px;" title="縮小/放大">_</button>
-                <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;">✖</button>
+                <button onclick="toggleMinimizePhrasePanel()"
+                    style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;font-weight:bold;margin-bottom:4px;"
+                    title="縮小/放大">_</button>
+                <button onclick="document.getElementById('phrase-panel').style.display='none'"
+                    style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;">✖</button>
             </div>
         </div>
-        
-        <div style="padding: 6px; background: #fff; border-bottom: 1px solid #bdc3c7; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
+
+        <div
+            style="padding: 6px; background: #fff; border-bottom: 1px solid #bdc3c7; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
             <button class="btn-char" onclick="insertChar('α')">α</button>
             <button class="btn-char" onclick="insertChar('β')">β</button>
             <button class="btn-char" onclick="insertChar('γ')">γ</button>
@@ -352,16 +787,22 @@
             <button class="btn-char" onclick="insertChar('。')">。</button>
             <button class="btn-char" onclick="insertChar('；')">；</button>
             <button class="btn-char" onclick="insertChar('：')">：</button>
+            <button class="btn-char" onclick="insertChar('=')">=</button>
         </div>
 
         <div style="padding: 5px 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; text-align: center;">
-            <button onclick="toggleFontSettings()" style="width: 100%; padding: 5px; font-size: 12px; background: #8e44ad; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️ 切換 PDF 排版設定</button>
+            <button onclick="toggleFontSettings()"
+                style="width: 100%; padding: 5px; font-size: 12px; background: #8e44ad; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️
+                切換 PDF 排版設定</button>
         </div>
 
-        <div id="font-settings-container" style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
+        <div id="font-settings-container"
+            style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
             <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #2c3e50;">🖋️ 針對目前欄位的排版設定</div>
             <div id="font-size-inputs"></div>
-            <button onclick="resetFontSizes()" style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻ 清除目前欄位排版設定</button>
+            <button onclick="resetFontSizes()"
+                style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻
+                清除目前欄位排版設定</button>
         </div>
 
         <div class="phrase-list" id="phrase-list"></div>
@@ -374,25 +815,25 @@
     <script>
         let customFontSizes = {};
         let customWrapLimits = {};
-        let customAlignments = {}; 
-        
+        let customAlignments = {};
+
         let currentLoadedFilename = "";
 
         const fieldMappingObj = {
-            'mfg_ym': [{id: 'mfg_ym_y'}, {id: 'mfg_ym_m'}],
-            'insp_date': [{id: 'insp_date_y'}, {id: 'insp_date_m'}, {id: 'insp_date_d'}]
+            'mfg_ym': [{ id: 'mfg_ym_y' }, { id: 'mfg_ym_m' }],
+            'insp_date': [{ id: 'insp_date_y' }, { id: 'insp_date_m' }, { id: 'insp_date_d' }]
         };
 
         const fieldMappingLocal = {
-            'mfg_ym': [{id: 'mfg_ym_y', label: '年'}, {id: 'mfg_ym_m', label: '月'}],
-            'insp_date': [{id: 'insp_date_y', label: '年'}, {id: 'insp_date_m', label: '月'}, {id: 'insp_date_d', label: '日'}]
+            'mfg_ym': [{ id: 'mfg_ym_y', label: '年' }, { id: 'mfg_ym_m', label: '月' }],
+            'insp_date': [{ id: 'insp_date_y', label: '年' }, { id: 'insp_date_m', label: '月' }, { id: 'insp_date_d', label: '日' }]
         };
 
         window.addEventListener('DOMContentLoaded', () => {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-            window.getVal = getVal; 
-            
-            initPhraseLibrary(); 
+            window.getVal = getVal;
+
+            initPhraseLibrary();
             makePanelDraggable();
             updateHighlights();
         });
@@ -403,8 +844,8 @@
             let isDragging = false;
             let offsetX, offsetY;
 
-            header.addEventListener('mousedown', function(e) {
-                if(e.target.tagName === 'BUTTON') return; 
+            header.addEventListener('mousedown', function (e) {
+                if (e.target.tagName === 'BUTTON') return;
                 isDragging = true;
                 header.style.cursor = 'grabbing';
                 const rect = panel.getBoundingClientRect();
@@ -416,9 +857,9 @@
                 panel.style.top = rect.top + 'px';
             });
 
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function (e) {
                 if (!isDragging) return;
-                e.preventDefault(); 
+                e.preventDefault();
                 let x = e.clientX - offsetX;
                 let y = e.clientY - offsetY;
                 x = Math.max(0, Math.min(x, window.innerWidth - panel.offsetWidth));
@@ -427,7 +868,7 @@
                 panel.style.top = y + 'px';
             });
 
-            document.addEventListener('mouseup', function() {
+            document.addEventListener('mouseup', function () {
                 if (isDragging) {
                     isDragging = false;
                     header.style.cursor = 'grab';
@@ -439,14 +880,14 @@
             const inputs = document.querySelectorAll('input[type="text"], textarea');
             inputs.forEach(el => {
                 if (!el.id) return;
-                let pdfFields = fieldMappingObj[el.id] || [{id: el.id}];
+                let pdfFields = fieldMappingObj[el.id] || [{ id: el.id }];
                 let hasCustom = pdfFields.some(f => customFontSizes[f.id] || customWrapLimits[f.id] || customAlignments[f.id]);
                 if (hasCustom) el.classList.add('has-custom-setting');
                 else el.classList.remove('has-custom-setting');
             });
         }
 
-        window.toggleFontSettings = function() {
+        window.toggleFontSettings = function () {
             const container = document.getElementById('font-settings-container');
             container.style.display = (container.style.display === 'none') ? 'block' : 'none';
         }
@@ -490,23 +931,23 @@
                 if (el) {
                     if (el.type === 'checkbox') el.checked = data[id];
                     else el.value = data[id];
-                    
-                    if(id === 'insp_date') validateDate(el, 7);
-                    if(id === 'mfg_ym') validateDate(el, 5);
+
+                    if (id === 'insp_date') validateDate(el, 7);
+                    if (id === 'mfg_ym') validateDate(el, 5);
                 }
             }
-            updateRadiosFromHidden(); 
+            updateRadiosFromHidden();
             updateHighlights();
         }
 
         function updateRadiosFromHidden() {
             const mappings = [
-                {id: 'weld_trim', group: 'grp_trim', vals: ['充份修削', '稍削', '不削']},
-                {id: 'stress_relief', group: 'grp_stress', vals: ['局部應力除去', '爐內應力除去']},
-                {id: 'chk_bend_front', group: 'grp_bend_f', vals: ['合格', '不合格']},
-                {id: 'chk_bend_side_crack', group: 'grp_crack', vals: ['有', '無']},
-                {id: 'chk_bend_side', group: 'grp_bend_s', vals: ['合格', '不合格']},
-                {id: 'rad_extent', group: 'grp_rad', vals: ['全線照射', '部分照射']}
+                { id: 'weld_trim', group: 'grp_trim', vals: ['充份修削', '稍削', '不削'] },
+                { id: 'stress_relief', group: 'grp_stress', vals: ['局部應力除去', '爐內應力除去'] },
+                { id: 'chk_bend_front', group: 'grp_bend_f', vals: ['合格', '不合格'] },
+                { id: 'chk_bend_side_crack', group: 'grp_crack', vals: ['有', '無'] },
+                { id: 'chk_bend_side', group: 'grp_bend_s', vals: ['合格', '不合格'] },
+                { id: 'rad_extent', group: 'grp_rad', vals: ['全線照射', '部分照射'] }
             ];
             mappings.forEach(m => {
                 const el = document.getElementById(m.id);
@@ -520,7 +961,7 @@
         function doSaveLocal() {
             let fallbackName = document.getElementById('report_no').value || "熔接未命名";
             let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_明細表";
-            
+
             let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
 
@@ -529,13 +970,13 @@
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            
+
             const a = document.createElement('a');
             a.href = url;
             a.download = filename + ".json";
             a.click();
             URL.revokeObjectURL(url);
-            
+
             document.getElementById('current-filename-display').innerText = filename;
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
@@ -544,17 +985,17 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     restoreFormData(e.target.result);
                     currentLoadedFilename = file.name.replace('.json', '');
                     document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#8e44ad";
                     alert("檔案「" + file.name + "」載入成功！");
-                } catch(err) { alert("檔案解析失敗！"); }
+                } catch (err) { alert("檔案解析失敗！"); }
             };
             reader.readAsText(file);
-            event.target.value = ""; 
+            event.target.value = "";
         }
 
         let myPhrases = {};
@@ -569,18 +1010,18 @@
                     let parsed = JSON.parse(saved);
                     if (Array.isArray(parsed)) myPhrases = { "未分類": parsed };
                     else myPhrases = parsed;
-                } catch(e) { myPhrases = {}; }
+                } catch (e) { myPhrases = {}; }
             } else { myPhrases = {}; }
-            
-            document.addEventListener('focusin', function(e) {
+
+            document.addEventListener('focusin', function (e) {
                 if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
-                    if(e.target.closest('#phrase-panel')) return; 
+                    if (e.target.closest('#phrase-panel')) return;
                     activeInput = e.target;
                     activeCategory = activeInput.getAttribute('data-category') || '未分類';
                     document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory;
-                    document.getElementById('phrase-panel').style.display = 'flex'; 
-                    
-                    renderFontSettings(); 
+                    document.getElementById('phrase-panel').style.display = 'flex';
+
+                    renderFontSettings();
                     renderPhrases();
                 }
             });
@@ -590,17 +1031,17 @@
             const container = document.getElementById('font-size-inputs');
             container.innerHTML = '';
             if (!activeInput || !activeInput.id) return;
-            
-            let pdfFields = fieldMappingLocal[activeInput.id] || [{id: activeInput.id, label: '單一欄位'}];
-            
+
+            let pdfFields = fieldMappingLocal[activeInput.id] || [{ id: activeInput.id, label: '單一欄位' }];
+
             pdfFields.forEach(fieldObj => {
                 let val = customFontSizes[fieldObj.id] || '';
                 let wrapVal = customWrapLimits[fieldObj.id] || '';
                 let alignVal = customAlignments[fieldObj.id] || '';
-                
+
                 let el = document.getElementById(activeInput.id);
-                let isMultiline = true; 
-                
+                let isMultiline = true;
+
                 let div = document.createElement('div');
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
@@ -608,20 +1049,20 @@
                 div.style.marginBottom = '8px';
                 div.style.borderBottom = '1px dashed #dcdde1';
                 div.style.paddingBottom = '6px';
-                
+
                 let wrapInputHtml = `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數" title="設定一行最多塞幾個中文字 (預設為 20)" style="width:45px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">`;
 
                 let alignHtml = `
                     <div class="align-grid">
-                        <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
-                        <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
-                        <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
-                        <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
-                        <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
-                        <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
-                        <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
-                        <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
-                        <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                        <div class="align-cell ${alignVal === 'TL' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                        <div class="align-cell ${alignVal === 'TC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                        <div class="align-cell ${alignVal === 'TR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                        <div class="align-cell ${alignVal === 'ML' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                        <div class="align-cell ${alignVal === 'MC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                        <div class="align-cell ${alignVal === 'MR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                        <div class="align-cell ${alignVal === 'BL' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                        <div class="align-cell ${alignVal === 'BC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                        <div class="align-cell ${alignVal === 'BR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
                     </div>
                 `;
 
@@ -639,39 +1080,39 @@
             });
         }
 
-        window.updateFontSize = function(el) {
+        window.updateFontSize = function (el) {
             let pdfField = el.getAttribute('data-pdf-field');
             if (el.value) customFontSizes[pdfField] = Number(el.value);
             else delete customFontSizes[pdfField];
             updateHighlights();
         }
 
-        window.updateWrapLimit = function(el) {
+        window.updateWrapLimit = function (el) {
             let wrapField = el.getAttribute('data-wrap-field');
             if (el.value) customWrapLimits[wrapField] = Number(el.value);
             else delete customWrapLimits[wrapField];
             updateHighlights();
         }
 
-        window.updateAlign = function(fieldId, alignCode) {
+        window.updateAlign = function (fieldId, alignCode) {
             if (customAlignments[fieldId] === alignCode) {
-                delete customAlignments[fieldId]; 
+                delete customAlignments[fieldId];
             } else {
                 customAlignments[fieldId] = alignCode;
             }
-            renderFontSettings(); 
+            renderFontSettings();
             updateHighlights();
         }
 
-        window.resetFontSizes = function() {
+        window.resetFontSizes = function () {
             if (!activeInput || !activeInput.id) return;
-            let pdfFields = fieldMappingObj[activeInput.id] || [{id: activeInput.id}];
+            let pdfFields = fieldMappingObj[activeInput.id] || [{ id: activeInput.id }];
             pdfFields.forEach(fieldObj => {
                 delete customFontSizes[fieldObj.id];
                 delete customWrapLimits[fieldObj.id];
                 delete customAlignments[fieldObj.id];
             });
-            renderFontSettings(); 
+            renderFontSettings();
             updateHighlights();
         }
 
@@ -679,7 +1120,7 @@
             const list = document.getElementById('phrase-list');
             list.innerHTML = '';
             if (!myPhrases[activeCategory]) myPhrases[activeCategory] = [];
-            
+
             if (myPhrases[activeCategory].length === 0) {
                 list.innerHTML = `<span style="color:#7f8c8d;font-size:12px;">【${activeCategory}】目前無詞彙，請在表格輸入文字後點擊下方新增。</span>`;
                 return;
@@ -689,11 +1130,11 @@
                 let chip = document.createElement('div');
                 chip.className = 'phrase-chip' + (isDelMode ? ' del-mode' : '');
                 chip.innerText = p;
-                
-                chip.onmousedown = function(e) {
-                    e.preventDefault(); 
+
+                chip.onmousedown = function (e) {
+                    e.preventDefault();
                     if (isDelMode) {
-                        if(confirm('確定要從【' + activeCategory + '】刪除: 「' + p + '」 嗎？')) {
+                        if (confirm('確定要從【' + activeCategory + '】刪除: 「' + p + '」 嗎？')) {
                             myPhrases[activeCategory].splice(index, 1);
                             savePhrasesToLocal();
                             renderPhrases();
@@ -744,14 +1185,14 @@
                 let endPos = activeInput.selectionEnd !== undefined ? activeInput.selectionEnd : activeInput.value.length;
                 let currentVal = activeInput.value;
                 activeInput.value = currentVal.substring(0, startPos) + char + currentVal.substring(endPos, currentVal.length);
-                
+
                 // Keep focus and restore cursor position after insertion
                 activeInput.focus();
                 let newPos = startPos + char.length;
                 if (activeInput.setSelectionRange) {
                     activeInput.setSelectionRange(newPos, newPos);
                 }
-                
+
                 if (activeInput.oninput) activeInput.oninput();
             }
         }
@@ -763,7 +1204,7 @@
             if (!text || !targetChars) return text;
             let lines = text.split('\n');
             let newText = [];
-            const MAX_WIDTH = targetChars * 2; 
+            const MAX_WIDTH = targetChars * 2;
 
             lines.forEach(line => {
                 let currentLine = '';
@@ -794,40 +1235,40 @@
             btn.disabled = true;
 
             try {
-                const paperNum = window.getVal('paper_number'); 
+                const paperNum = window.getVal('paper_number');
                 const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
                 if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
                 const pdfArrayBuffer = await pdfRes.arrayBuffer();
 
                 const { PDFDocument } = PDFLib;
                 const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
-                
+
                 btn.innerText = '載入字型中...';
                 pdfDoc.registerFontkit(fontkit);
-                const fontRes = await fetch(`./assets/tw-print-font.ttf`); 
+                const fontRes = await fetch(`./assets/tw-print-font.ttf`);
                 if (!fontRes.ok) throw new Error("找不到字型檔案");
                 const fontArrayBuffer = await fontRes.arrayBuffer();
-                
+
                 const customFont = await pdfDoc.embedFont(fontArrayBuffer);
                 const form = pdfDoc.getForm();
-                
+
                 btn.innerText = '寫入資料中...';
 
                 // ==========================================
                 // 💡 補回打勾邏輯引擎 (checkPdfField)
                 // ==========================================
                 const checkPdfField = (fieldId) => {
-                    try { form.getTextField(fieldId).setText('V'); } 
-                    catch(e) { try { form.getCheckBox(fieldId).check(); } catch(err) {} }
+                    try { form.getTextField(fieldId).setText('V'); }
+                    catch (e) { try { form.getCheckBox(fieldId).check(); } catch (err) { } }
                 };
 
                 const chkMappings = [
-                    {val: window.getVal('weld_trim'), opts: {'充份修削': 'chk_trim_1', '稍削': 'chk_trim_2', '不削': 'chk_trim_3'}},
-                    {val: window.getVal('stress_relief'), opts: {'局部應力除去': 'chk_stress_1', '爐內應力除去': 'chk_stress_2'}},
-                    {val: window.getVal('chk_bend_front'), opts: {'合格': 'chk_bend_f_1', '不合格': 'chk_bend_f_2'}},
-                    {val: window.getVal('chk_bend_side'), opts: {'合格': 'chk_bend_s_1', '不合格': 'chk_bend_s_2'}},
-                    {val: window.getVal('chk_bend_side_crack'), opts: {'有': 'chk_crack_1', '無': 'chk_crack_2'}},
-                    {val: window.getVal('rad_extent'), opts: {'全線照射': 'chk_rad_1', '部分照射': 'chk_rad_2'}}
+                    { val: window.getVal('weld_trim'), opts: { '充份修削': 'chk_trim_1', '稍削': 'chk_trim_2', '不削': 'chk_trim_3' } },
+                    { val: window.getVal('stress_relief'), opts: { '局部應力除去': 'chk_stress_1', '爐內應力除去': 'chk_stress_2' } },
+                    { val: window.getVal('chk_bend_front'), opts: { '合格': 'chk_bend_f_1', '不合格': 'chk_bend_f_2' } },
+                    { val: window.getVal('chk_bend_side'), opts: { '合格': 'chk_bend_s_1', '不合格': 'chk_bend_s_2' } },
+                    { val: window.getVal('chk_bend_side_crack'), opts: { '有': 'chk_crack_1', '無': 'chk_crack_2' } },
+                    { val: window.getVal('rad_extent'), opts: { '全線照射': 'chk_rad_1', '部分照射': 'chk_rad_2' } }
                 ];
 
                 chkMappings.forEach(m => {
@@ -842,19 +1283,19 @@
                     if (!text) return;
                     const widgets = fieldObj.acroField.getWidgets();
                     if (!widgets || widgets.length === 0) return;
-                    
+
                     const rect = widgets[0].getRectangle();
-                    const firstPage = pdfDoc.getPages()[0]; 
+                    const firstPage = pdfDoc.getPages()[0];
                     const lines = text.split('\n');
-                    
+
                     fieldObj.setText(''); // 清空預設值
 
                     let align = customAlignments[fieldId];
                     if (!align) {
-                        align = isTextArea ? 'TL' : 'ML'; 
+                        align = isTextArea ? 'TL' : 'ML';
                     }
                     if (!isTextArea && ['L', 'C', 'R'].includes(align)) {
-                        align = 'M' + align; 
+                        align = 'M' + align;
                     }
 
                     let actualFontSize = targetFontSize;
@@ -876,7 +1317,7 @@
                         let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
                         let xPos;
                         const hAlign = align.charAt(1) || align.charAt(0);
-                        
+
                         if (hAlign === 'R') {
                             xPos = rect.x + rect.width - lineWidth - 2;
                         } else if (hAlign === 'C') {
@@ -886,7 +1327,7 @@
                         }
 
                         firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
-                        currentY -= lineHeight; 
+                        currentY -= lineHeight;
                     });
                 };
 
@@ -897,13 +1338,13 @@
                         const ovalBytes = await ovalRes.arrayBuffer();
                         const ovalImage = await pdfDoc.embedPng(ovalBytes);
                         const firstPage = pdfDoc.getPages()[0];
-                        const oWidth = 30; const oHeight = 15;  
-                        
+                        const oWidth = 30; const oHeight = 15;
+
                         if (document.getElementById('chk_oval_front').checked) firstPage.drawImage(ovalImage, { x: 355, y: 261, width: oWidth, height: oHeight });
                         if (document.getElementById('chk_oval_side').checked) firstPage.drawImage(ovalImage, { x: 427, y: 261, width: oWidth, height: oHeight });
                         if (document.getElementById('chk_oval_back').checked) firstPage.drawImage(ovalImage, { x: 465, y: 261, width: oWidth, height: oHeight });
                     }
-                } catch (err) {}
+                } catch (err) { }
 
                 // 動態圓戳章
                 const assocName = document.getElementById('assoc_name').value;
@@ -920,22 +1361,22 @@
                             const stampImage = await pdfDoc.embedPng(imgBytes);
                             const pages = pdfDoc.getPages();
                             const firstPage = pages[0];
-                            const targetWidth = 140; 
+                            const targetWidth = 140;
                             const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
                             firstPage.drawImage(stampImage, { x: 398, y: 558, width: targetWidth, height: targetHeight });
                         }
-                    } catch (imgErr) {}
+                    } catch (imgErr) { }
                 }
 
-                const skipIds = ['paper_number', 'mfg_ym', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent', 'chk_oval_front', 'chk_oval_side', 'chk_oval_back']; 
-                
+                const skipIds = ['paper_number', 'mfg_ym', 'weld_trim', 'stress_relief', 'insp_date', 'chk_bend_front', 'chk_bend_side', 'chk_bend_side_crack', 'rad_extent', 'chk_oval_front', 'chk_oval_side', 'chk_oval_back'];
+
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
                     if (!el.id || skipIds.includes(el.id)) return;
 
                     try {
                         const field = form.getField(el.id);
-                        if (!field) return; 
+                        if (!field) return;
 
                         if (el.type === 'checkbox') {
                             try {
@@ -945,7 +1386,7 @@
                                 try {
                                     const checkBox = form.getCheckBox(el.id);
                                     el.checked ? checkBox.check() : checkBox.uncheck();
-                                } catch(err) {}
+                                } catch (err) { }
                             }
                         } else {
                             const textField = form.getTextField(el.id);
@@ -959,7 +1400,7 @@
                             if (customWrapLimits[el.id]) {
                                 targetChars = Number(customWrapLimits[el.id]);
                             } else if (isTextArea) {
-                                if (isGodMode) targetChars = 20; 
+                                if (isGodMode) targetChars = 20;
                                 else targetChars = (el.id === 'remarks') ? 38 : 16;
                             }
 
@@ -972,27 +1413,27 @@
                                 if (['joint_eff', 'joint_type_long', 'joint_type_circ', 'joint_type_plate', 'remarks'].includes(el.id)) {
                                     textField.setFontSize(10);
                                 }
-                                if (isTextArea) try { textField.enableMultiline(); } catch(e){} 
+                                if (isTextArea) try { textField.enableMultiline(); } catch (e) { }
                                 textField.setText(writeValue);
                             }
                         }
-                    } catch (error) {}
+                    } catch (error) { }
                 });
 
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
-                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]||customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId] ? Number(customFontSizes[yId]) : 11; if (customFontSizes[yId] || customAlignments[yId] || customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch (e) { }
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId] ? Number(customFontSizes[mId]) : 11; if (customFontSizes[mId] || customAlignments[mId] || customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch (e) { }
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId] ? Number(customFontSizes[dId]) : 11; if (customFontSizes[dId] || customAlignments[dId] || customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch (e) { }
                     } else if (val.length === 5 && !dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId] ? Number(customFontSizes[yId]) : 11; if (customFontSizes[yId] || customAlignments[yId] || customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch (e) { }
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId] ? Number(customFontSizes[mId]) : 11; if (customFontSizes[mId] || customAlignments[mId] || customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch (e) { }
                     }
                 };
 
-                writeSplitDate(window.getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null); 
-                writeSplitDate(window.getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d'); 
+                writeSplitDate(window.getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null);
+                writeSplitDate(window.getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d');
 
                 form.updateFieldAppearances(customFont);
                 form.flatten();
@@ -1012,4 +1453,5 @@
         }
     </script>
 </body>
+
 </html>

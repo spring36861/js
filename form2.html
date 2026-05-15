@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,128 +9,621 @@
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 
     <style>
-        body { font-family: "Noto Sans TC", "微軟正黑體", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; font-size: 13px; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 80px; }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; background: #c0392b; color: white; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .toolbar h1 { margin: 0; font-size: 18px; line-height: 1.2;}
-        .btn-export { background: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-export:hover { background: #2ecc71; }
-        .btn-tool { color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-tool:hover { filter: brightness(1.1); }
+        body {
+            font-family: "Noto Sans TC", "微軟正黑體", sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            font-size: 13px;
+            color: #333;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background-color: #fff; }
-        th, td { border: 1px solid #dcdde1; padding: 6px; text-align: center; vertical-align: middle; }
-        th { background-color: #7f8c8d; font-weight: bold; color: white; }
-        .section-header { background-color: #2c3e50 !important; color: white !important; font-size: 14px; letter-spacing: 2px; padding: 8px !important; }
-        .nested-table { width: 100%; height: 100%; border-collapse: collapse; margin: 0; }
-        .nested-table td, .nested-table th { border: 1px solid #dcdde1; padding: 6px; }
-        .nested-table tr:first-child td { border-top: none; }
-        .nested-table tr:last-child td { border-bottom: none; }
-        .nested-table td:first-child { border-left: none; }
-        .nested-table td:last-child { border-right: none; }
-        
-        input[type="text"], textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; background-color: #fff; border-radius: 3px; padding: 6px; font-size: 13px; font-family: inherit; color: #2c3e50; text-align: center; transition: all 0.3s; }
-        input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: #e74c3c; background-color: #fdf2e9; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); }
-        .input-error { border: 2px solid #e74c3c !important; background-color: #fdedec !important; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important; color: #c0392b !important; font-weight: bold;}
-        .has-custom-setting { border: 2px solid #f39c12 !important; background-color: #fcf3cf !important; box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3); }
-        .input-left { text-align: left !important; }
-        .text-left { text-align: left !important; padding-left: 10px !important;}
-        textarea { resize: vertical; min-height: 28px; line-height: 1.3; overflow-y: hidden; }
-        textarea:focus { overflow-y: auto; }
-        
-        .header-input { font-size: 18px !important; font-weight: bold !important; border: none !important; border-bottom: 1px dashed #718093 !important; background: transparent !important; color: #fdf2e9 !important; }
-        select.header-input { cursor: pointer; text-align-last: center; padding-bottom: 2px; }
-        select.header-input:hover { background: #e74c3c !important; }
-        select.header-input option { color: #333; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 80px;
+        }
 
-        .flex-row { display: flex; align-items: center; gap: 5px; }
-        .flex-between { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .checkbox-wrapper { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
-        .w-xs { width: 50px !important; flex: none; }
-        .w-sm { width: 80px !important; flex: none; }
-        .w-md { width: 120px !important; flex: none; }
-        
-        .bg-skip { background-color: #eaeced; pointer-events: none; } 
-        .row-divider { border-bottom: 2px solid #34495e !important; } 
-        .header-gray { background: #f5f6fa; font-weight: bold; color: #2c3e50; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #c0392b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-        input[type="checkbox"] { transform: scale(1.4); margin: 0 6px 0 0; cursor: pointer; accent-color: #e74c3c; }
-        input[type="radio"] { transform: scale(1.3); margin: 0 4px 0 0; cursor: pointer; accent-color: #e74c3c; }
-        .radio-label { display: flex; align-items: center; cursor: pointer; color: #2c3e50; font-weight: bold; }
+        .toolbar h1 {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.2;
+        }
 
-        .phrase-panel { position: fixed; bottom: 20px; right: 20px; width: 340px; background: white; border: 2px solid #8e44ad; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; display: none; flex-direction: column; transition: opacity 0.3s; }
-        .phrase-header { background: #8e44ad; color: white; padding: 10px 15px; font-weight: bold; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none; }
-        .phrase-header:active { cursor: grabbing; }
-        .phrase-list { padding: 10px; max-height: 200px; overflow-y: auto; display: block; background: #fafafa;} 
-        .phrase-chip { display: block; width: 100%; text-align: left; white-space: normal; word-wrap: break-word; background: #fff; border: 1px solid #bdc3c7; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; cursor: pointer; font-size: 13px; color: #2c3e50; transition: 0.1s;}
-        .phrase-chip:hover { background: #e8f4f8; border-color: #3498db; color: #2980b9;}
-        .phrase-chip.del-mode { background: #fdedec; border-color: #e74c3c; color: #c0392b;}
-        .phrase-chip.del-mode:hover { background: #e74c3c; color: white; border-color: #c0392b;}
-        .phrase-actions { padding: 10px; border-top: 1px solid #ecf0f1; display: flex; gap: 8px; background: white; border-radius: 0 0 8px 8px;}
-        .phrase-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white;}
-        .btn-p-add { background: #27ae60; } .btn-p-del { background: #7f8c8d; } .btn-p-del.active { background: #e74c3c; }
+        .btn-export {
+            background: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
 
-        .btn-char { background: #f5f6fa; border: 1px solid #dcdde1; border-radius: 3px; padding: 4px 8px; cursor: pointer; font-size: 14px; color: #2c3e50; transition: 0.2s; font-family: sans-serif; font-weight: bold; }
-        .btn-char:hover { background: #3498db; color: white; border-color: #2980b9; }
-        .phrase-panel.minimized > div:not(.phrase-header) { display: none !important; }
-        .phrase-panel.minimized { width: auto; min-width: 200px; }
+        .btn-export:hover {
+            background: #2ecc71;
+        }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 380px; }
-        .modal-title { margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 20px; font-weight: bold; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
-        .modal-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; border: 1px solid #e9ecef; }
-        .modal-section h4 { margin: 0 0 12px 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
-        .modal-btn { flex: 1; padding: 10px 0; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .modal-btn-cancel { width: 100%; background: #95a5a6; margin-top: 10px; }
-        .modal-btn-cancel:hover { background: #7f8c8d; transform: none; box-shadow: none; }
+        .btn-tool {
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
 
-        .align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 45px; height: 45px; flex: none; }
-        .align-cell { background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; transition: 0.1s; display:flex; align-items:center; justify-content:center;}
-        .align-cell:hover { background: #d35400; }
-        .align-cell.active { background: #e74c3c; border-color: #c0392b; }
-        .align-cell::after { content: ''; width: 4px; height: 4px; background: #95a5a6; border-radius: 50%; } 
-        .align-cell.active::after { background: #fff; }
+        .btn-tool:hover {
+            filter: brightness(1.1);
+        }
 
-        .align-row { display: flex; gap: 2px; width: 55px; height: 22px; flex: none; }
-        .align-btn { flex: 1; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; border-radius: 2px; font-size: 10px; color:#2c3e50; display:flex; align-items:center; justify-content:center; transition: 0.1s;}
-        .align-btn:hover { background: #d35400; color:white;}
-        .align-btn.active { background: #e74c3c; color:white; border-color: #c0392b; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+
+        th,
+        td {
+            border: 1px solid #dcdde1;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #7f8c8d;
+            font-weight: bold;
+            color: white;
+        }
+
+        .section-header {
+            background-color: #2c3e50 !important;
+            color: white !important;
+            font-size: 14px;
+            letter-spacing: 2px;
+            padding: 8px !important;
+        }
+
+        .nested-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .nested-table td,
+        .nested-table th {
+            border: 1px solid #dcdde1;
+            padding: 6px;
+        }
+
+        .nested-table tr:first-child td {
+            border-top: none;
+        }
+
+        .nested-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .nested-table td:first-child {
+            border-left: none;
+        }
+
+        .nested-table td:last-child {
+            border-right: none;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #bdc3c7;
+            background-color: #fff;
+            border-radius: 3px;
+            padding: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #2c3e50;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            background-color: #fdf2e9;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+
+        .input-error {
+            border: 2px solid #e74c3c !important;
+            background-color: #fdedec !important;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5) !important;
+            color: #c0392b !important;
+            font-weight: bold;
+        }
+
+        .has-custom-setting {
+            border: 2px solid #f39c12 !important;
+            background-color: #fcf3cf !important;
+            box-shadow: inset 0 0 4px rgba(243, 156, 18, 0.3);
+        }
+
+        .input-left {
+            text-align: left !important;
+        }
+
+        .text-left {
+            text-align: left !important;
+            padding-left: 10px !important;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 28px;
+            line-height: 1.3;
+            overflow-y: hidden;
+        }
+
+        textarea:focus {
+            overflow-y: auto;
+        }
+
+        .header-input {
+            font-size: 18px !important;
+            font-weight: bold !important;
+            border: none !important;
+            border-bottom: 1px dashed #718093 !important;
+            background: transparent !important;
+            color: #fdf2e9 !important;
+        }
+
+        select.header-input {
+            cursor: pointer;
+            text-align-last: center;
+            padding-bottom: 2px;
+        }
+
+        select.header-input:hover {
+            background: #e74c3c !important;
+        }
+
+        select.header-input option {
+            color: #333;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .flex-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .w-xs {
+            width: 50px !important;
+            flex: none;
+        }
+
+        .w-sm {
+            width: 80px !important;
+            flex: none;
+        }
+
+        .w-md {
+            width: 120px !important;
+            flex: none;
+        }
+
+        .bg-skip {
+            background-color: #eaeced;
+            pointer-events: none;
+        }
+
+        .row-divider {
+            border-bottom: 2px solid #34495e !important;
+        }
+
+        .header-gray {
+            background: #f5f6fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.4);
+            margin: 0 6px 0 0;
+            cursor: pointer;
+            accent-color: #e74c3c;
+        }
+
+        input[type="radio"] {
+            transform: scale(1.3);
+            margin: 0 4px 0 0;
+            cursor: pointer;
+            accent-color: #e74c3c;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .phrase-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 340px;
+            background: white;
+            border: 2px solid #8e44ad;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            display: none;
+            flex-direction: column;
+            transition: opacity 0.3s;
+        }
+
+        .phrase-header {
+            background: #8e44ad;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .phrase-header:active {
+            cursor: grabbing;
+        }
+
+        .phrase-list {
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: block;
+            background: #fafafa;
+        }
+
+        .phrase-chip {
+            display: block;
+            width: 100%;
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+            background: #fff;
+            border: 1px solid #bdc3c7;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #2c3e50;
+            transition: 0.1s;
+        }
+
+        .phrase-chip:hover {
+            background: #e8f4f8;
+            border-color: #3498db;
+            color: #2980b9;
+        }
+
+        .phrase-chip.del-mode {
+            background: #fdedec;
+            border-color: #e74c3c;
+            color: #c0392b;
+        }
+
+        .phrase-chip.del-mode:hover {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .phrase-actions {
+            padding: 10px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            gap: 8px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .phrase-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .btn-p-add {
+            background: #27ae60;
+        }
+
+        .btn-p-del {
+            background: #7f8c8d;
+        }
+
+        .btn-p-del.active {
+            background: #e74c3c;
+        }
+
+        .btn-char {
+            background: #f5f6fa;
+            border: 1px solid #dcdde1;
+            border-radius: 3px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2c3e50;
+            transition: 0.2s;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        .btn-char:hover {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .phrase-panel.minimized>div:not(.phrase-header) {
+            display: none !important;
+        }
+
+        .phrase-panel.minimized {
+            width: auto;
+            min-width: 200px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 380px;
+        }
+
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .modal-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: left;
+            border: 1px solid #e9ecef;
+        }
+
+        .modal-section h4 {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px 0;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-btn-cancel {
+            width: 100%;
+            background: #95a5a6;
+            margin-top: 10px;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #7f8c8d;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .align-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            width: 45px;
+            height: 45px;
+            flex: none;
+        }
+
+        .align-cell {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .align-cell:hover {
+            background: #d35400;
+        }
+
+        .align-cell.active {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        .align-cell::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: #95a5a6;
+            border-radius: 50%;
+        }
+
+        .align-cell.active::after {
+            background: #fff;
+        }
+
+        .align-row {
+            display: flex;
+            gap: 2px;
+            width: 55px;
+            height: 22px;
+            flex: none;
+        }
+
+        .align-btn {
+            flex: 1;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 10px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+        }
+
+        .align-btn:hover {
+            background: #d35400;
+            color: white;
+        }
+
+        .align-btn.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="toolbar">
         <div>
             <h1>鍋爐 - 檢查結果報告表/明細表 填寫系統</h1>
-            <div style="font-size:11px; color:#fdf2e9; margin-top:4px;">目前編輯: <span id="current-filename-display" style="color:#f1c40f; font-weight:bold;">未命名表單</span></div>
+            <div style="font-size:11px; color:#fdf2e9; margin-top:4px;">目前編輯: <span id="current-filename-display"
+                    style="color:#f1c40f; font-weight:bold;">未命名表單</span></div>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="window.location.href='index.html'" class="btn-tool" style="background: #7f8c8d;">回主選單</button>
-            <button onclick="document.getElementById('local-file-input').click()" class="btn-tool" style="background: #9b59b6;">從電腦讀檔</button>
+            <button onclick="window.location.href='index.html'" class="btn-tool"
+                style="background: #7f8c8d;">回主選單</button>
+            <button onclick="document.getElementById('local-file-input').click()" class="btn-tool"
+                style="background: #9b59b6;">從電腦讀檔</button>
             <button onclick="doSaveLocal()" class="btn-tool" style="background: #e67e22;">下載存檔</button>
             <button class="btn-export" onclick="showCombinedModal()" id="btn-pdf-main">產出 PDF 報表</button>
-            <input type="file" id="local-file-input" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+            <input type="file" id="local-file-input" accept=".json" style="display:none;"
+                onchange="handleFileSelect(event)">
         </div>
     </div>
 
     <div id="insp-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">請選擇產出報表類型</h3>
-            
+
             <div class="modal-section">
                 <h4 style="color: #27ae60;">📄 檢查結果報告表</h4>
                 <div style="display: flex; gap: 10px;">
-                    <button class="modal-btn" style="background: #27ae60;" onclick="executeGeneratePDF('report', '竣工')">竣工</button>
+                    <button class="modal-btn" style="background: #27ae60;"
+                        onclick="executeGeneratePDF('report', '竣工')">竣工</button>
                 </div>
             </div>
 
             <div class="modal-section">
                 <h4 style="color: #2980b9;">📋 明細表 (17A)</h4>
                 <div style="display: flex; gap: 10px;">
-                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '構造')">構造</button>
-                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '重新')">重新</button>
-                    <button class="modal-btn" style="background: #2980b9;" onclick="executeGeneratePDF('detail', '變更')">變更</button>
+                    <button class="modal-btn" style="background: #2980b9;"
+                        onclick="executeGeneratePDF('detail', '構造')">構造</button>
+                    <button class="modal-btn" style="background: #2980b9;"
+                        onclick="executeGeneratePDF('detail', '重新')">重新</button>
+                    <button class="modal-btn" style="background: #2980b9;"
+                        onclick="executeGeneratePDF('detail', '變更')">變更</button>
                 </div>
             </div>
 
@@ -138,7 +632,7 @@
     </div>
 
     <div class="container">
-        
+
         <div style="text-align: center; margin-bottom: 15px; background: #34495e; padding: 10px; border-radius: 6px;">
             <select id="assoc_name" class="header-input" style="width: 380px;">
                 <option value="" selected>-- 請選擇代檢機構 (不選則不套印) --</option>
@@ -151,16 +645,24 @@
         </div>
 
         <table style="border-bottom: 2px solid #34495e;">
-            <colgroup><col style="width: 12%;"><col style="width: 38%;"><col style="width: 12%;"><col style="width: 38%;"></colgroup>
+            <colgroup>
+                <col style="width: 12%;">
+                <col style="width: 38%;">
+                <col style="width: 12%;">
+                <col style="width: 38%;">
+            </colgroup>
             <tr>
                 <td rowspan="2" class="header-gray" id="cert_label_display">合 格 證</td>
-                <td class="text-left"><div class="flex-row">第 <input type="text" id="cert_no" class="w-sm" data-category="基本資料"> 號</div></td>
+                <td class="text-left">
+                    <div class="flex-row">第 <input type="text" id="cert_no" class="w-sm" data-category="基本資料"> 號</div>
+                </td>
                 <td class="header-gray">設備編號</td>
                 <td><input type="text" id="equip_no" data-category="基本資料"></td>
             </tr>
             <tr>
                 <td class="text-left">
-                    <div class="flex-row">民國 <input type="text" id="cert_ymd" class="w-md" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="基本資料"> 發給</div>
+                    <div class="flex-row">民國 <input type="text" id="cert_ymd" class="w-md" maxlength="7"
+                            placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="基本資料"> 發給</div>
                 </td>
                 <td class="header-gray">業 別</td>
                 <td><input type="text" id="industry_type" data-category="基本資料"></td>
@@ -180,46 +682,69 @@
         </table>
 
         <table>
-            <colgroup><col style="width: 15%;"><col style="width: 35%;"><col style="width: 15%;"><col style="width: 35%;"></colgroup>
-            <tr><th colspan="4" class="section-header">鍋爐基本規格</th></tr>
+            <colgroup>
+                <col style="width: 15%;">
+                <col style="width: 35%;">
+                <col style="width: 15%;">
+                <col style="width: 35%;">
+            </colgroup>
             <tr>
-                <td>型 式</td><td class="text-left"><input type="text" id="b_type" class="input-left" data-category="鍋爐基本規格"></td>
-                <td>構造號碼</td><td class="text-left"><input type="text" id="b_const_no" class="input-left" data-category="鍋爐基本規格"></td>
+                <th colspan="4" class="section-header">鍋爐基本規格</th>
+            </tr>
+            <tr>
+                <td>型 式</td>
+                <td class="text-left"><input type="text" id="b_type" class="input-left" data-category="鍋爐基本規格"></td>
+                <td>構造號碼</td>
+                <td class="text-left"><input type="text" id="b_const_no" class="input-left" data-category="鍋爐基本規格"></td>
             </tr>
             <tr>
                 <td>最高使用壓力</td>
-                <td class="text-left"><input type="text" id="b_press_shell_b_press_tube" class="input-left" value="胴側:        管側:" data-category="鍋爐基本規格"></td>
+                <td class="text-left"><input type="text" id="b_press_shell_b_press_tube" class="input-left"
+                        value="胴側:        管側:" data-category="鍋爐基本規格"></td>
                 <td>最大蒸發量</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="b_evap" class="input-left" style="width: 100%;" data-category="鍋爐基本規格"> kg/hr</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="b_evap" class="input-left" style="width: 100%;"
+                            data-category="鍋爐基本規格"> kg/hr</div>
+                </td>
             </tr>
             <tr>
                 <td>傳熱面積</td>
-                <td class="text-left"><input type="text" id="b_heat_area_shell_b_heat_area_tube" class="input-left" value="胴側:        管側:" data-category="鍋爐基本規格"></td>
+                <td class="text-left"><input type="text" id="b_heat_area_shell_b_heat_area_tube" class="input-left"
+                        value="胴側:        管側:" data-category="鍋爐基本規格"></td>
                 <td>火床面積</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="b_grate_area" class="input-left" style="width: 100%;" data-category="鍋爐基本規格"> m²</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="b_grate_area" class="input-left" style="width: 100%;"
+                            data-category="鍋爐基本規格"> m²</div>
+                </td>
             </tr>
             <tr>
                 <td>燃燒室體積</td>
-                <td class="text-left"><div class="flex-row"><input type="text" id="b_comb_vol" class="input-left" style="width: 100%;" data-category="鍋爐基本規格"> m³</div></td>
+                <td class="text-left">
+                    <div class="flex-row"><input type="text" id="b_comb_vol" class="input-left" style="width: 100%;"
+                            data-category="鍋爐基本規格"> m³</div>
+                </td>
                 <td>檢查日期</td>
-                <td class="text-left"><input type="text" id="b_insp_date2" class="w-md input-left" maxlength="7" placeholder="例:1120501" oninput="validateDate(this, 7)" data-category="鍋爐基本規格"></td>
+                <td class="text-left"><input type="text" id="b_insp_date2" class="w-md input-left" maxlength="7"
+                        placeholder="例:1120501" oninput="validateDate(this, 7)" data-category="鍋爐基本規格"></td>
             </tr>
         </table>
 
         <table>
             <colgroup>
-                <col style="width: 10%;"> 
-                <col style="width: 6%;">  
-                <col style="width: 14%;"> 
+                <col style="width: 10%;">
+                <col style="width: 6%;">
+                <col style="width: 14%;">
                 <col style="width: 8%;">
-                <col style="width: 14%;"> 
+                <col style="width: 14%;">
                 <col style="width: 15%;">
-                <col style="width: 10%;"> 
+                <col style="width: 10%;">
                 <col style="width: 7%;">
-                <col style="width: 16%;"> 
+                <col style="width: 16%;">
             </colgroup>
-            <tr><th colspan="9" class="section-header">構 造 明 細</th></tr>
-            
+            <tr>
+                <th colspan="9" class="section-header">構 造 明 細</th>
+            </tr>
+
             <tr>
                 <td rowspan="2" class="header-gray">項目</td>
                 <td rowspan="2" class="header-gray">種類</td>
@@ -237,33 +762,33 @@
 
             <script>
                 const b_rows = [
-                    {name: "管板(水管)", pre: "b_wt", hasShape: false},
-                    {name: "管板(水管)2", pre: "b_wt", hasShape: false, isRow2: true},
-                    {name: "胴體", pre: "b_shell", hasShape: false, hasLen: true},
-                    {name: "胴體2", pre: "b_shell", hasShape: false, hasLen: true, isRow2: true},
-                    {name: "端板或管板<br>(煙管)", pre: "b_plate1", hasShape: true, hasReinf: true},
-                    {name: "端板或管板<br>(煙管)2", pre: "b_plate2", hasShape: true, hasReinf: true, isRow2: true}
+                    { name: "管板(水管)", pre: "b_wt", hasShape: false },
+                    { name: "管板(水管)2", pre: "b_wt", hasShape: false, isRow2: true },
+                    { name: "胴體", pre: "b_shell", hasShape: false, hasLen: true },
+                    { name: "胴體2", pre: "b_shell", hasShape: false, hasLen: true, isRow2: true },
+                    { name: "端板或管板<br>(煙管)", pre: "b_plate1", hasShape: true, hasReinf: true },
+                    { name: "端板或管板<br>(煙管)2", pre: "b_plate2", hasShape: true, hasReinf: true, isRow2: true }
                 ];
-                
+
                 b_rows.forEach(r => {
                     let suf = r.isRow2 ? "2" : "";
                     let p = r.pre;
-                    if(!r.isRow2) document.write(`<tr><td rowspan="2" style="font-weight:bold; color:#2c3e50;">${r.name}</td>`);
+                    if (!r.isRow2) document.write(`<tr><td rowspan="2" style="font-weight:bold; color:#2c3e50;">${r.name}</td>`);
                     else document.write(`<tr class="row-divider">`);
-                    
+
                     document.write(`<td><textarea id="${p}_type${suf}" rows="1" data-category="構造明細"></textarea></td>`);
-                    if(r.hasShape) document.write(`<td><textarea id="${p}_shape${suf}" rows="1" data-category="構造明細"></textarea></td>`);
+                    if (r.hasShape) document.write(`<td><textarea id="${p}_shape${suf}" rows="1" data-category="構造明細"></textarea></td>`);
                     else document.write(`<td class="bg-skip"></td>`);
-                    
+
                     document.write(`<td><textarea id="${p}_mat${suf}" rows="1" data-category="構造明細"></textarea></td>`);
                     document.write(`<td><textarea id="${p}_rad${suf}" rows="1" placeholder="內徑/半徑" data-category="構造明細"></textarea></td>`);
-                    
-                    if(r.hasLen) document.write(`<td><textarea id="${p}_len${suf}" rows="1" data-category="構造明細"></textarea></td>`);
+
+                    if (r.hasLen) document.write(`<td><textarea id="${p}_len${suf}" rows="1" data-category="構造明細"></textarea></td>`);
                     else document.write(`<td class="bg-skip"></td>`);
-                    
+
                     document.write(`<td><textarea id="${p}_t${suf}" rows="1" data-category="構造明細"></textarea></td>`);
-                    
-                    if(r.hasReinf) {
+
+                    if (r.hasReinf) {
                         document.write(`<td>
                             <textarea id="${p}_rtype${suf}" rows="1" placeholder="種類" data-category="構造明細"></textarea>
                             <textarea id="${p}_rmat${suf}" rows="1" placeholder="材料" data-category="構造明細"></textarea>
@@ -279,12 +804,12 @@
             <tr>
                 <td rowspan="2" style="font-weight:bold; color:#2c3e50;">爐筒或火室</td>
                 <td rowspan="2"><textarea id="b_furn_type" style="height:50px;" data-category="構造明細"></textarea></td>
-                <td rowspan="2"><textarea id="b_furn_shape" style="height:50px;" data-category="構造明細"></textarea></td> 
+                <td rowspan="2"><textarea id="b_furn_shape" style="height:50px;" data-category="構造明細"></textarea></td>
                 <td rowspan="2"><textarea id="b_furn_mat" style="height:50px;" data-category="構造明細"></textarea></td>
                 <td><textarea id="b_furn_max_id" rows="1" placeholder="最大內徑" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" rowspan="2"></td> 
+                <td class="bg-skip" rowspan="2"></td>
                 <td rowspan="2"><textarea id="b_furn_t" style="height:50px;" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" colspan="2" rowspan="2"></td> 
+                <td class="bg-skip" colspan="2" rowspan="2"></td>
             </tr>
             <tr class="row-divider">
                 <td><textarea id="b_furn_min_id" rows="1" placeholder="最小內徑" data-category="構造明細"></textarea></td>
@@ -292,13 +817,14 @@
 
             <tr>
                 <td rowspan="2" style="font-weight:bold; color:#2c3e50;">汽室</td>
-                <td class="bg-skip" rowspan="2"></td> 
-                <td rowspan="2"><textarea id="b_dome_shape" style="height:50px;" placeholder="冠板形狀" data-category="構造明細"></textarea></td>
+                <td class="bg-skip" rowspan="2"></td>
+                <td rowspan="2"><textarea id="b_dome_shape" style="height:50px;" placeholder="冠板形狀"
+                        data-category="構造明細"></textarea></td>
                 <td rowspan="2"><textarea id="b_dome_mat" style="height:50px;" data-category="構造明細"></textarea></td>
                 <td><textarea id="b_dome_max_id" rows="1" placeholder="最大內徑" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" rowspan="2"></td> 
+                <td class="bg-skip" rowspan="2"></td>
                 <td><textarea id="b_dome_t" rows="1" placeholder="板厚" data-category="構造明細"></textarea></td>
-                <td class="bg-skip" colspan="2" rowspan="2"></td> 
+                <td class="bg-skip" colspan="2" rowspan="2"></td>
             </tr>
             <tr class="row-divider">
                 <td><textarea id="b_dome_rad" rows="1" placeholder="曲緣內半徑" data-category="構造明細"></textarea></td>
@@ -308,75 +834,132 @@
 
         <table style="margin-bottom: 10px;">
             <colgroup>
-                <col style="width: 14%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 8%;">
-                <col style="width: 12%;"><col style="width: 10%;"><col style="width: 8%;">
-                <col style="width: 10%;"><col style="width: 10%;"><col style="width: 8%;">
+                <col style="width: 14%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 8%;">
+                <col style="width: 12%;">
+                <col style="width: 10%;">
+                <col style="width: 8%;">
+                <col style="width: 10%;">
+                <col style="width: 10%;">
+                <col style="width: 8%;">
             </colgroup>
             <tr>
                 <td class="header-gray">胴體縱接頭<br>種類及其效率</td>
-                <td colspan="9" class="text-left"><textarea id="b_joint_type" class="input-left" style="height: 40px;" data-category="構造明細"></textarea></td>
+                <td colspan="9" class="text-left"><textarea id="b_joint_type" class="input-left" style="height: 40px;"
+                        data-category="構造明細"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray">補強承托方法</td>
-                <td colspan="9" class="text-left"><input type="text" id="b_reinf_method" class="input-left" data-category="構造明細"></td>
+                <td colspan="9" class="text-left"><input type="text" id="b_reinf_method" class="input-left"
+                        data-category="構造明細"></td>
             </tr>
-            
+
             <tr>
                 <td rowspan="2" class="header-gray" style="letter-spacing:2px;">人孔、掃除孔<br>檢查孔</td>
-                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
-                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
-                <td class="header-gray">種類</td><td class="header-gray">尺寸(mm)</td><td class="header-gray">數量</td>
+                <td class="header-gray">種類</td>
+                <td class="header-gray">尺寸(mm)</td>
+                <td class="header-gray">數量</td>
+                <td class="header-gray">種類</td>
+                <td class="header-gray">尺寸(mm)</td>
+                <td class="header-gray">數量</td>
+                <td class="header-gray">種類</td>
+                <td class="header-gray">尺寸(mm)</td>
+                <td class="header-gray">數量</td>
             </tr>
             <tr>
-                <td style="font-weight:bold; color:#2c3e50;">人孔</td><td><textarea id="h_man_sz" rows="1" data-category="構造明細"></textarea></td><td><textarea id="h_man_qty" rows="1" data-category="構造明細"></textarea></td>
-                <td style="font-weight:bold; color:#2c3e50;">掃除孔</td><td><textarea id="h_cln_sz" rows="1" data-category="構造明細"></textarea></td><td><textarea id="h_cln_qty" rows="1" data-category="構造明細"></textarea></td>
-                <td style="font-weight:bold; color:#2c3e50;">檢查孔</td><td><textarea id="h_chk_sz" rows="1" data-category="構造明細"></textarea></td><td><textarea id="h_chk_qty" rows="1" data-category="構造明細"></textarea></td>
+                <td style="font-weight:bold; color:#2c3e50;">人孔</td>
+                <td><textarea id="h_man_sz" rows="1" data-category="構造明細"></textarea></td>
+                <td><textarea id="h_man_qty" rows="1" data-category="構造明細"></textarea></td>
+                <td style="font-weight:bold; color:#2c3e50;">掃除孔</td>
+                <td><textarea id="h_cln_sz" rows="1" data-category="構造明細"></textarea></td>
+                <td><textarea id="h_cln_qty" rows="1" data-category="構造明細"></textarea></td>
+                <td style="font-weight:bold; color:#2c3e50;">檢查孔</td>
+                <td><textarea id="h_chk_sz" rows="1" data-category="構造明細"></textarea></td>
+                <td><textarea id="h_chk_qty" rows="1" data-category="構造明細"></textarea></td>
             </tr>
         </table>
 
         <table>
             <colgroup>
-                <col style="width: 12%;"><col style="width: 8%;"><col style="width: 14%;">
-                <col style="width: 8%;"><col style="width: 14%;"><col style="width: 15%;">
-                <col style="width: 12%;"><col style="width: 10%;"><col style="width: 7%;">
+                <col style="width: 12%;">
+                <col style="width: 8%;">
+                <col style="width: 14%;">
+                <col style="width: 8%;">
+                <col style="width: 14%;">
+                <col style="width: 15%;">
+                <col style="width: 12%;">
+                <col style="width: 10%;">
+                <col style="width: 7%;">
             </colgroup>
-            <tr><th colspan="9" class="section-header">管 路 與 配 件</th></tr>
-            
+            <tr>
+                <th colspan="9" class="section-header">管 路 與 配 件</th>
+            </tr>
+
             <tr>
                 <td rowspan="2" class="header-gray" style="line-height: 1.5;">水管及<br>煙(牽)管</td>
                 <td class="header-gray">水管</td>
-                <td colspan="2" class="text-left"><div class="flex-row">種類: <input type="text" id="bt_tube1_type" data-category="管路與配件"></div></td>
-                <td colspan="2" class="text-left"><div class="flex-row">材料: <input type="text" id="bt_tube1_mat" data-category="管路與配件"></div></td>
-                <td colspan="2" class="text-left"><div class="flex-row">外徑: <input type="text" id="bt_tube1_dia" data-category="管路與配件"> mm</div></td>
-                <td class="text-left"><div class="flex-row">管厚: <input type="text" id="bt_tube1_t" data-category="管路與配件"> mm</div></td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">種類: <input type="text" id="bt_tube1_type" data-category="管路與配件"></div>
+                </td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">材料: <input type="text" id="bt_tube1_mat" data-category="管路與配件"></div>
+                </td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">外徑: <input type="text" id="bt_tube1_dia" data-category="管路與配件"> mm</div>
+                </td>
+                <td class="text-left">
+                    <div class="flex-row">管厚: <input type="text" id="bt_tube1_t" data-category="管路與配件"> mm</div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">煙(牽)管</td>
-                <td colspan="2" class="text-left"><div class="flex-row">種類: <input type="text" id="bt_tube2_type" data-category="管路與配件"></div></td>
-                <td colspan="2" class="text-left"><div class="flex-row">材料: <input type="text" id="bt_tube2_mat" data-category="管路與配件"></div></td>
-                <td colspan="2" class="text-left"><div class="flex-row">外徑: <input type="text" id="bt_tube2_dia" data-category="管路與配件"> mm</div></td>
-                <td class="text-left"><div class="flex-row">管厚: <input type="text" id="bt_tube2_t" data-category="管路與配件"> mm</div></td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">種類: <input type="text" id="bt_tube2_type" data-category="管路與配件"></div>
+                </td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">材料: <input type="text" id="bt_tube2_mat" data-category="管路與配件"></div>
+                </td>
+                <td colspan="2" class="text-left">
+                    <div class="flex-row">外徑: <input type="text" id="bt_tube2_dia" data-category="管路與配件"> mm</div>
+                </td>
+                <td class="text-left">
+                    <div class="flex-row">管厚: <input type="text" id="bt_tube2_t" data-category="管路與配件"> mm</div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">集管器</td>
-                <td class="header-gray">材料</td><td><textarea id="bt_hdr_mat" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">形狀</td><td><textarea id="bt_hdr_type" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">內徑或寬x高</td><td><textarea id="bt_hdr_dia" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">孔側厚度</td><td><textarea id="bt_hdr_t" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">材料</td>
+                <td><textarea id="bt_hdr_mat" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">形狀</td>
+                <td><textarea id="bt_hdr_type" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">內徑或寬x高</td>
+                <td><textarea id="bt_hdr_dia" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">孔側厚度</td>
+                <td><textarea id="bt_hdr_t" rows="1" data-category="管路與配件"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray">過熱器</td>
-                <td class="header-gray">型式</td><td><textarea id="bt_sup_type" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">材料</td><td><textarea id="bt_sup_mat" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">過熱管外徑</td><td><textarea id="bt_sup_dia" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">過熱管厚度</td><td><textarea id="bt_sup_t" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">型式</td>
+                <td><textarea id="bt_sup_type" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">材料</td>
+                <td><textarea id="bt_sup_mat" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">過熱管外徑</td>
+                <td><textarea id="bt_sup_dia" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">過熱管厚度</td>
+                <td><textarea id="bt_sup_t" rows="1" data-category="管路與配件"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray">節煤器</td>
-                <td class="header-gray">型式</td><td><textarea id="bt_eco_type" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">材料</td><td><textarea id="bt_eco_mat" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">節煤器管外徑</td><td><textarea id="bt_eco_dia" rows="1" data-category="管路與配件"></textarea></td>
-                <td class="header-gray">節煤器管厚度</td><td><textarea id="bt_eco_t" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">型式</td>
+                <td><textarea id="bt_eco_type" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">材料</td>
+                <td><textarea id="bt_eco_mat" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">節煤器管外徑</td>
+                <td><textarea id="bt_eco_dia" rows="1" data-category="管路與配件"></textarea></td>
+                <td class="header-gray">節煤器管厚度</td>
+                <td><textarea id="bt_eco_t" rows="1" data-category="管路與配件"></textarea></td>
             </tr>
         </table>
 
@@ -390,12 +973,18 @@
                 <col style="width: 15%;">
                 <col style="width: 25%;">
             </colgroup>
-            <tr><th colspan="7" class="section-header">安 全 裝 置 與 控 制</th></tr>
-            
+            <tr>
+                <th colspan="7" class="section-header">安 全 裝 置 與 控 制</th>
+            </tr>
+
             <tr>
                 <td rowspan="3" class="header-gray">安全閥</td>
-                <td class="header-gray">種類</td><td class="header-gray">型式</td><td class="header-gray">閥徑 (mm)</td><td class="header-gray">數量</td>
-                <td rowspan="3" class="header-gray">自動控制概要</td><td rowspan="3"><input type="text" id="auto_ctrl" class="input-left" data-category="安全裝置與控制"></td>
+                <td class="header-gray">種類</td>
+                <td class="header-gray">型式</td>
+                <td class="header-gray">閥徑 (mm)</td>
+                <td class="header-gray">數量</td>
+                <td rowspan="3" class="header-gray">自動控制概要</td>
+                <td rowspan="3"><input type="text" id="auto_ctrl" class="input-left" data-category="安全裝置與控制"></td>
             </tr>
             <tr>
                 <td><input type="text" id="sv1_type" data-category="安全裝置與控制"></td>
@@ -412,15 +1001,21 @@
 
             <tr>
                 <td rowspan="4" class="header-gray">水位測定裝置</td>
-                <td colspan="2" class="header-gray">種類</td><td class="header-gray">數量</td><td class="header-gray">玻璃管內徑 (mm)</td>
-                <td class="header-gray">製造商</td><td><input type="text" id="mfg_name" class="input-left" data-category="安全裝置與控制"></td>
+                <td colspan="2" class="header-gray">種類</td>
+                <td class="header-gray">數量</td>
+                <td class="header-gray">玻璃管內徑 (mm)</td>
+                <td class="header-gray">製造商</td>
+                <td><input type="text" id="mfg_name" class="input-left" data-category="安全裝置與控制"></td>
             </tr>
             <tr>
                 <td colspan="2"><input type="text" id="lvl1_type" data-category="安全裝置與控制"></td>
                 <td><input type="text" id="lvl1_qty" data-category="安全裝置與控制"></td>
                 <td><input type="text" id="lvl1_dia" data-category="安全裝置與控制"></td>
                 <td class="header-gray">製造年月</td>
-                <td><div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5" placeholder="例: 11205" oninput="validateDate(this, 5)" data-category="安全裝置與控制"> 製造</div></td>
+                <td>
+                    <div class="flex-row">民國 <input type="text" id="mfg_ym" class="w-md" maxlength="5"
+                            placeholder="例: 11205" oninput="validateDate(this, 5)" data-category="安全裝置與控制"> 製造</div>
+                </td>
             </tr>
             <tr>
                 <td colspan="2"><input type="text" id="lvl2_type" data-category="安全裝置與控制"></td>
@@ -434,16 +1029,22 @@
                 <td colspan="2"><input type="text" id="lvl_cock_qty" data-category="安全裝置與控制"></td>
                 <td colspan="2" class="bg-skip"></td>
             </tr>
-            
+
             <tr>
                 <td class="header-gray">水壓試驗壓力<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
-                <td colspan="6" class="text-left"><div class="flex-row" style="width: 100%;"><input type="text" id="test_press" class="input-left" style="flex: 1;" data-category="安全裝置與控制"> <span style="flex: none;">kgf/cm²</span></div></td>
+                <td colspan="6" class="text-left">
+                    <div class="flex-row" style="width: 100%;"><input type="text" id="test_press" class="input-left"
+                            style="flex: 1;" data-category="安全裝置與控制"> <span style="flex: none;">kgf/cm²</span></div>
+                </td>
             </tr>
             <tr>
                 <td class="header-gray">檢驗地址<br><span style="font-size:10px;color:#e74c3c;">(※申請人勿填寫)</span></td>
-                <td colspan="3" class="text-left"><input type="text" id="insp_address" class="input-left" data-category="安全裝置與控制"></td>
+                <td colspan="3" class="text-left"><input type="text" id="insp_address" class="input-left"
+                        data-category="安全裝置與控制"></td>
                 <td class="header-gray">檢驗日期</td>
-                <td colspan="2" class="text-left"><input type="text" id="b_inspect_date" class="w-md input-left" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="安全裝置與控制"></td>
+                <td colspan="2" class="text-left"><input type="text" id="b_inspect_date" class="w-md input-left"
+                        maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="安全裝置與控制">
+                </td>
             </tr>
 
             <tr>
@@ -452,17 +1053,22 @@
                 <td class="header-gray">燃料</td>
                 <td>
                     <div class="flex-row" style="flex-wrap: wrap; gap: 8px;">
-                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_oil" onchange="updateFuelStr()">油</label>
-                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_coal" onchange="updateFuelStr()">煤炭</label>
-                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_gas" onchange="updateFuelStr()">瓦斯</label>
-                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_other" onchange="updateFuelStr()">其他</label>
+                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_oil"
+                                onchange="updateFuelStr()">油</label>
+                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_coal"
+                                onchange="updateFuelStr()">煤炭</label>
+                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_gas"
+                                onchange="updateFuelStr()">瓦斯</label>
+                        <label class="radio-label"><input type="checkbox" name="fuel_cb" id="fuel_other"
+                                onchange="updateFuelStr()">其他</label>
                         <input type="hidden" id="fuel_type" value="">
                     </div>
                 </td>
             </tr>
             <tr>
                 <td class="header-gray">給水預熱器</td>
-                <td colspan="4"><input type="text" id="feed_water_preheater" class="input-left" data-category="安全裝置與控制"></td>
+                <td colspan="4"><input type="text" id="feed_water_preheater" class="input-left" data-category="安全裝置與控制">
+                </td>
                 <td class="header-gray">燃燒裝置</td>
                 <td><input type="text" id="burner" class="input-left" data-category="安全裝置與控制"></td>
             </tr>
@@ -470,7 +1076,8 @@
                 <td class="header-gray">空氣預熱器</td>
                 <td colspan="4"><input type="text" id="air_preheater" class="input-left" data-category="安全裝置與控制"></td>
                 <td rowspan="2" class="header-gray">摘要</td>
-                <td rowspan="2"><textarea id="summary" class="input-left" style="height: 100%; min-height: 50px;" data-category="安全裝置與控制"></textarea></td>
+                <td rowspan="2"><textarea id="summary" class="input-left" style="height: 100%; min-height: 50px;"
+                        data-category="安全裝置與控制"></textarea></td>
             </tr>
             <tr>
                 <td class="header-gray">淨水裝置</td>
@@ -478,38 +1085,53 @@
             </tr>
             <tr>
                 <td class="header-gray">明細表備註</td>
-                <td colspan="6"><textarea id="detail_rem" class="input-left" style="height: 60px;" data-category="安全裝置與控制"></textarea></td>
+                <td colspan="6"><textarea id="detail_rem" class="input-left" style="height: 60px;"
+                        data-category="安全裝置與控制"></textarea></td>
             </tr>
         </table>
 
         <table>
-            <colgroup><col style="width: 4%;"> <col style="width: 96%;"></colgroup>
-            <tr><th colspan="2" class="section-header">竣 工 檢 查</th></tr>
+            <colgroup>
+                <col style="width: 4%;">
+                <col style="width: 96%;">
+            </colgroup>
+            <tr>
+                <th colspan="2" class="section-header">竣 工 檢 查</th>
+            </tr>
             <tr>
                 <td class="vertical-text">竣<br>工<br><br>檢<br>查</td>
                 <td style="padding: 0; border: none;">
                     <table class="nested-table">
                         <colgroup>
-                            <col style="width: 6%;"> <col style="width: 20%;"> <col style="width: 20%;"> 
-                            <col style="width: 20%;"> <col style="width: 18%;"> <col style="width: 8%;"> <col style="width: 8%;">  
+                            <col style="width: 6%;">
+                            <col style="width: 20%;">
+                            <col style="width: 20%;">
+                            <col style="width: 20%;">
+                            <col style="width: 18%;">
+                            <col style="width: 8%;">
+                            <col style="width: 8%;">
                         </colgroup>
-                        
+
                         <tr>
                             <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">檢 查 日 期</td>
                             <td colspan="3" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">檢 查 結 果</td>
                             <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">判 定</td>
                         </tr>
-                        
+
                         <tr>
                             <td colspan="2" rowspan="2" style="vertical-align: middle;">
-                                <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="竣工檢查">
+                                <input type="text" id="insp_date" style="width: 100%; height: 60px; text-align: center;"
+                                    maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)"
+                                    data-category="竣工檢查">
                             </td>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>安裝位置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_install_pos" onchange="document.getElementById('chk_install_pos').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_install_pos" onchange="document.getElementById('chk_install_pos').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_install_pos"
+                                                onchange="document.getElementById('chk_install_pos').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_install_pos"
+                                                onchange="document.getElementById('chk_install_pos').value='無'">無</label>
                                         <input type="hidden" id="chk_install_pos" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -518,28 +1140,33 @@
                                 <div class="flex-between">
                                     <span>安全閥</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_sv" onchange="document.getElementById('chk_sv').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_sv" onchange="document.getElementById('chk_sv').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_sv"
+                                                onchange="document.getElementById('chk_sv').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_sv"
+                                                onchange="document.getElementById('chk_sv').value='無'">無</label>
                                         <input type="hidden" id="chk_sv" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
                             <td class="text-left" style="vertical-align: middle;">
                                 <div class="flex-row" style="justify-content: center;">
-                                    安全閥調整壓力: <input type="text" id="sv_adj_press" class="w-xs" data-category="竣工檢查"> kgf/cm²
+                                    安全閥調整壓力: <input type="text" id="sv_adj_press" class="w-xs" data-category="竣工檢查">
+                                    kgf/cm²
                                 </div>
                             </td>
                             <td style="font-weight: bold;">合格</td>
                             <td style="font-weight: bold;">不合格</td>
                         </tr>
-                        
+
                         <tr>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>基礎</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_found" onchange="document.getElementById('chk_install_found').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_found" onchange="document.getElementById('chk_install_found').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_found"
+                                                onchange="document.getElementById('chk_install_found').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_found"
+                                                onchange="document.getElementById('chk_install_found').value='無'">無</label>
                                         <input type="hidden" id="chk_install_found" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -548,28 +1175,37 @@
                                 <div class="flex-between">
                                     <span>壓力表</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_pg" onchange="document.getElementById('chk_pg').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_pg"
+                                                onchange="document.getElementById('chk_pg').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_pg"
+                                                onchange="document.getElementById('chk_pg').value='無'">無</label>
                                         <input type="hidden" id="chk_pg" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
                             <td rowspan="6" style="vertical-align: top; text-align: left;">
                                 <div style="margin-bottom: 5px; font-weight: bold;">備 &nbsp;&nbsp;&nbsp; 考</div>
-                                <textarea id="insp_notes" class="input-left" style="height: 140px; border: none;" data-category="竣工檢查"></textarea>
+                                <textarea id="insp_notes" class="input-left" style="height: 140px; border: none;"
+                                    data-category="竣工檢查"></textarea>
                             </td>
-                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;"><input type="checkbox" id="res_pass" style="transform: scale(2.0); margin-bottom: 15px;"></td>
-                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;"><input type="checkbox" id="res_fail" style="transform: scale(2.0); margin-bottom: 15px;"></td>
+                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;"><input
+                                    type="checkbox" id="res_pass" style="transform: scale(2.0); margin-bottom: 15px;">
+                            </td>
+                            <td rowspan="6" style="vertical-align: top; padding-top: 20px; text-align: center;"><input
+                                    type="checkbox" id="res_fail" style="transform: scale(2.0); margin-bottom: 15px;">
+                            </td>
                         </tr>
-                        
+
                         <tr>
                             <td colspan="2" style="background:#f5f6fa; font-weight:bold; color: #2f3640;">有 效 期 限</td>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>裝設方法</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_method" onchange="document.getElementById('chk_install_method').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_method" onchange="document.getElementById('chk_install_method').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_method"
+                                                onchange="document.getElementById('chk_install_method').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_method"
+                                                onchange="document.getElementById('chk_install_method').value='無'">無</label>
                                         <input type="hidden" id="chk_install_method" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -578,23 +1214,28 @@
                                 <div class="flex-between">
                                     <span>磚灶</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_brick" onchange="document.getElementById('chk_brick').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_brick" onchange="document.getElementById('chk_brick').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_brick"
+                                                onchange="document.getElementById('chk_brick').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_brick"
+                                                onchange="document.getElementById('chk_brick').value='無'">無</label>
                                         <input type="hidden" id="chk_brick" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        
+
                         <tr>
                             <td>自</td>
-                            <td><input type="text" id="valid_f_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="竣工檢查"></td>
+                            <td><input type="text" id="valid_f_date" style="width: 100%;" maxlength="7"
+                                    placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="竣工檢查"></td>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>煙囪煙道</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_chimney" onchange="document.getElementById('chk_chimney').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_chimney" onchange="document.getElementById('chk_chimney').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_chimney"
+                                                onchange="document.getElementById('chk_chimney').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_chimney"
+                                                onchange="document.getElementById('chk_chimney').value='無'">無</label>
                                         <input type="hidden" id="chk_chimney" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -603,8 +1244,10 @@
                                 <div class="flex-between">
                                     <span>水位測定裝置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_water_lvl" onchange="document.getElementById('chk_water_lvl_dev').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl"
+                                                onchange="document.getElementById('chk_water_lvl_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_water_lvl"
+                                                onchange="document.getElementById('chk_water_lvl_dev').value='無'">無</label>
                                         <input type="hidden" id="chk_water_lvl_dev" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -613,13 +1256,16 @@
 
                         <tr>
                             <td>至</td>
-                            <td><input type="text" id="valid_t_date" style="width: 100%;" maxlength="7" placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="竣工檢查"></td>
+                            <td><input type="text" id="valid_t_date" style="width: 100%;" maxlength="7"
+                                    placeholder="例: 1120501" oninput="validateDate(this, 7)" data-category="竣工檢查"></td>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>操作人員選任</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_op_sel" onchange="document.getElementById('chk_op_select').value='有'">有</label>
-                                        <label class="radio-label"><input type="radio" name="grp_op_sel" onchange="document.getElementById('chk_op_select').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_sel"
+                                                onchange="document.getElementById('chk_op_select').value='有'">有</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_sel"
+                                                onchange="document.getElementById('chk_op_select').value='無'">無</label>
                                         <input type="hidden" id="chk_op_select" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -628,22 +1274,26 @@
                                 <div class="flex-between">
                                     <span>自動控制裝置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_auto" onchange="document.getElementById('chk_auto_ctrl').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_auto"
+                                                onchange="document.getElementById('chk_auto_ctrl').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_auto"
+                                                onchange="document.getElementById('chk_auto_ctrl').value='無'">無</label>
                                         <input type="hidden" id="chk_auto_ctrl" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        
+
                         <tr>
                             <td colspan="2" rowspan="2"></td>
                             <td class="text-left">
                                 <div class="flex-between">
                                     <span>操作人員資格</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_op_qual" onchange="document.getElementById('chk_op_qual').value='合'">合</label>
-                                        <label class="radio-label"><input type="radio" name="grp_op_qual" onchange="document.getElementById('chk_op_qual').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_qual"
+                                                onchange="document.getElementById('chk_op_qual').value='合'">合</label>
+                                        <label class="radio-label"><input type="radio" name="grp_op_qual"
+                                                onchange="document.getElementById('chk_op_qual').value='無'">無</label>
                                         <input type="hidden" id="chk_op_qual" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -652,8 +1302,10 @@
                                 <div class="flex-between">
                                     <span>附屬裝置</span>
                                     <div class="checkbox-wrapper">
-                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='良'">良</label>
-                                        <label class="radio-label"><input type="radio" name="grp_attach" onchange="document.getElementById('chk_attach_dev').value='無'">無</label>
+                                        <label class="radio-label"><input type="radio" name="grp_attach"
+                                                onchange="document.getElementById('chk_attach_dev').value='良'">良</label>
+                                        <label class="radio-label"><input type="radio" name="grp_attach"
+                                                onchange="document.getElementById('chk_attach_dev').value='無'">無</label>
                                         <input type="hidden" id="chk_attach_dev" value="" data-category="竣工檢查">
                                     </div>
                                 </div>
@@ -669,12 +1321,16 @@
         <div class="phrase-header">
             <span id="phrase-title">常用詞庫</span>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <button onclick="toggleMinimizePhrasePanel()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;font-weight:bold;margin-bottom:4px;" title="縮小/放大">_</button>
-                <button onclick="document.getElementById('phrase-panel').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;">✖</button>
+                <button onclick="toggleMinimizePhrasePanel()"
+                    style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;font-weight:bold;margin-bottom:4px;"
+                    title="縮小/放大">_</button>
+                <button onclick="document.getElementById('phrase-panel').style.display='none'"
+                    style="background:none;border:none;color:white;cursor:pointer;font-size:16px;line-height:1;">✖</button>
             </div>
         </div>
-        
-        <div style="padding: 6px; background: #fff; border-bottom: 1px solid #bdc3c7; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
+
+        <div
+            style="padding: 6px; background: #fff; border-bottom: 1px solid #bdc3c7; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
             <button class="btn-char" onclick="insertChar('α')">α</button>
             <button class="btn-char" onclick="insertChar('β')">β</button>
             <button class="btn-char" onclick="insertChar('γ')">γ</button>
@@ -693,16 +1349,22 @@
             <button class="btn-char" onclick="insertChar('。')">。</button>
             <button class="btn-char" onclick="insertChar('；')">；</button>
             <button class="btn-char" onclick="insertChar('：')">：</button>
+            <button class="btn-char" onclick="insertChar('=')">=</button>
         </div>
 
         <div style="padding: 5px 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; text-align: center;">
-            <button onclick="toggleFontSettings()" style="width: 100%; padding: 5px; font-size: 12px; background: #34495e; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️ 切換 PDF 排版設定</button>
+            <button onclick="toggleFontSettings()"
+                style="width: 100%; padding: 5px; font-size: 12px; background: #34495e; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">⚙️
+                切換 PDF 排版設定</button>
         </div>
 
-        <div id="font-settings-container" style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
+        <div id="font-settings-container"
+            style="padding: 10px; background: #ecf0f1; border-bottom: 1px solid #bdc3c7; display: none;">
             <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #2c3e50;">🖋️ 針對目前欄位的排版設定</div>
             <div id="font-size-inputs"></div>
-            <button onclick="resetFontSizes()" style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻ 清除目前欄位排版設定</button>
+            <button onclick="resetFontSizes()"
+                style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.2s;">↻
+                清除目前欄位排版設定</button>
         </div>
 
         <div class="phrase-list" id="phrase-list"></div>
@@ -715,37 +1377,37 @@
     <script>
         let customFontSizes = {};
         let customWrapLimits = {};
-        let customAlignments = {}; 
-        
+        let customAlignments = {};
+
         // 💡 記憶載入檔案名稱的全域變數
         let currentLoadedFilename = "";
 
         const fieldMappingObj = {
-            'cert_ymd': [{id: 'cert_ymd_y'}, {id: 'cert_ymd_m'}, {id: 'cert_ymd_d'}],
-            'mfg_ym': [{id: 'mfg_ym_y'}, {id: 'mfg_ym_m'}],
-            'b_insp_date2': [{id: 'b_insp_date2_y'}, {id: 'b_insp_date2_m'}, {id: 'b_insp_date2_d'}],
-            'valid_f_date': [{id: 'valid_f_date_y'}, {id: 'valid_f_date_m'}, {id: 'valid_f_date_d'}],
-            'valid_t_date': [{id: 'valid_t_date_y'}, {id: 'valid_t_date_m'}, {id: 'valid_t_date_d'}],
-            'insp_date': [{id: 'insp_date_y'}, {id: 'insp_date_m'}, {id: 'insp_date_d'}],
-            'b_inspect_date': [{id: 'b_inspect_ymd_y'}, {id: 'b_inspect_ymd_m'}, {id: 'b_inspect_ymd_d'}]
+            'cert_ymd': [{ id: 'cert_ymd_y' }, { id: 'cert_ymd_m' }, { id: 'cert_ymd_d' }],
+            'mfg_ym': [{ id: 'mfg_ym_y' }, { id: 'mfg_ym_m' }],
+            'b_insp_date2': [{ id: 'b_insp_date2_y' }, { id: 'b_insp_date2_m' }, { id: 'b_insp_date2_d' }],
+            'valid_f_date': [{ id: 'valid_f_date_y' }, { id: 'valid_f_date_m' }, { id: 'valid_f_date_d' }],
+            'valid_t_date': [{ id: 'valid_t_date_y' }, { id: 'valid_t_date_m' }, { id: 'valid_t_date_d' }],
+            'insp_date': [{ id: 'insp_date_y' }, { id: 'insp_date_m' }, { id: 'insp_date_d' }],
+            'b_inspect_date': [{ id: 'b_inspect_ymd_y' }, { id: 'b_inspect_ymd_m' }, { id: 'b_inspect_ymd_d' }]
         };
 
         const fieldMappingLocal = {
-            'cert_ymd': [{id: 'cert_ymd_y', label: '年'}, {id: 'cert_ymd_m', label: '月'}, {id: 'cert_ymd_d', label: '日'}],
-            'mfg_ym': [{id: 'mfg_ym_y', label: '年'}, {id: 'mfg_ym_m', label: '月'}],
-            'b_insp_date2': [{id: 'b_insp_date2_y', label: '年'}, {id: 'b_insp_date2_m', label: '月'}, {id: 'b_insp_date2_d', label: '日'}],
-            'valid_f_date': [{id: 'valid_f_date_y', label: '年'}, {id: 'valid_f_date_m', label: '月'}, {id: 'valid_f_date_d', label: '日'}],
-            'valid_t_date': [{id: 'valid_t_date_y', label: '年'}, {id: 'valid_t_date_m', label: '月'}, {id: 'valid_t_date_d', label: '日'}],
-            'insp_date': [{id: 'insp_date_y', label: '年'}, {id: 'insp_date_m', label: '月'}, {id: 'insp_date_d', label: '日'}],
-            'b_inspect_date': [{id: 'b_inspect_ymd_y', label: '年'}, {id: 'b_inspect_ymd_m', label: '月'}, {id: 'b_inspect_ymd_d', label: '日'}]
+            'cert_ymd': [{ id: 'cert_ymd_y', label: '年' }, { id: 'cert_ymd_m', label: '月' }, { id: 'cert_ymd_d', label: '日' }],
+            'mfg_ym': [{ id: 'mfg_ym_y', label: '年' }, { id: 'mfg_ym_m', label: '月' }],
+            'b_insp_date2': [{ id: 'b_insp_date2_y', label: '年' }, { id: 'b_insp_date2_m', label: '月' }, { id: 'b_insp_date2_d', label: '日' }],
+            'valid_f_date': [{ id: 'valid_f_date_y', label: '年' }, { id: 'valid_f_date_m', label: '月' }, { id: 'valid_f_date_d', label: '日' }],
+            'valid_t_date': [{ id: 'valid_t_date_y', label: '年' }, { id: 'valid_t_date_m', label: '月' }, { id: 'valid_t_date_d', label: '日' }],
+            'insp_date': [{ id: 'insp_date_y', label: '年' }, { id: 'insp_date_m', label: '月' }, { id: 'insp_date_d', label: '日' }],
+            'b_inspect_date': [{ id: 'b_inspect_ymd_y', label: '年' }, { id: 'b_inspect_ymd_m', label: '月' }, { id: 'b_inspect_ymd_d', label: '日' }]
         };
 
         window.addEventListener('DOMContentLoaded', () => {
             const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-            window.getVal = getVal; 
-            
-            initPhraseLibrary(); 
-            makePanelDraggable(); 
+            window.getVal = getVal;
+
+            initPhraseLibrary();
+            makePanelDraggable();
             updateHighlights();
         });
 
@@ -755,8 +1417,8 @@
             let isDragging = false;
             let offsetX, offsetY;
 
-            header.addEventListener('mousedown', function(e) {
-                if(e.target.tagName === 'BUTTON') return; 
+            header.addEventListener('mousedown', function (e) {
+                if (e.target.tagName === 'BUTTON') return;
                 isDragging = true;
                 header.style.cursor = 'grabbing';
                 const rect = panel.getBoundingClientRect();
@@ -768,9 +1430,9 @@
                 panel.style.top = rect.top + 'px';
             });
 
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function (e) {
                 if (!isDragging) return;
-                e.preventDefault(); 
+                e.preventDefault();
                 let x = e.clientX - offsetX;
                 let y = e.clientY - offsetY;
                 x = Math.max(0, Math.min(x, window.innerWidth - panel.offsetWidth));
@@ -779,7 +1441,7 @@
                 panel.style.top = y + 'px';
             });
 
-            document.addEventListener('mouseup', function() {
+            document.addEventListener('mouseup', function () {
                 if (isDragging) {
                     isDragging = false;
                     header.style.cursor = 'grab';
@@ -791,14 +1453,14 @@
             const inputs = document.querySelectorAll('input[type="text"], textarea');
             inputs.forEach(el => {
                 if (!el.id) return;
-                let pdfFields = fieldMappingObj[el.id] || [{id: el.id}];
+                let pdfFields = fieldMappingObj[el.id] || [{ id: el.id }];
                 let hasCustom = pdfFields.some(f => customFontSizes[f.id] || customWrapLimits[f.id] || customAlignments[f.id]);
                 if (hasCustom) el.classList.add('has-custom-setting');
                 else el.classList.remove('has-custom-setting');
             });
         }
 
-        window.toggleFontSettings = function() {
+        window.toggleFontSettings = function () {
             const container = document.getElementById('font-settings-container');
             container.style.display = (container.style.display === 'none') ? 'block' : 'none';
         }
@@ -825,10 +1487,10 @@
 
         function updateFuelStr() {
             let res = [];
-            if(document.getElementById('fuel_oil').checked) res.push('油');
-            if(document.getElementById('fuel_coal').checked) res.push('煤炭');
-            if(document.getElementById('fuel_gas').checked) res.push('瓦斯');
-            if(document.getElementById('fuel_other').checked) res.push('其他');
+            if (document.getElementById('fuel_oil').checked) res.push('油');
+            if (document.getElementById('fuel_coal').checked) res.push('煤炭');
+            if (document.getElementById('fuel_gas').checked) res.push('瓦斯');
+            if (document.getElementById('fuel_other').checked) res.push('其他');
             document.getElementById('fuel_type').value = res.join(' / ');
         }
 
@@ -842,7 +1504,7 @@
             });
             data['_fontSizes'] = customFontSizes;
             data['_wrapLimits'] = customWrapLimits;
-            data['_alignments'] = customAlignments; 
+            data['_alignments'] = customAlignments;
             return JSON.stringify(data, null, 2);
         }
 
@@ -850,7 +1512,7 @@
             let data = JSON.parse(jsonStr);
             customFontSizes = data['_fontSizes'] || {};
             customWrapLimits = data['_wrapLimits'] || {};
-            customAlignments = data['_alignments'] || {}; 
+            customAlignments = data['_alignments'] || {};
 
             for (let id in data) {
                 if (id === '_fontSizes' || id === '_wrapLimits' || id === '_alignments') continue;
@@ -863,14 +1525,14 @@
                     if (id === 'mfg_ym') validateDate(el, 5);
                 }
             }
-            updateRadiosFromHidden(); 
-            
+            updateRadiosFromHidden();
+
             const fuelVal = document.getElementById('fuel_type').value || '';
-            if(document.getElementById('fuel_oil')) document.getElementById('fuel_oil').checked = fuelVal.includes('油');
-            if(document.getElementById('fuel_coal')) document.getElementById('fuel_coal').checked = fuelVal.includes('煤炭');
-            if(document.getElementById('fuel_gas')) document.getElementById('fuel_gas').checked = fuelVal.includes('瓦斯');
-            if(document.getElementById('fuel_other')) document.getElementById('fuel_other').checked = fuelVal.includes('其他');
-            
+            if (document.getElementById('fuel_oil')) document.getElementById('fuel_oil').checked = fuelVal.includes('油');
+            if (document.getElementById('fuel_coal')) document.getElementById('fuel_coal').checked = fuelVal.includes('煤炭');
+            if (document.getElementById('fuel_gas')) document.getElementById('fuel_gas').checked = fuelVal.includes('瓦斯');
+            if (document.getElementById('fuel_other')) document.getElementById('fuel_other').checked = fuelVal.includes('其他');
+
             updateHighlights();
         }
 
@@ -888,8 +1550,8 @@
                     };
                     let groupName = radioGroupNames[id];
                     let radios = document.getElementsByName(groupName);
-                    
-                    if(radios.length >= 2) {
+
+                    if (radios.length >= 2) {
                         if (val === '有' || val === '合' || val === '良') radios[0].checked = true;
                         if (val === '-' || val === '無') radios[1].checked = true;
                     }
@@ -901,22 +1563,22 @@
         function doSaveLocal() {
             let fallbackName = document.getElementById('equip_no').value || "未命名";
             let defaultName = currentLoadedFilename ? currentLoadedFilename : fallbackName + "_表單";
-            
+
             let filename = prompt("請輸入要存檔的名稱 (不需要打 .json):", defaultName);
             if (!filename) return;
 
-            currentLoadedFilename = filename; 
+            currentLoadedFilename = filename;
 
             const dataStr = collectFormData();
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            
+
             const a = document.createElement('a');
             a.href = url;
             a.download = filename + ".json";
             a.click();
             URL.revokeObjectURL(url);
-            
+
             document.getElementById('current-filename-display').innerText = filename;
             document.getElementById('current-filename-display').style.color = "#27ae60";
         }
@@ -926,17 +1588,17 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     restoreFormData(e.target.result);
                     currentLoadedFilename = file.name.replace('.json', '');
                     document.getElementById('current-filename-display').innerText = currentLoadedFilename;
                     document.getElementById('current-filename-display').style.color = "#2980b9";
                     alert("檔案「" + file.name + "」載入成功！");
-                } catch(err) { alert("檔案解析失敗！"); }
+                } catch (err) { alert("檔案解析失敗！"); }
             };
             reader.readAsText(file);
-            event.target.value = ""; 
+            event.target.value = "";
         }
 
         let myPhrases = {};
@@ -951,18 +1613,18 @@
                     let parsed = JSON.parse(saved);
                     if (Array.isArray(parsed)) myPhrases = { "未分類": parsed };
                     else myPhrases = parsed;
-                } catch(e) { myPhrases = {}; }
+                } catch (e) { myPhrases = {}; }
             } else { myPhrases = {}; }
-            
-            document.addEventListener('focusin', function(e) {
+
+            document.addEventListener('focusin', function (e) {
                 if ((e.target.tagName === 'INPUT' && e.target.type === 'text') || e.target.tagName === 'TEXTAREA') {
-                    if(e.target.closest('#phrase-panel')) return; 
+                    if (e.target.closest('#phrase-panel')) return;
                     activeInput = e.target;
                     activeCategory = activeInput.getAttribute('data-category') || '未分類';
                     document.getElementById('phrase-title').innerText = '常用詞庫 - ' + activeCategory;
-                    document.getElementById('phrase-panel').style.display = 'flex'; 
-                    
-                    renderFontSettings(); 
+                    document.getElementById('phrase-panel').style.display = 'flex';
+
+                    renderFontSettings();
                     renderPhrases();
                 }
             });
@@ -972,18 +1634,18 @@
             const container = document.getElementById('font-size-inputs');
             container.innerHTML = '';
             if (!activeInput || !activeInput.id) return;
-            
-            let pdfFields = fieldMappingLocal[activeInput.id] || [{id: activeInput.id, label: '單一欄位'}];
-            
+
+            let pdfFields = fieldMappingLocal[activeInput.id] || [{ id: activeInput.id, label: '單一欄位' }];
+
             pdfFields.forEach(fieldObj => {
                 let val = customFontSizes[fieldObj.id] || '';
                 let wrapVal = customWrapLimits[fieldObj.id] || '';
                 let alignVal = customAlignments[fieldObj.id] || '';
-                
+
                 let el = document.getElementById(activeInput.id);
                 // 💡 解除多行限制：所有欄位皆可手動設定換行字數與九宮格
-                let isMultiline = true; 
-                
+                let isMultiline = true;
+
                 let div = document.createElement('div');
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
@@ -991,20 +1653,20 @@
                 div.style.marginBottom = '8px';
                 div.style.borderBottom = '1px dashed #dcdde1';
                 div.style.paddingBottom = '6px';
-                
+
                 let wrapInputHtml = `<input type="number" data-wrap-field="${fieldObj.id}" value="${wrapVal}" placeholder="字數" title="設定一行最多塞幾個中文字 (預設為 20)" style="width:45px; padding:4px; font-size:11px; text-align:center; border: 1px solid #bdc3c7; border-radius: 3px;" oninput="updateWrapLimit(this)">`;
 
                 let alignHtml = `
                     <div class="align-grid">
-                        <div class="align-cell ${alignVal==='TL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
-                        <div class="align-cell ${alignVal==='TC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
-                        <div class="align-cell ${alignVal==='TR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
-                        <div class="align-cell ${alignVal==='ML'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
-                        <div class="align-cell ${alignVal==='MC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
-                        <div class="align-cell ${alignVal==='MR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
-                        <div class="align-cell ${alignVal==='BL'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
-                        <div class="align-cell ${alignVal==='BC'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
-                        <div class="align-cell ${alignVal==='BR'?'active':''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
+                        <div class="align-cell ${alignVal === 'TL' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TL')" title="靠左上"></div>
+                        <div class="align-cell ${alignVal === 'TC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TC')" title="靠中上"></div>
+                        <div class="align-cell ${alignVal === 'TR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'TR')" title="靠右上"></div>
+                        <div class="align-cell ${alignVal === 'ML' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'ML')" title="靠左中"></div>
+                        <div class="align-cell ${alignVal === 'MC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'MC')" title="正中"></div>
+                        <div class="align-cell ${alignVal === 'MR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'MR')" title="靠右中"></div>
+                        <div class="align-cell ${alignVal === 'BL' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BL')" title="靠左下"></div>
+                        <div class="align-cell ${alignVal === 'BC' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BC')" title="靠中下"></div>
+                        <div class="align-cell ${alignVal === 'BR' ? 'active' : ''}" onclick="updateAlign('${fieldObj.id}', 'BR')" title="靠右下"></div>
                     </div>
                 `;
 
@@ -1022,47 +1684,47 @@
             });
         }
 
-        window.updateFontSize = function(el) {
+        window.updateFontSize = function (el) {
             let pdfField = el.getAttribute('data-pdf-field');
             if (el.value) customFontSizes[pdfField] = Number(el.value);
             else delete customFontSizes[pdfField];
-            updateHighlights(); 
-        }
-
-        window.updateWrapLimit = function(el) {
-            let wrapField = el.getAttribute('data-wrap-field');
-            if (el.value) customWrapLimits[wrapField] = Number(el.value);
-            else delete customWrapLimits[wrapField];
-            updateHighlights(); 
-        }
-
-        window.updateAlign = function(fieldId, alignCode) {
-            if (customAlignments[fieldId] === alignCode) {
-                delete customAlignments[fieldId]; 
-            } else {
-                customAlignments[fieldId] = alignCode;
-            }
-            renderFontSettings(); 
             updateHighlights();
         }
 
-        window.resetFontSizes = function() {
+        window.updateWrapLimit = function (el) {
+            let wrapField = el.getAttribute('data-wrap-field');
+            if (el.value) customWrapLimits[wrapField] = Number(el.value);
+            else delete customWrapLimits[wrapField];
+            updateHighlights();
+        }
+
+        window.updateAlign = function (fieldId, alignCode) {
+            if (customAlignments[fieldId] === alignCode) {
+                delete customAlignments[fieldId];
+            } else {
+                customAlignments[fieldId] = alignCode;
+            }
+            renderFontSettings();
+            updateHighlights();
+        }
+
+        window.resetFontSizes = function () {
             if (!activeInput || !activeInput.id) return;
-            let pdfFields = fieldMappingObj[activeInput.id] || [{id: activeInput.id}];
+            let pdfFields = fieldMappingObj[activeInput.id] || [{ id: activeInput.id }];
             pdfFields.forEach(fieldObj => {
                 delete customFontSizes[fieldObj.id];
                 delete customWrapLimits[fieldObj.id];
                 delete customAlignments[fieldObj.id];
             });
-            renderFontSettings(); 
-            updateHighlights(); 
+            renderFontSettings();
+            updateHighlights();
         }
 
         function renderPhrases() {
             const list = document.getElementById('phrase-list');
             list.innerHTML = '';
             if (!myPhrases[activeCategory]) myPhrases[activeCategory] = [];
-            
+
             if (myPhrases[activeCategory].length === 0) {
                 list.innerHTML = `<span style="color:#7f8c8d;font-size:12px;">【${activeCategory}】目前無詞彙，請在表格輸入文字後點擊下方新增。</span>`;
                 return;
@@ -1072,11 +1734,11 @@
                 let chip = document.createElement('div');
                 chip.className = 'phrase-chip' + (isDelMode ? ' del-mode' : '');
                 chip.innerText = p;
-                
-                chip.onmousedown = function(e) {
-                    e.preventDefault(); 
+
+                chip.onmousedown = function (e) {
+                    e.preventDefault();
                     if (isDelMode) {
-                        if(confirm('確定要從【' + activeCategory + '】刪除: 「' + p + '」 嗎？')) {
+                        if (confirm('確定要從【' + activeCategory + '】刪除: 「' + p + '」 嗎？')) {
                             myPhrases[activeCategory].splice(index, 1);
                             savePhrasesToLocal();
                             renderPhrases();
@@ -1127,14 +1789,14 @@
                 let endPos = activeInput.selectionEnd !== undefined ? activeInput.selectionEnd : activeInput.value.length;
                 let currentVal = activeInput.value;
                 activeInput.value = currentVal.substring(0, startPos) + char + currentVal.substring(endPos, currentVal.length);
-                
+
                 // Keep focus and restore cursor position after insertion
                 activeInput.focus();
                 let newPos = startPos + char.length;
                 if (activeInput.setSelectionRange) {
                     activeInput.setSelectionRange(newPos, newPos);
                 }
-                
+
                 if (activeInput.oninput) activeInput.oninput();
             }
         }
@@ -1146,7 +1808,7 @@
             if (!text || !targetChars) return text;
             let lines = text.split('\n');
             let newText = [];
-            const MAX_WIDTH = targetChars * 2; 
+            const MAX_WIDTH = targetChars * 2;
 
             lines.forEach(line => {
                 let currentLine = '';
@@ -1174,30 +1836,30 @@
         async function generatePDF(docType, inspTypeVal) {
             let btnId = 'btn-pdf-main';
             const btn = document.getElementById(btnId);
-            
+
             const originalBtnText = btn.innerText;
             btn.innerText = '讀取範本中...';
             btn.disabled = true;
 
             try {
-                let paperNum = (docType === 'report') ? 'P3-62-11B' : 'P3-62-17A'; 
-                
+                let paperNum = (docType === 'report') ? 'P3-62-11B' : 'P3-62-17A';
+
                 const pdfRes = await fetch(`./assets/${paperNum}.pdf`);
                 if (!pdfRes.ok) throw new Error("找不到 PDF 範本檔案: " + paperNum);
                 const pdfArrayBuffer = await pdfRes.arrayBuffer();
 
                 const { PDFDocument } = PDFLib;
                 const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
-                
+
                 btn.innerText = '載入字型中...';
                 pdfDoc.registerFontkit(fontkit);
-                const fontRes = await fetch(`./assets/tw-print-font.ttf`); 
+                const fontRes = await fetch(`./assets/tw-print-font.ttf`);
                 if (!fontRes.ok) throw new Error("找不到字型檔案");
                 const fontArrayBuffer = await fontRes.arrayBuffer();
-                
+
                 const customFont = await pdfDoc.embedFont(fontArrayBuffer);
                 const form = pdfDoc.getForm();
-                
+
                 btn.innerText = '寫入資料中...';
 
                 // ==========================================
@@ -1207,19 +1869,19 @@
                     if (!text) return;
                     const widgets = fieldObj.acroField.getWidgets();
                     if (!widgets || widgets.length === 0) return;
-                    
+
                     const rect = widgets[0].getRectangle();
-                    const firstPage = pdfDoc.getPages()[0]; 
+                    const firstPage = pdfDoc.getPages()[0];
                     const lines = text.split('\n');
-                    
+
                     fieldObj.setText(''); // 清空預設值
 
                     let align = customAlignments[fieldId];
                     if (!align) {
-                        align = isTextArea ? 'TL' : 'ML'; 
+                        align = isTextArea ? 'TL' : 'ML';
                     }
                     if (!isTextArea && ['L', 'C', 'R'].includes(align)) {
-                        align = 'M' + align; 
+                        align = 'M' + align;
                     }
 
                     let actualFontSize = targetFontSize;
@@ -1241,7 +1903,7 @@
                         let lineWidth = customFont.widthOfTextAtSize(line, actualFontSize);
                         let xPos;
                         const hAlign = align.charAt(1) || align.charAt(0);
-                        
+
                         if (hAlign === 'R') {
                             xPos = rect.x + rect.width - lineWidth - 2;
                         } else if (hAlign === 'C') {
@@ -1251,7 +1913,7 @@
                         }
 
                         firstPage.drawText(line, { x: xPos, y: currentY, size: actualFontSize, font: customFont, color: PDFLib.rgb(0, 0, 0) });
-                        currentY -= lineHeight; 
+                        currentY -= lineHeight;
                     });
                 };
 
@@ -1270,16 +1932,16 @@
                                 const stampImage = await pdfDoc.embedPng(imgBytes);
                                 const pages = pdfDoc.getPages();
                                 const firstPage = pages[0];
-                                const targetWidth = 140; 
+                                const targetWidth = 140;
                                 const targetHeight = (targetWidth / stampImage.width) * stampImage.height;
                                 firstPage.drawImage(stampImage, { x: 395, y: 620, width: targetWidth, height: targetHeight });
                             }
-                        } catch (imgErr) {}
+                        } catch (imgErr) { }
                     }
                 }
-                
-                const skipIds = ['paper_number']; 
-                
+
+                const skipIds = ['paper_number'];
+
                 const inputs = document.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], select, input[type="hidden"]');
                 inputs.forEach(el => {
                     // 💡 注意：不跳過 fuel_cb
@@ -1287,7 +1949,7 @@
 
                     try {
                         const field = form.getField(el.id);
-                        if (!field) return; 
+                        if (!field) return;
 
                         if (el.type === 'checkbox') {
                             try {
@@ -1297,7 +1959,7 @@
                                 try {
                                     const checkBox = form.getCheckBox(el.id);
                                     el.checked ? checkBox.check() : checkBox.uncheck();
-                                } catch(err) {}
+                                } catch (err) { }
                             }
                         } else {
                             // 若為 fuel_type 則不用寫入，因為有獨立的 checkbox (fuel_oil, fuel_coal 等) 會被上面邏輯處理
@@ -1317,7 +1979,7 @@
                             if (customWrapLimits[el.id]) {
                                 targetChars = Number(customWrapLimits[el.id]);
                             } else if (isTextArea) {
-                                if (isGodMode) targetChars = 20; 
+                                if (isGodMode) targetChars = 20;
                                 else targetChars = (el.id === 'detail_rem') ? 38 : 16;
                             }
 
@@ -1330,11 +1992,11 @@
                                 if (['b_joint_type', 'summary', 'detail_rem'].includes(el.id)) {
                                     textField.setFontSize(10);
                                 }
-                                if (isTextArea) try { textField.enableMultiline(); } catch(e){} 
+                                if (isTextArea) try { textField.enableMultiline(); } catch (e) { }
                                 textField.setText(writeValue);
                             }
                         }
-                    } catch (error) {}
+                    } catch (error) { }
                 });
 
                 try {
@@ -1345,7 +2007,7 @@
                             drawTextAbsolutely(inspTypeField, inspTypeVal, size, false, 'insp_type');
                         } else inspTypeField.setText(inspTypeVal);
                     }
-                } catch(e) {}
+                } catch (e) { }
 
                 try {
                     const certTitleField = form.getTextField('cert_title');
@@ -1356,7 +2018,7 @@
                             drawTextAbsolutely(certTitleField, cVal, size, false, 'cert_title');
                         } else certTitleField.setText(cVal);
                     }
-                } catch(e) {}
+                } catch (e) { }
 
                 const mergeSlash = (val1, val2) => {
                     if (val1 && val2) return `${val1}/${val2}`;
@@ -1384,18 +2046,18 @@
                     { pdfField: 'lvl1_qty_lvl2_qty', val: mergeSlash(window.getVal('lvl1_qty'), window.getVal('lvl2_qty')) },
                     { pdfField: 'bt_tube1_type_bt_tube2_type', val: mergeSlash(window.getVal('bt_tube1_type'), window.getVal('bt_tube2_type')) },
                     { pdfField: 'bt_tube1_mat_bt_tube2_mat', val: mergeSlash(window.getVal('bt_tube1_mat'), window.getVal('bt_tube2_mat')) },
-                    { pdfField: 'bt_tube1_bt_tube2', val: mergeSlash(window.getVal('bt_tube1_mat'), window.getVal('bt_tube2_mat')) }, 
+                    { pdfField: 'bt_tube1_bt_tube2', val: mergeSlash(window.getVal('bt_tube1_mat'), window.getVal('bt_tube2_mat')) },
                     { pdfField: 'bt_tube1_dia_bt_tube2_dia', val: mergeSlash(window.getVal('bt_tube1_dia'), window.getVal('bt_tube2_dia')) },
                     { pdfField: 'bt_tube1_t_bt_tube2_t', val: mergeSlash(window.getVal('bt_tube1_t'), window.getVal('bt_tube2_t')) }
                 ];
-                
+
                 customMerges.forEach(merge => {
                     try {
                         const field = form.getTextField(merge.pdfField);
                         if (field && merge.val.replace(/胴側:|管側:|\s|\//g, '').length > 0) {
                             if (customFontSizes[merge.pdfField] || customAlignments[merge.pdfField] || customWrapLimits[merge.pdfField]) {
                                 let size = customFontSizes[merge.pdfField] ? Number(customFontSizes[merge.pdfField]) : 11;
-                                
+
                                 let writeValue = merge.val;
                                 let targetChars = customWrapLimits[merge.pdfField] ? Number(customWrapLimits[merge.pdfField]) : 20;
                                 writeValue = applyWrap(writeValue, targetChars);
@@ -1403,24 +2065,24 @@
                                 drawTextAbsolutely(field, writeValue, size, false, merge.pdfField);
                             } else field.setText(merge.val);
                         }
-                    } catch(e) {}
+                    } catch (e) { }
                 });
 
                 const writeSplitDate = (val, yId, mId, dId) => {
                     if (!val) return;
                     if (val.length === 7 && dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
-                        try { let f = form.getTextField(dId); let size = customFontSizes[dId]?Number(customFontSizes[dId]):11; if(customFontSizes[dId]||customAlignments[dId]||customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId] ? Number(customFontSizes[yId]) : 11; if (customFontSizes[yId] || customAlignments[yId] || customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch (e) { }
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId] ? Number(customFontSizes[mId]) : 11; if (customFontSizes[mId] || customAlignments[mId] || customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch (e) { }
+                        try { let f = form.getTextField(dId); let size = customFontSizes[dId] ? Number(customFontSizes[dId]) : 11; if (customFontSizes[dId] || customAlignments[dId] || customWrapLimits[dId]) drawTextAbsolutely(f, val.substring(5, 7), size, false, dId); else f.setText(val.substring(5, 7)); } catch (e) { }
                     } else if (val.length === 5 && !dId) {
-                        try { let f = form.getTextField(yId); let size = customFontSizes[yId]?Number(customFontSizes[yId]):11; if(customFontSizes[yId]||customAlignments[yId]||customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch(e){}
-                        try { let f = form.getTextField(mId); let size = customFontSizes[mId]?Number(customFontSizes[mId]):11; if(customFontSizes[mId]||customAlignments[mId]||customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch(e){}
+                        try { let f = form.getTextField(yId); let size = customFontSizes[yId] ? Number(customFontSizes[yId]) : 11; if (customFontSizes[yId] || customAlignments[yId] || customWrapLimits[yId]) drawTextAbsolutely(f, val.substring(0, 3), size, false, yId); else f.setText(val.substring(0, 3)); } catch (e) { }
+                        try { let f = form.getTextField(mId); let size = customFontSizes[mId] ? Number(customFontSizes[mId]) : 11; if (customFontSizes[mId] || customAlignments[mId] || customWrapLimits[mId]) drawTextAbsolutely(f, val.substring(3, 5), size, false, mId); else f.setText(val.substring(3, 5)); } catch (e) { }
                     }
                 };
 
                 writeSplitDate(window.getVal('b_insp_date2'), 'b_insp_date2_y', 'b_insp_date2_m', 'b_insp_date2_d');
                 writeSplitDate(window.getVal('cert_ymd'), 'cert_ymd_y', 'cert_ymd_m', 'cert_ymd_d');
-                writeSplitDate(window.getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null); 
+                writeSplitDate(window.getVal('mfg_ym'), 'mfg_ym_y', 'mfg_ym_m', null);
                 writeSplitDate(window.getVal('valid_f_date'), 'valid_f_date_y', 'valid_f_date_m', 'valid_f_date_d');
                 writeSplitDate(window.getVal('valid_t_date'), 'valid_t_date_y', 'valid_t_date_m', 'valid_t_date_d');
                 writeSplitDate(window.getVal('insp_date'), 'insp_date_y', 'insp_date_m', 'insp_date_d');
@@ -1444,4 +2106,5 @@
         }
     </script>
 </body>
+
 </html>
